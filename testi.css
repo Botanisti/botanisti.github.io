@@ -36,7 +36,7 @@ img {
       height: 620px;
       border: 4px solid black;
       box-sizing: border-box;
-      padding: 45px;
+      padding: 40px;
       
   }
   .box2 {
@@ -46,7 +46,7 @@ img {
       height: 700px;
       border: 4px solid black;
       box-sizing: border-box;
-      padding: 45px;
+      padding: 25px;
   }
   .div2 {
       text-align: center;
