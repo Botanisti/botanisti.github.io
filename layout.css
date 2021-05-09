@@ -1,0 +1,104 @@
+#page {
+    width: 960px;
+    margin: 0px auto;
+    height: 660px;
+    background-color: dimgrey;
+}
+
+#header {
+    width: 960px;
+    height: 80px;
+    background-color:mediumaquamarine;
+    margin: 0px;
+}
+
+#nav {
+    height: 30px;
+    text-align: center;
+    width: 960px;
+    background-color: black;
+}
+
+
+#header_logo, #header_center, #header_right {
+    color: mintcream;
+    background-color: rgba(255, 255, 23, 0.2);
+    text-align: center;
+    border: 2px solid coral;
+    border-collapse: collapse;
+    float: left;
+    margin: 0px;
+    width: 276px;
+    height: 36px;
+    padding: 20px;
+
+}
+p {
+    margin-top: 0px;
+}
+
+#content_left, #content_right {
+    float: left;
+    border: 2px solid cornsilk;
+    margin: 40px;
+    background-color: lightgray;
+    width: 396px;
+    text-align: center;
+
+}
+
+#p {
+    margin: 20px;
+    text-align: center;
+}
+
+/*#content_right {
+    float:left;
+    border: 2px solid cornsilk;
+    margin: 40px;
+    background-color: lightgray;
+    width: 43%;
+    text-align: center;
+
+}
+*/
+#content {
+    width: 960px;
+    background-color: rgba(255, 255, 23, 0.2);
+    display: block;
+    height: 550px;
+    text-align: center;
+}
+
+#footer {
+    margin: 0px;
+    width: 960px;
+    height: 30px;
+    background-color: rgba(255, 255, 23, 0.2);
+}
+
+h4 {
+    margin: 0 auto;
+    text-align: center;
+}
+
+
+
+
+/*#header_center {
+    float: left;
+    margin: 0px;
+    width: 320px;
+}
+#header_right {
+    margin: 0px;
+    width: 320px;
+    float: left;
+}*/
+
+
+body {
+    background-color: lightslategray;
+    margin: 0px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
