@@ -1,42 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="layout2.css">
+    <link rel="stylesheet" href="layout_nat.css">
     <meta charset="UTF-8">
+    <script src="https://kit.fontawesome.com/473e2506bd.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div id="page"> <!-- Sivu alkaa tästä-->
-        <div id="header"> <!--Yläbanneri-->
+    <article class="page"> <!-- Sivu alkaa tästä-->
+        <header> <!--Yläbanneri-->
             <h1>Jari Harinen</h1>
-        </div>
-        <div id="nav1">
+        </header>
+        <nav>
             <!--<p id="nav"> Etusivu - Harrastukset - Portfolio</p>-->
             <ul>
-                <li><a href="index.html">ETUSIVU</a></li>
-                <li><a href="harrastukset.html">HARRASTUKSET</a></li>
-                <li><a href="portfolio.html">PORTFOLIO</a></li>
+                <li><a class="active" href="index2.html">ETUSIVU <i class="fas fa-igloo"></i></a></li>
+                <li><a href="harrastukset.html">HARRASTUKSET <i class="fas fa-swatchbook"></i></a></li>
+                <li><a href="portfolio.html">PORTFOLIO <i class="fas fa-briefcase"></i></a></li>
             </ul>
 
-        </div>
-        <div id="content">
-            <div id="content_left">
-                <h2> Harrastukset</h2>
+        </nav>
+        <section class="content">
+            <article class="content_left">
+                <h2> Harrastukset <i class="fas fa-swatchbook fa-3x"></i></h2>
                 <p id="spacing"> Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo</p>
-                <h4>Valokuvaaminen</h4>
+                <h4>Valokuvaaminen <i class="fas fa-camera-retro fa-3x"></i> </h4> 
                 <p id="spacing"> Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo </p>
-            </div>
-            <div id="content_right">
-                <h2> Pelaaminen</h2>
+            </article>
+            <article class="content_right">
+                <h2> Pelaaminen <i class="fas fa-gamepad fa-3x"></i></h2>
                 <p id="spacing"> Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo</p>
                 <div id="img">
-                <img src="images/switch_ohjaimet.jpg" alt="Kuva Peliohjaimista">
+                    <img src="images/switch_ohjaimet.jpg">
                 </div>
                 <p id="left">Kuva ohjaimista</p>
-            </div>
-        </div>
-        <div id="footer1">
+            </article>
+        </section>
+        <footer>
             <p id="NM">Yhteystiedot: 00790, Hki <a id="a" href="mailto:AB3884@student.jamk.fi">Jari Harinen</a></p>
-        </div>
-    </div>
+        <footer>
+    </article>
 </body>
 </html>
