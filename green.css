@@ -70,7 +70,18 @@ article.content_right{
     overflow: hidden;
     border-radius: 1em;
     height: auto;
-    min-width: 20%;
+    width: 45%;
+}
+
+article.content_center{
+    margin: 1em;
+    background-color: #00802b;
+    text-align: center;
+    height: auto;
+    overflow: hidden;
+    border-radius: 1em;
+    height: auto;
+    width: 93.6%;
 }
 
 section:after {
@@ -95,8 +106,11 @@ img {
 
 @media only screen and (max-width: 600px) {
     /* For mobile phones: */
-    article.content_left{
+    article.content_left, article.content_right, article.content_center{
       width: 90%;
+    }
+    element.style {
+        font-size: 5vw;
     }
   }
 
