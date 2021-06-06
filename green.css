@@ -23,7 +23,7 @@ header { /* Headerin oma tyylittely taustaväri on likuva*/
     font-size: 3em;
     text-align: center;
     letter-spacing: 0.1875em;
-    background-image: linear-gradient(#173702, #00802b );
+    background-image: linear-gradient(#00802b, #173702 );
 }
 
 nav, footer { /*navin ja footerin tyylittely on sama*/
