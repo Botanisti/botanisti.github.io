@@ -93,7 +93,7 @@ img {
     width: 100%;
 }
 
-@media only screen and (max-width: 500px) {
+@media only screen and (max-width: 600px) {
     /* For mobile phones: */
     article.content_left{
       width: 90%;
