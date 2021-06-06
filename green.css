@@ -4,6 +4,7 @@ body {
     font-size: 100%;
     margin: 0%;
     font-family: 'Sarabun', sans-serif;
+    width: 100%;
 }
 
 #greentext {
@@ -74,6 +75,7 @@ article.content_right{
 }
 
 article.content_center{
+    float: left;
     margin: 1em;
     background-color: #00802b;
     text-align: center;
@@ -150,4 +152,9 @@ img {
 
   a {
       color: #00802b
+  }
+
+  .p {
+      margin: 0px;
+      font-display: bold;
   }
