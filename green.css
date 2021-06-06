@@ -95,8 +95,8 @@ img {
 
 @media only screen and (max-width: 500px) {
     /* For mobile phones: */
-    article, .content_left, nav{
-      width: 100%;
+    article.content_left{
+      width: 90%;
     }
   }
 
