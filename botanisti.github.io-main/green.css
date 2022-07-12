@@ -1,0 +1,167 @@
+body { /* Bodyn tyylittely, joka vaikuttaa jokaisen sivun bodyyn*/
+    background-color: black;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-size: 100%;
+    margin: 0%;
+    font-family: 'Sarabun', sans-serif;
+    width: 100%;
+}
+
+ #greentext {  /* Oma valitsema tyylittely teksteille. Tätä käytetään otsikoissa sekä footerissa  */
+    color: black;
+    font-family: 'Rubik Mono One', sans-serif;
+
+}
+
+h1 { /* Marginaalin poisto tarvittaessa */
+    margin: 0%;
+}
+
+
+header { /* Headerin oma tyylittely taustaväri on likuva*/
+    margin: 0px;
+    font-size: 3em;
+    text-align: center;
+    letter-spacing: 0.1875em;
+    background-image: linear-gradient(#00802b, #173702 );
+    
+}
+
+nav, footer { /*navin ja footerin tyylittely on sama*/
+    color: #00802b;
+    text-align: center;
+    margin: 1em;
+}
+
+ul { /* Listan oma tausta*/
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    text-align: center;
+    color: #00802b;
+}
+li { /* Listan esitysmalli rivissä**/
+    display: inline-block;
+    font-size: large;
+
+}
+
+section { /* Osion oma tyylittely määritetään tällä maksimi leveys*/
+    width: 100%;
+    display: block;
+    text-align: center;
+    height: auto;
+    margin: auto;
+}
+article.content_left { /*Sisällön määrittäminen laatikoihin ja miten se ''leijuu''. Tämä leijuu vasemmalta eikä tässä ole taustaa*/
+    float: left;
+    margin: 1.25em;
+    text-align: center;
+    height: auto;
+    overflow: visible;
+    border-radius: 1em;
+    width: 40%;
+}
+
+article.content_right{ /* Tämä leijuu myös vasemmalta, mutta tässä on taustaväri*/
+    float: left;
+    margin: 1em;
+    background-color: #00802b;
+    text-align: center;
+    height: auto;
+    overflow: hidden;
+    border-radius: 1em;
+    height: auto;
+    width: 45%;
+}
+ 
+article.content_center{ /* Tämä osio on tarkoitettu koko sivun leveydelle*/
+    float: left;
+    margin: 1em;
+    background-color: #00802b;
+    text-align: center;
+    height: auto;
+    overflow: hidden;
+    border-radius: 1em;
+    height: auto;
+    width: 93.6%;
+}
+
+section:after { /* Tämä 'puhdistaa' osion, jonka jälkeen voi aloittaa uuden osion, joka ei ole section*/
+    content: "";
+    display: table;
+    clear: both;
+}
+
+#whitetext { /* Valkoiselle tekstille oma tyylittely*/
+    color: whitesmoke;
+    font-size: 1em;
+    font-family: 'Sarabun', sans-serif;
+}
+
+img { /* Kuville oma tyylittely, koko, leveys reunukset*/
+    border-radius: 2em;
+    border: 4px solid #00802b;
+    height: auto;
+    text-align: center;
+    width: 100%;
+}
+
+@media only screen and (max-width: 600px) { 
+    /* For mobile phones: */
+    article.content_left, article.content_right, article.content_center{
+      width: 90%;
+    }
+    element.style {
+        font-size: 5vw;
+    }
+  }
+
+  #header2 { /* h2 elementin tyylittely. Käytetään pienissä otsikoissa*/
+      color: white;
+      font-family: 'Rubik Mono One', sans-serif;
+      font-size: 1.5em;
+      margin: 1em;
+  }
+
+  
+  #li { /* Normaali tyylittely listauksille*/
+      display: block;
+  }
+
+  #ul { /* Listausten taustaväli*/
+      display: block;
+      background-image: linear-gradient(#173702, #00802b );
+  }
+
+  #footer { /* Sivun ala-laidassa oleva yhteydenotto kenttä*/
+    background-image: linear-gradient(#173702, #00802b );
+    color: black;
+    font-family: 'Rubik Mono One', sans-serif;
+  }
+
+  
+  
+  a:hover:not(.active) { /* hiiri linkin päällä, taustaväri muuttuu*/
+    background-color: rgb(83, 169, 8);
+  }
+  
+  .active { /* Indikoi, millä sivulla ollaan tällä hetkellä*/
+    background-color: rgb(14, 80, 4);
+    color: black;
+  }
+
+  a { /* Linkkien väri*/
+      color: #00802b
+  }
+
+  .p { /* marginaalin poisto*/
+      margin: 0px;
+  }
+
+
+  #boxtext {
+    font-weight: bold;
+    margin: 5px;
+  }

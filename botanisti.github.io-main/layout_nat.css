@@ -1,0 +1,159 @@
+article.page {
+    max-width: 90%;
+    margin: auto;
+    margin-bottom: 1.5em;
+    height: 100%;
+    background-color: dimgrey;
+}
+
+header {
+    color: #F0EBEB;
+    width: auto;
+    padding: 1em;
+    background-color:#575757;
+    margin: 0px;
+    font-size: 2em;
+    text-align: center;
+    letter-spacing: 0.1875em;
+}
+
+#NM { /* Deletes margin*/
+    margin: 0em;
+    font-size: 1.875em;
+}
+
+nav, footer {
+    color: #F7F5EE;
+    margin: 0em;
+    text-align: center;
+    background-color: #E49A2F;
+}
+
+
+#navigation {
+    text-align: center;
+    height: 1.875em;
+    background-color: #E49A2F;
+}
+
+
+
+article.content_left {
+    float: left;
+    border: 1px solid #AC9675;
+    margin: 1.25em;
+    background-color: #F7F5EE;
+    width: 45%;
+    text-align: center;
+    height: auto;
+    overflow: hidden;
+    border-radius: 1em;
+
+}
+
+article.content_right{
+    float: right;
+    border: 1px solid #AC9675;
+    margin: 1.25em;
+    background-color: #F7F5EE;
+    width: 45%;
+    text-align: center;
+    height: auto;
+    overflow: hidden;
+    border-radius: 1em;
+
+}
+
+#p {
+    margin: 20px;
+    text-align: center;
+}
+
+#spacing {
+    word-spacing: 0.1em;
+    padding: 0.5em;
+    letter-spacing: 0.01em;
+    line-height: 1.7em;
+}
+
+section {
+    width: 100%;
+    background-color: #D8CCAF;
+    display: block;
+    text-align: center;
+    height: auto;
+}
+
+#footer {
+    margin: 0px;
+    width: 960px;
+    height: 30px;
+    background-color: rgba(255, 255, 23, 0.2);
+}
+
+body {
+    margin: 0em;
+    font-size: 100%;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+img {
+width: 100%;
+height: auto;
+max-width: 90%;
+padding: 1em;
+}
+
+
+section:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+#left {
+    text-align: left;
+    padding: 1em;
+}
+
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #E49A2F;
+    text-align: center;
+}
+  
+  li {
+    display: inline-block;
+
+}
+  
+  li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+  }
+  
+  a:hover:not(.active) {
+    background-color: #111;
+  }
+  
+  .active {
+    background-color: crimson;
+  }
+
+  a {
+      color:white;
+  }
+
+  video {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        z-index: -1;
+  }
