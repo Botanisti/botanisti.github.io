@@ -59,6 +59,7 @@ li { /* Listan esitysmalli rivissä**/
 #p1 {
     font-family: 'Bungee Spice', cursive;
     font-style: italic;
+    text-align: center;
 }
 
 #body1 {

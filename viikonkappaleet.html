@@ -50,6 +50,7 @@ var x = setInterval(function() {
   }
 }, 1000);
 </script>
+<script src="https://sheetdb.io/handlebars.js"></script>
 <header>
     <h1 id="greentext" style="font-size: 7vw;">Viikon Kappaleet</h1>
 </header>
@@ -75,17 +76,11 @@ var x = setInterval(function() {
 <br>
 <br>
 <section>
-    <article class="levyraati">
-    <ol>
-        <li id="li"><p>Casimir Pulaski <br> <p>Pisteet:</p></li>
-        <li id="li"><iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/53TIOhzNpRpl8xKdscSQSv?utm_source=generator&theme=0" width="400" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></li>
-        <li id="li"><p>Immortal Techique <br> <p>Pisteet:</p></li>
-        <li id="li"><iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/4LCzEYKPFcd2FCOmZdVDnM?utm_source=generator&theme=0" width="400" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></li>
-        <li id="li"><a href="https://youtu.be/xuFUR6ZH5Zg">Kelly Rowland - Dirty Laundry (Official Explicit Version)</a></li>
-        <li id="li"><a href="https://youtu.be/5Y31h9zgjLk">Melle Brown - Feel About You (ft Annie Mac)</a></li>
-        <li id="li"><a href="https://youtu.be/Cr6FvwBN38A">Daft Punk - Giorgio by Moroder Lyrics</a></li>
 
-    </ol>
+    <div data-sheetdb-url="https://sheetdb.io/api/v1/07a0t4szzdw7m">
+        <p id="p1">{{Esittäjä}} - {{Kappale}} {{Linkki}}</p>
+    </div>
+    
 </article>
 </section>
 </body>
