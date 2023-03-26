@@ -62,6 +62,12 @@ li { /* Listan esitysmalli rivissä**/
     text-align: center;
 }
 
+#p2 {
+    font-family: 'Bungee Spice', cursive;
+    font-style: bold;
+    text-align: center;
+}
+
 #body1 {
     font-family: 'Bungee Spice', cursive;
     text-align: center;
