@@ -17,6 +17,11 @@ h1 { /* Marginaalin poisto tarvittaessa */
     margin: 0%;
 }
 
+#levyraati {
+    color: 'black';
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
 
 header { /* Headerin oma tyylittely taustaväri on likuva*/
     margin: 0px;
@@ -40,12 +45,28 @@ ul { /* Listan oma tausta*/
     overflow: hidden;
     text-align: center;
     color: #00802b;
+
 }
 li { /* Listan esitysmalli rivissä**/
     display: inline-block;
     font-size: large;
+    font-family: 'Bungee Spice', cursive;
+
+
 
 }
+
+#p1 {
+    font-family: 'Bungee Spice', cursive;
+    font-style: italic;
+}
+
+#body1 {
+    font-family: 'Bungee Spice', cursive;
+    text-align: center;
+}
+
+
 
 section { /* Osion oma tyylittely määritetään tällä maksimi leveys*/
     width: 100%;
@@ -53,6 +74,30 @@ section { /* Osion oma tyylittely määritetään tällä maksimi leveys*/
     text-align: center;
     height: auto;
     margin: auto;
+}
+
+
+
+#lile {
+width: auto;
+}
+
+ol {
+    width: auto;
+    color: aqua;
+    display: contents;
+}
+
+article.levyraati {
+    float: center;
+    margin: 1em;
+    text-align: center;
+    height: auto;
+    overflow: hidden;
+    border-radius: 1em;
+    border-color: aqua;
+    word-spacing: 0.4em;
+    
 }
 article.content_left { /*Sisällön määrittäminen laatikoihin ja miten se ''leijuu''. Tämä leijuu vasemmalta eikä tässä ole taustaa*/
     float: left;
@@ -128,6 +173,7 @@ img { /* Kuville oma tyylittely, koko, leveys reunukset*/
   
   #li { /* Normaali tyylittely listauksille*/
       display: block;
+      
   }
 
   #ul { /* Listausten taustaväli*/

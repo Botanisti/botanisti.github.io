@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <link href="green.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com"> 
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Sarabun:wght@200&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/473e2506bd.js" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="author" content="Jari Harinen">
+    <meta name="keywords" content="html, CSS, test, Jari Harinen, Jari, Harinen, portfolio, game, peli, indie, tietotekniikka, computers, computer, työ, work, kuva, picture">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee+Spice&display=swap" rel="stylesheet">
+<title>Kikin Levyraati</title>
+</head>
+
+<body id="body1">
+    <p>Aikaa äänestää;</p>
+    <p id="demo"></p>
+
+<script>
+// Set the date we're counting down to
+var countDownDate = new Date("Mar 26, 2023 18:00:00").getTime();
+
+// Update the count down every 1 second
+var x = setInterval(function() {
+
+  // Get today's date and time
+  var now = new Date().getTime();
+    
+  // Find the distance between now and the count down date
+  var distance = countDownDate - now;
+    
+  // Time calculations for days, hours, minutes and seconds
+  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+  // Output the result in an element with id="demo"
+  document.getElementById("demo").innerHTML = days + "d " + hours + "h "
+  + minutes + "m " + seconds + "s ";
+    
+  // If the count down is over, write some text 
+  if (distance < 0) {
+    clearInterval(x);
+    document.getElementById("demo").innerHTML = "PÄÄTTYNYT";
+  }
+}, 1000);
+</script>
+<header>
+    <h1 id="greentext" style="font-size: 7vw;">Viikon Kappaleet</h1>
+</header>
+<nav>
+    <ul id="greentext"> <!-- Navigaation palkki, jossa myös CSS tyylittely. Tämä listautuu vierekkäin-->
+        <li><a href="levyraati.html">ETUSIVU <i class="fas fa-heart"></i></a></li>
+        <li><a href="Saannot.html">SÄÄNNÖT <i class="fas fa-flag"></i></a></li>
+        <li><a class="active" href="viikonkappaleet.html">Viikonkappaleet<i class="fas fa-thin fa-solid fa-music fa-bounce"></i></a></li>
+        <li><a href="arkisto">ARKISTO <i class="fas fa-solid fa-file"></i></a></li>
+    </ul>
+</nav>
+<section>
+<article>
+    <h1 id="p1">Viikon Aihe:</h1>
+    <p id="p1">Tarinankerronta</p>
+    <br>
+    <br>
+
+    <p id="p1">Soittolista</p>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/videoseries?list=PLmP9KN_tz9AzD_1JQs4zcf_-BxxPzDj-_" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</article>
+</section>
+<br>
+<br>
+<section>
+    <article class="levyraati">
+    <ol>
+        <li id="li"><p>Casimir Pulaski <br> <p>Pisteet:</p></li>
+        <li id="li"><iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/53TIOhzNpRpl8xKdscSQSv?utm_source=generator&theme=0" width="400" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></li>
+        <li id="li"><p>Immortal Techique <br> <p>Pisteet:</p></li>
+        <li id="li"><iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/4LCzEYKPFcd2FCOmZdVDnM?utm_source=generator&theme=0" width="400" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></li>
+        <li id="li"><a href="https://youtu.be/xuFUR6ZH5Zg">Kelly Rowland - Dirty Laundry (Official Explicit Version)</a></li>
+        <li id="li"><a href="https://youtu.be/5Y31h9zgjLk">Melle Brown - Feel About You (ft Annie Mac)</a></li>
+        <li id="li"><a href="https://youtu.be/Cr6FvwBN38A">Daft Punk - Giorgio by Moroder Lyrics</a></li>
+
+    </ol>
+</article>
+</section>
+</body>
+</html>

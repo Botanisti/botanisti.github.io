@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <link href="green.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com"> 
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Sarabun:wght@200&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/473e2506bd.js" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="author" content="Jari Harinen">
+    <meta name="keywords" content="html, CSS, test, Jari Harinen, Jari, Harinen, portfolio, game, peli, indie, tietotekniikka, computers, computer, työ, work, kuva, picture">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee+Spice&display=swap" rel="stylesheet">
+<title>Jari Harinen</title> <!--Title sivustolleni-->
+</head>
+<body id="body1">
+    <p>Aikaa äänestää;</p>
+    <p id="demo"></p>
+
+<script>
+// Set the date we're counting down to
+var countDownDate = new Date("Mar 26, 2023 18:00:00").getTime();
+
+// Update the count down every 1 second
+var x = setInterval(function() {
+
+  // Get today's date and time
+  var now = new Date().getTime();
+    
+  // Find the distance between now and the count down date
+  var distance = countDownDate - now;
+    
+  // Time calculations for days, hours, minutes and seconds
+  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+  // Output the result in an element with id="demo"
+  document.getElementById("demo").innerHTML = days + "d " + hours + "h "
+  + minutes + "m " + seconds + "s ";
+    
+  // If the count down is over, write some text 
+  if (distance < 0) {
+    clearInterval(x);
+    document.getElementById("demo").innerHTML = "PÄÄTTYNYT";
+  }
+}, 1000);
+</script>
+    
+<header> <!-- Otsikko kullekin sivulle, ola tyylitelty CSS sekä myös näytönkokoon suhteutettu tekstin koko vw-->
+    <h1 id="greentext" style="font-size: 7vw;">Levyraadin Säännöt</h1>
+</header>
+<nav>
+    <ul id="levyraati"> <!-- Navigaation palkki, jossa myös CSS tyylittely. Tämä listautuu vierekkäin-->
+        <li><a href="levyraati.html">ETUSIVU <i class="fas fa-heart"></i></a></li>
+        <li><a class="active"href="Saannot.html">SÄÄNNÖT <i class="fas fa-flag"></i></a></li>
+        <li><a href="viikonkappaleet.html">Viikonkappaleet<i class="fas fa-thin fa-solid fa-music fa-bounce"></i></a></li>
+        <li><a href="arkisto">ARKISTO <i class="fas fa-solid fa-file"></i></a></li>
+    </ul>
+<section>
+    <article class="content_center">
+        <p id="whitetext">
+            Levyraadin säännöt:
+<br>1: Laita biisi teeman mukaisesti hostille yv:nä linkin kera spotifyihin ja/tai youtubeen DL:n mennessä
+<br>2: Tee arvio videolla tai ääniviestillä DL:n mennessä
+<br>3: Jos on lupa pyytää korvaava arvio niin hommaa korvaava arvioija raativiikon keskiviikko iltaan mennessä.
+<br>4: Pisteytä DL:n mennessä
+<br>5: Älä perseile 
+<br>
+<br>
+Mikäli rikotaan sääntöjä niistä seuraa bännit tai pahimmassa tapauksessa potkut
+        </p>
+    </article>
+</section>
