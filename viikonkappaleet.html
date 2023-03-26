@@ -17,38 +17,12 @@
 </head>
 
 <body id="body1">
-    <p>Aikaa äänestää;</p>
+    <p id="aikaa"></p>
     <p id="demo"></p>
+    <script src="ajat.js"></script>
 
-<script>
-// Set the date we're counting down to
-var countDownDate = new Date("Mar 26, 2023 18:00:00").getTime();
+<script src="aika.js">
 
-// Update the count down every 1 second
-var x = setInterval(function() {
-
-  // Get today's date and time
-  var now = new Date().getTime();
-    
-  // Find the distance between now and the count down date
-  var distance = countDownDate - now;
-    
-  // Time calculations for days, hours, minutes and seconds
-  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
-  // Output the result in an element with id="demo"
-  document.getElementById("demo").innerHTML = days + "d " + hours + "h "
-  + minutes + "m " + seconds + "s ";
-    
-  // If the count down is over, write some text 
-  if (distance < 0) {
-    clearInterval(x);
-    document.getElementById("demo").innerHTML = "PÄÄTTYNYT";
-  }
-}, 1000);
 </script>
 <script src="https://sheetdb.io/handlebars.js"></script>
 <header>
@@ -59,17 +33,26 @@ var x = setInterval(function() {
         <li><a href="levyraati.html">ETUSIVU <i class="fas fa-heart"></i></a></li>
         <li><a href="Saannot.html">SÄÄNNÖT <i class="fas fa-flag"></i></a></li>
         <li><a class="active" href="viikonkappaleet.html">Viikonkappaleet<i class="fas fa-thin fa-solid fa-music fa-bounce"></i></a></li>
-        <li><a href="arkisto">ARKISTO <i class="fas fa-solid fa-file"></i></a></li>
+        <li><a href="arkisto.html">ARKISTO <i class="fas fa-solid fa-file"></i></a></li>
     </ul>
 </nav>
 <section>
 <article>
+    <h1>HOST:</h1>
+    <h1>@Scrub_Daddy</h1>
+    <br>
     <h1 id="p1">Viikon Aihe:</h1>
-    <p id="p1">Tarinankerronta</p>
-    <br>
-    <br>
+    <h1 id="p1">Reissuraati</h1>
+    <pre id="p2">" Kun tänään lähden otan mukaan mitä tarvitsen... "
 
-    <p id="p1">Soittolista</p>
+        Mitä?
+        
+        Nyt lähdetään reissaamaan! Kappaleesi tulee olla sellainen,
+        jota kuuntelisit Reissumiehenä kulkiessasi.</pre>
+    <br>
+    <br>
+    <a href="https://t.me/Scrub_Daddy">Lähetä Kappaleesi tähän!</a>
+    <!--<p id="p1">Soittolista</p>
     <iframe width="400" height="315" src="https://www.youtube.com/embed/videoseries?list=PLmP9KN_tz9AzD_1JQs4zcf_-BxxPzDj-_" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 </article>
 </section>
@@ -82,7 +65,7 @@ var x = setInterval(function() {
     data-sheetdb-sort-order="desc">
         <p id="p1">{{Esittäjä}} - {{Kappale}} <br> {{Pisteet}} <br> {{Linkki}}</p>
     </div>
-    
+-->
 </article>
 </section>
 </body>
