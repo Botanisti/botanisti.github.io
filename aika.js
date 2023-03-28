@@ -1,7 +1,7 @@
 
 // Set the date we're counting down to
 
-let aika = "Mar 27, 2023 19:37:00";
+let aika = "Mar 30, 2023 20:53:00";
 var countDownDate = new Date(aika).getTime();
 
 // Update the count down every 1 second
