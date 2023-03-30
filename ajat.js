@@ -6,7 +6,7 @@ myFunction();
 // Global variable accessed from
 // Within a function
 function myFunction() {
-   document.getElementById("aikaa").innerHTML = aikaaArviointiin;
+   document.getElementById("aikaa").innerHTML = aikaaPisteytykseen;
 }
 // Changing value of global
 // Variable from outside of function
