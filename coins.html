@@ -1,258 +1,396 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="fi">
 <head>
-<meta charset="UTF-8">
-<title>Coin Runner</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Kolikkajuoksu — Endless HTML5 peli</title>
 <style>
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #000;
-  height: 100%;
-  overflow: hidden;
-}
-canvas {
-  display: block;
-  background: #111;
-}
-#ui {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  color: white;
-  font-family: sans-serif;
-  font-size: 18px;
-  z-index: 2;
-}
-.button {
-  background: rgba(255,255,255,0.1);
-  color: white;
-  padding: 10px;
-  border-radius: 5px;
-  margin-top: 5px;
-  cursor: pointer;
-}
-#joystick, #firebtn {
-  position: absolute;
-  bottom: 20px;
-  z-index: 3;
-  touch-action: none;
-}
-#joystick {
-  left: 20px;
-}
-#firebtn {
-  right: 20px;
-  background: rgba(255,0,0,0.4);
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-}
+  html, body { margin:0; padding:0; height:100%; background:#0a0d12; color:#e7f0ff;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    overscroll-behavior:none; touch-action:none; -webkit-user-select:none; user-select:none; }
+  #wrap { display:flex; flex-direction:column; height:100%; }
+  header { padding:8px 12px; display:flex; align-items:center; justify-content:space-between;
+    background:#10151d; border-bottom:1px solid #1b2431; }
+  header .left, header .right { display:flex; gap:12px; align-items:center; font-size:14px; }
+  header .btn { padding:6px 10px; background:#1c2533; border:1px solid #2a374a; border-radius:6px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  header .btn:active { transform:translateY(1px); }
+  .tag { font-size:12px; padding:2px 6px; border-radius:999px; background:#172233; border:1px solid #2a3a52; }
+  #game { flex:1; width:100%; height:100%; display:block;
+    background: radial-gradient(1000px 600px at 50% 50%, #0f1622, #070a0f); }
+
+  /* Overlays */
+  .overlay { position:absolute; inset:0; display:none; align-items:center; justify-content:center;
+    background:rgba(5,8,12,.72); backdrop-filter:blur(2px); z-index:50; }
+  .overlay.show { display:flex; }
+  .panel { background:#0f1622; border:1px solid #24344a; border-radius:12px; padding:16px; width:min(92vw,720px); box-shadow:0 10px 40px rgba(0,0,0,.35); }
+  .panel h1, .panel h2 { margin:0 0 8px; }
+  .muted { color:#9cb3d0; font-size:13px; }
+  .buy { padding:8px 12px; border-radius:8px; border:1px solid #2a3a52; background:#172233; cursor:pointer; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; }
+  .shop-item { display:grid; grid-template-columns:1fr auto; gap:6px 12px; align-items:center;
+    padding:10px; border:1px solid #24344a; border-radius:10px; background:#0b121b; margin:8px 0; }
+  .shop-item h3{ margin:0; font-size:16px; }
+
+  /* Mobile controls */
+  #touchControls { position:absolute; inset:0; pointer-events:none; }
+  .stickZone { position:absolute; left:10px; bottom:10px; width:44vw; max-width:280px; height:44vw; max-height:280px;
+    border-radius:50%; background:rgba(255,255,255,.03); border:1px dashed rgba(255,255,255,.08); pointer-events:auto; }
+  .stick { position:absolute; left:50%; top:50%; width:74px; height:74px; transform:translate(-50%,-50%);
+    border-radius:50%; background:rgba(120,180,255,.16); border:1px solid rgba(120,180,255,.35); }
+  .actionBtn { position:absolute; right:16px; bottom:26px; width:86px; height:86px; border-radius:50%;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); pointer-events:auto; display:grid; place-items:center; -webkit-tap-highlight-color:transparent; }
+  .actionBtn span{ font-size:13px; color:#cfe3ff; }
+  @media (min-width: 900px) { .stickZone, .actionBtn { display:none; } }
 </style>
 </head>
 <body>
-
-<canvas id="game"></canvas>
-<div id="ui">
-  <div id="coins">Coins: 0</div>
-  <div class="button" id="startBtn">Uusi juoksu</div>
+<div id="wrap">
+  <header>
+    <div class="left">
+      <strong>Kolikkajuoksu</strong>
+      <div id="hudCoins">💰 0</div>
+      <div id="hudScore">⭐ 0</div>
+      <div id="hudStage" class="tag">Taso 1</div>
+    </div>
+    <div class="right">
+      <div class="btn" id="btnPause">Tauko</div>
+      <div class="btn" id="btnShop">Kauppa</div>
+      <div class="btn" id="btnReset">Uusi juoksu</div>
+    </div>
+  </header>
+  <canvas id="game"></canvas>
 </div>
-<div id="joystick"></div>
-<div id="firebtn"></div>
+
+<!-- Overlays -->
+<div class="overlay" id="overlayStart">
+  <div class="panel">
+    <h1>Kolikkajuoksu</h1>
+    <p>Kerää kolikoita. Kun raja täyttyy, siirryt <strong>Tasolle 2</strong> (viholliset). Endless: osuma = peli ohi.</p>
+    <p class="muted">Mobiili: vasen tikku liikuttaa ja <em>myös tähtää</em> liikesuuntaan. FIRE pohjassa = automaattitulitus.</p>
+    <div class="row" style="justify-content:space-between; align-items:center; margin-top:8px;">
+      <div class="muted">Pysyvät päivitykset tallentuvat localStorageen.</div>
+      <button class="buy" id="btnStart">Aloita</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlayGameOver">
+  <div class="panel">
+    <h2>Peli ohi</h2>
+    <p id="goStats"></p>
+    <div class="row">
+      <button class="buy" id="btnGoRestart">Uusi juoksu</button>
+      <button class="buy" id="btnGoShop">Kauppa</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlayShop">
+  <div class="panel">
+    <h2>Kauppa</h2>
+    <p id="bank">Kassa: 0💰</p>
+    <div id="shopList"></div>
+    <div class="row" style="justify-content:flex-end;">
+      <button class="buy" id="btnCloseShop">Takaisin peliin</button>
+    </div>
+  </div>
+</div>
+
+<!-- Touch controls -->
+<div id="touchControls">
+  <div class="stickZone" id="stickZone"><div class="stick" id="stick"></div></div>
+  <div class="actionBtn" id="fireBtn"><span>FIRE</span></div>
+</div>
 
 <script>
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-let W, H, DPR;
-let player = null;
-let coins = [];
-let bullets = [];
-let moveDir = {x:0, y:0};
-let aim = {dx:1, dy:0};
-let keys = {};
-let tempPower = {magnet:0, shield:0};
-let meta = {upgrades:{magnet:0}};
-let running = false;
-let coinCount = 0;
-let firePressed = false;
-let lastFire = 0;
+// --- iOS zoom guards ---
+document.addEventListener('gesturestart', e=>e.preventDefault(), {passive:false});
+let _lt=0; document.addEventListener('touchend', e=>{const n=performance.now(); if(n-_lt<350) e.preventDefault(); _lt=n;},{passive:false});
 
-// iOS zoom estot
-document.addEventListener('gesturestart', e => e.preventDefault());
-document.addEventListener('dblclick', e => e.preventDefault());
+// --- Utils ---
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const rand=(a,b)=>Math.random()*(b-a)+a;
+const dist2=(ax,ay,bx,by)=>{const dx=ax-bx,dy=ay-by;return dx*dx+dy*dy;};
 
-function resize() {
-  DPR = window.devicePixelRatio || 1;
-  W = window.innerWidth;
-  H = window.innerHeight;
-  canvas.width = W * DPR;
-  canvas.height = H * DPR;
-  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+// --- Persistent meta (shop) ---
+const DEFAULT_META={ bank:0, upgrades:{ speed:0, fireRate:0, magnet:0, shield:0 } };
+let meta=(()=>{ try{ const raw=localStorage.getItem("coinrunner_meta"); return raw?JSON.parse(raw):structuredClone(DEFAULT_META); }catch(e){ return structuredClone(DEFAULT_META);} })();
+const saveMeta=()=>localStorage.setItem("coinrunner_meta", JSON.stringify(meta));
+
+// --- Canvas ---
+const canvas=document.getElementById("game"); const ctx=canvas.getContext("2d",{alpha:false});
+let W=0,H=0,DPR=1;
+function resize(){
+  DPR=window.devicePixelRatio||1;
+  W=Math.floor(window.innerWidth*DPR);
+  H=Math.floor((window.innerHeight-document.querySelector("header").offsetHeight)*DPR);
+  if(H<220*DPR) H=Math.floor(220*DPR);
+  canvas.width=W; canvas.height=H;
+  canvas.style.width=(W/DPR)+"px"; canvas.style.height=(H/DPR)+"px";
 }
-window.addEventListener('resize', resize);
-resize();
+addEventListener("resize", resize);
 
-function startRun() {
-  player = {x:W/2, y:H/2, r:15};
-  coins = [];
-  bullets = [];
-  coinCount = 0;
-  spawnCoins(10);
-  running = true;
-}
+// --- HUD refs ---
+const hudCoins=document.getElementById("hudCoins");
+const hudScore=document.getElementById("hudScore");
+const hudStage=document.getElementById("hudStage");
 
-function spawnCoins(n) {
-  for(let i=0;i<n;i++){
-    let x, y;
-    do {
-      x = Math.random() * (W-40) + 20;
-      y = Math.random() * (H-40) + 20;
-    } while ((x<150 && y>H-150) || (x>W-150 && y>H-150)); // ei ohjainten alle
-    coins.push({x,y,r:8});
+// --- Game state ---
+let playing=false, paused=false, stage=1;
+let score=0, runCoins=0, totalTime=0;
+let enemySpawnTimer=0, coinSpawnTimer=0;
+let bullets=[], enemies=[], coins=[], effects=[];
+let player=null, keys={}, lastTs=0, toStage2At=30;
+let tempPower={ magnet:0, rapid:0, shield:0 };
+
+// --- Input ---
+const aim={dx:1,dy:0};        // hiiriaim desktopille
+let moveDir={x:1,y:0};        // mobiililla tähtäys seuraa liikettä
+
+document.addEventListener("keydown",(e)=>{
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," ","Space","w","a","s","d","W","A","S","D"].includes(e.key)) e.preventDefault();
+  keys[e.key.toLowerCase()]=true;
+  if(e.key===" "||e.key==="Spacebar") shoot();
+});
+document.addEventListener("keyup",(e)=>{ keys[e.key.toLowerCase()]=false; });
+
+canvas.addEventListener("mousemove",(e)=>{ if(!player) return;
+  const r=canvas.getBoundingClientRect(); const mx=(e.clientX-r.left)*DPR; const my=(e.clientY-r.top)*DPR;
+  aim.dx=mx-player.x; aim.dy=my-player.y;
+});
+canvas.addEventListener("mousedown",()=>{ if(!player) return; shoot(); });
+
+// --- Touch joystick + hold-to-fire ---
+const stickZone=document.getElementById("stickZone");
+const stick=document.getElementById("stick");
+const fireBtn=document.getElementById("fireBtn");
+
+let stickActive=false, stickId=null, stickCenter={x:0,y:0};
+let stickVec={x:0,y:0};
+function setStick(x,y){ stick.style.left=x+"px"; stick.style.top=y+"px"; }
+function tp(ev,t){ const rect=stickZone.getBoundingClientRect(); return {x:t.clientX-rect.left,y:t.clientY-rect.top,rect}; }
+
+stickZone.addEventListener("touchstart",(ev)=>{ const t=ev.changedTouches[0]; stickActive=true; stickId=t.identifier;
+  const p=tp(ev,t); stickCenter={x:p.x,y:p.y}; setStick(p.x,p.y); },{passive:false});
+stickZone.addEventListener("touchmove",(ev)=>{ if(!stickActive) return;
+  for(const t of ev.changedTouches) if(t.identifier===stickId){
+    const p=tp(ev,t); let dx=p.x-stickCenter.x, dy=p.y-stickCenter.y;
+    const dead=12, maxR=80; const len=Math.hypot(dx,dy);
+    if(len<dead){ stickVec.x=0; stickVec.y=0; setStick(stickCenter.x,stickCenter.y); return; }
+    const ux=dx/len, uy=dy/len, mag=Math.min(maxR,len-dead);
+    setStick(stickCenter.x+ux*mag, stickCenter.y+uy*mag);
+    stickVec.x=ux; stickVec.y=uy; moveDir.x=ux; moveDir.y=uy; // tähtäys = liikesuunta
   }
-}
+},{passive:false});
+stickZone.addEventListener("touchend",(ev)=>{ for(const t of ev.changedTouches) if(t.identifier===stickId){
+  stickActive=false; stickId=null; stickVec.x=0; stickVec.y=0; setStick(stickCenter.x,stickCenter.y); } },{passive:false});
 
-function shoot() {
-  let dir;
-  if (Math.hypot(moveDir.x, moveDir.y) > 0.01) {
-    dir = moveDir;
-  } else if (Math.hypot(aim.dx, aim.dy) > 0.01) {
-    dir = {x:aim.dx, y:aim.dy};
-  } else {
-    dir = {x:1, y:0};
+let firing=false, fireTimer=null;
+function setFiring(on){ if(on && !firing){ firing=true; shoot(); fireTimer=setInterval(shoot, 90); }
+  else if(!on && firing){ firing=false; clearInterval(fireTimer); fireTimer=null; } }
+fireBtn.addEventListener("touchstart", ()=> setFiring(true), {passive:false});
+fireBtn.addEventListener("touchend",   ()=> setFiring(false), {passive:false});
+fireBtn.addEventListener("touchcancel",()=> setFiring(false), {passive:false});
+
+// --- Overlays/buttons ---
+const overlayStart=document.getElementById("overlayStart");
+const overlayGo=document.getElementById("overlayGameOver");
+const overlayShop=document.getElementById("overlayShop");
+document.getElementById("btnStart").onclick=()=>startRun();
+document.getElementById("btnGoRestart").onclick=()=>{ overlayGo.classList.remove("show"); startRun(); };
+document.getElementById("btnGoShop").onclick=()=>{ updateShop(); overlayShop.classList.add("show"); };
+document.getElementById("btnPause").onclick=()=>{ if(!playing) return; paused=!paused; document.getElementById("btnPause").textContent=paused?"Jatka":"Tauko"; };
+document.getElementById("btnShop").onclick=()=>{ updateShop(); overlayShop.classList.add("show"); };
+document.getElementById("btnCloseShop").onclick=()=> overlayShop.classList.remove("show");
+document.getElementById("btnReset").onclick=()=> startRun();
+
+// --- Shop ---
+const shopDef=[
+  {key:"speed",name:"Liikkumisnopeus",desc:"Nopeampi liike.",base:80,step:60,max:5},
+  {key:"fireRate",name:"Tulinopeus",desc:"Ammu useammin.",base:100,step:70,max:5},
+  {key:"magnet",name:"Magneetti",desc:"Kolikot vetäytyvät lähemmäs.",base:120,step:80,max:5},
+  {key:"shield",name:"Alkusuoja",desc:"Mahd. saada suojakilpi alkuun.",base:150,step:90,max:5}
+];
+function priceFor(k,l){ const d=shopDef.find(x=>x.key===k); return Math.round(d.base+d.step*l); }
+function updateShop(){
+  document.getElementById("bank").textContent="Kassa: "+meta.bank+"💰";
+  const list=document.getElementById("shopList"); list.innerHTML="";
+  for(const d of shopDef){
+    const lv=meta.upgrades[d.key]||0, maxed=lv>=d.max, price=priceFor(d.key,lv);
+    const div=document.createElement("div"); div.className="shop-item";
+    div.innerHTML=`<div><h3>${d.name} <span class="tag">Taso ${lv}/${d.max}</span></h3><div class="muted">${d.desc}</div></div>
+                   <div><button class="buy" ${maxed?"disabled":""} data-key="${d.key}">${maxed?"Max":("Osta "+price+"💰")}</button></div>`;
+    list.appendChild(div);
   }
-  const len = Math.hypot(dir.x, dir.y);
-  dir.x /= len;
-  dir.y /= len;
-  bullets.push({x:player.x, y:player.y, dx:dir.x*6, dy:dir.y*6, r:5});
+  list.querySelectorAll("button.buy").forEach(btn=>{
+    btn.onclick=()=>{ const key=btn.getAttribute("data-key"); const lv=meta.upgrades[key]; const price=priceFor(key,lv);
+      if(meta.bank>=price && lv<shopDef.find(x=>x.key===key).max){ meta.bank-=price; meta.upgrades[key]++; saveMeta(); updateShop(); } };
+  });
 }
 
-function update(dt) {
-  if(!running || !player) return;
+// --- Entities ---
+function newPlayer(){
+  const baseSpeed=200, speedBonus=meta.upgrades.speed*18;
+  const p={ x:W/2, y:H/2, r:12*DPR, speed:(baseSpeed+speedBonus)*DPR,
+    fireCd:0, fireInterval:Math.max(0.12, 0.30 - meta.upgrades.fireRate*0.035), alive:true };
+  if(meta.upgrades.shield>0 && Math.random()<meta.upgrades.shield*0.12) tempPower.shield=1;
+  return p;
+}
+function uiAvoid(x,y){ // älä spawnaa ohjainten alle
+  const joy={x: 10 + 0.22*W, y: H - 0.22*W, r: Math.min(0.22*W, 140*DPR)};
+  const fire={x: W - 16*DPR - 43*DPR, y: H - 26*DPR - 43*DPR, r: 70*DPR};
+  const inside=(cx,cy,c)=>((cx-c.x)**2+(cy-c.y)**2)<c.r*c.r; return inside(x,y,joy)||inside(x,y,fire);
+}
+function spawnCoin(x,y){
+  let tries=0; do{ x=x??rand(20,W-20); y=y??rand(20,H-20); tries++; if(tries>50) break; } while(uiAvoid(x,y));
+  coins.push({x,y,r:8*DPR});
+}
+function spawnEnemy(){
+  const m=30*DPR; let x=0,y=0; const s=Math.floor(rand(0,4));
+  if(s===0){x=rand(0,W);y=-m} if(s===1){x=W+m;y=rand(0,H)} if(s===2){x=rand(0,W);y=H+m} if(s===3){x=-m;y=rand(0,H)}
+  enemies.push({x,y,r:16*DPR,speed:rand(60,120)*DPR,hp:1});
+}
+
+// --- Shooting (liikesuunta ensin, sitten hiiri, muuten oikealle) ---
+function getAimVec(){
+  if(Math.hypot(moveDir.x,moveDir.y)>0.01) return {x:moveDir.x,y:moveDir.y};
+  if(Math.hypot(aim.dx,aim.dy)>0.01) return {x:aim.dx,y:aim.dy};
+  return {x:1,y:0};
+}
+function shoot(){
+  if(!player||!player.alive) return; if(player.fireCd>0) return;
+  const dir=getAimVec(); const len=Math.hypot(dir.x,dir.y)||1; const ux=dir.x/len, uy=dir.y/len;
+  const n=tempPower.rapid>0?3:1, spread=tempPower.rapid>0?0.12:0.06, speed=480*DPR, baseA=Math.atan2(uy,ux);
+  for(let i=0;i<n;i++){ const ang=baseA+(i-(n-1)/2)*spread;
+    bullets.push({x:player.x,y:player.y,vx:Math.cos(ang)*speed,vy:Math.sin(ang)*speed,r:4*DPR,life:1.4}); }
+  player.fireCd=player.fireInterval*(tempPower.rapid>0?0.55:1);
+  effects.push({type:"muzzle",x:player.x,y:player.y,t:0});
+}
+
+// --- Flow ---
+function startRun(){
+  overlayStart.classList.remove("show"); overlayGo.classList.remove("show"); overlayShop.classList.remove("show");
+  playing=true; paused=false; stage=1; score=0; runCoins=0; totalTime=0;
+  player=newPlayer(); bullets=[]; enemies=[]; coins=[]; effects=[]; enemySpawnTimer=0; coinSpawnTimer=0;
+  toStage2At=Math.max(10, 30-meta.upgrades.magnet*2);
+  for(let i=0;i<10;i++) spawnCoin();
+  document.getElementById("btnPause").textContent="Tauko";
+}
+function gameOver(){
+  playing=false; paused=false; meta.bank+=runCoins; saveMeta();
+  document.getElementById("goStats").textContent=`Pisteet: ${Math.floor(score)} ⭐ — Kolikot: ${runCoins} 💰 — Aika: ${Math.floor(totalTime)} s`;
+  overlayGo.classList.add("show");
+}
+
+// --- Update/Render ---
+function update(dt){
+  if(!playing||paused) return; totalTime+=dt;
+
   // liike
-  player.x += moveDir.x * 3;
-  player.y += moveDir.y * 3;
-  // rajat
-  player.x = Math.max(player.r, Math.min(W-player.r, player.x));
-  player.y = Math.max(player.r, Math.min(H-player.r, player.y));
+  let vx=0,vy=0;
+  if(keys["arrowup"]||keys["w"]) vy-=1; if(keys["arrowdown"]||keys["s"]) vy+=1;
+  if(keys["arrowleft"]||keys["a"]) vx-=1; if(keys["arrowright"]||keys["d"]) vx+=1;
+  vx+=stickVec.x; vy+=stickVec.y;
+  const len=Math.hypot(vx,vy); if(len>0){ vx/=len; vy/=len; moveDir={x:vx,y:vy}; }
+  player.x=clamp(player.x+vx*player.speed*dt, 10, W-10);
+  player.y=clamp(player.y+vy*player.speed*dt, 10, H-10);
+
+  if(player.fireCd>0) player.fireCd-=dt;
+  if(tempPower.magnet>0) tempPower.magnet-=dt;
+  if(tempPower.rapid>0) tempPower.rapid-=dt;
+
   // kolikot
-  for(let i=coins.length-1;i>=0;i--){
-    let c = coins[i];
-    if (Math.hypot(c.x-player.x, c.y-player.y) < player.r+c.r) {
-      coins.splice(i,1);
-      coinCount++;
-      document.getElementById('coins').textContent = 'Coins: '+coinCount;
-    }
-  }
-  // ammukset
-  for(let b of bullets){
-    b.x += b.dx;
-    b.y += b.dy;
-  }
-  bullets = bullets.filter(b=>b.x>-10 && b.x<W+10 && b.y>-10 && b.y<H+10);
+  coinSpawnTimer-=dt; if(coinSpawnTimer<=0 && coins.length<20){ spawnCoin(); coinSpawnTimer=rand(0.3,0.9); }
 
-  // autofire
-  if (firePressed && Date.now()-lastFire > 200) {
-    shoot();
-    lastFire = Date.now();
-  }
+  // taso
+  if(stage===1 && runCoins>=toStage2At){ stage=2; hudStage.textContent="Taso 2"; effects.push({type:"flash",t:0}); }
+
+  // vihut
+  if(stage===2){ enemySpawnTimer-=dt; if(enemySpawnTimer<=0){ spawnEnemy(); enemySpawnTimer=Math.max(0.25,1.2-Math.min(40,totalTime)*0.02); } }
+  for(const e of enemies){ const a=Math.atan2(player.y-e.y,player.x-e.x); e.x+=Math.cos(a)*e.speed*dt; e.y+=Math.sin(a)*e.speed*dt; }
+
+  // ammukset
+  for(let i=bullets.length-1;i>=0;i--){ const b=bullets[i]; b.x+=b.vx*dt; b.y+=b.vy*dt; b.life-=dt;
+    if(b.life<=0 || b.x<-20 || b.x>W+20 || b.y<-20 || b.y>H+20) bullets.splice(i,1); }
+
+  // bullet vs enemy
+  for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i];
+    for(let j=bullets.length-1;j>=0;j--){ const b=bullets[j];
+      if(dist2(e.x,e.y,b.x,b.y) < (e.r+b.r)*(e.r+b.r)){ bullets.splice(j,1); e.hp-=1;
+        if(e.hp<=0){ effects.push({type:"boom",x:e.x,y:e.y,t:0}); enemies.splice(i,1); score+=15; } break; } } }
+
+  // kolikon keruu + magneetti
+  const mR=(60+meta.upgrades.magnet*18)*DPR*(tempPower.magnet>0?1.8:1);
+  for(let i=coins.length-1;i>=0;i--){ const c=coins[i]; const d2=dist2(player.x,player.y,c.x,c.y);
+    if(d2<(player.r+c.r)*(player.r+c.r)){ coins.splice(i,1); runCoins++; score+=5;
+      if(Math.random()<0.08){ const r=Math.random(); if(r<0.34) tempPower.magnet=6; else if(r<0.68) tempPower.rapid=5; else tempPower.shield=1; }
+      continue; }
+    if(d2<mR*mR){ const d=Math.sqrt(d2)||1, ux=(player.x-c.x)/d, uy=(player.y-c.y)/d, pull=120*DPR*dt; c.x+=ux*pull; c.y+=uy*pull; } }
+
+  // vihun törmäys
+  for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i];
+    if(dist2(e.x,e.y,player.x,player.y) < (e.r+player.r)*(e.r+player.r)){
+      if(tempPower.shield>0){ tempPower.shield=0; effects.push({type:"shield",x:player.x,y:player.y,t:0}); enemies.splice(i,1); }
+      else { gameOver(); break; } } }
+
+  hudCoins.textContent="💰 "+runCoins;
+  hudScore.textContent="⭐ "+Math.floor(score);
 }
 
-function render() {
-  ctx.clearRect(0,0,W,H);
+function render(dt){
+  // tausta + ruudukko
+  ctx.fillStyle="#0b111a"; ctx.fillRect(0,0,W,H);
+  const grid=60*DPR; ctx.strokeStyle="rgba(120,160,220,.06)"; ctx.lineWidth=1*DPR; ctx.beginPath();
+  for(let x=(performance.now()*0.02)%grid; x<W; x+=grid){ ctx.moveTo(x,0); ctx.lineTo(x,H); }
+  for(let y=(performance.now()*0.014)%grid; y<H; y+=grid){ ctx.moveTo(0,y); ctx.lineTo(W,y); } ctx.stroke();
+
   // kolikot
-  ctx.fillStyle = 'gold';
-  for(let c of coins){
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, c.r, 0, Math.PI*2);
-    ctx.fill();
-  }
-  // player
-  if (player) {
-    ctx.fillStyle = '#7bd7ff';
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, player.r, 0, Math.PI*2);
-    ctx.fill();
-    // eye
-    let vx = Math.hypot(moveDir.x, moveDir.y) > 0.01 ? moveDir.x : (Math.hypot(aim.dx,aim.dy)>0.01 ? aim.dx : 1);
-    let vy = Math.hypot(moveDir.x, moveDir.y) > 0.01 ? moveDir.y : (Math.hypot(aim.dx,aim.dy)>0.01 ? aim.dy : 0);
-    const ang = Math.atan2(vy, vx);
-    ctx.fillStyle = '#0b2030';
-    ctx.beginPath();
-    ctx.arc(player.x + Math.cos(ang)*player.r*0.45, player.y + Math.sin(ang)*player.r*0.45, player.r*0.4, 0, Math.PI*2);
-    ctx.fill();
-  }
+  for(const c of coins){ const g=ctx.createRadialGradient(c.x,c.y,1,c.x,c.y,c.r);
+    g.addColorStop(0,"#ffe58a"); g.addColorStop(1,"#c38a1c"); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(c.x,c.y,c.r,0,Math.PI*2); ctx.fill(); }
+
+  // viholliset
+  ctx.fillStyle="#ff5b6f";
+  for(const e of enemies){ ctx.beginPath(); ctx.arc(e.x,e.y,e.r,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#2b0b10";
+    ctx.beginPath(); ctx.arc(e.x+e.r*0.25, e.y-e.r*0.25, e.r*0.35, 0,Math.PI*2); ctx.fill(); ctx.fillStyle="#ff5b6f"; }
+
   // ammukset
-  ctx.fillStyle = 'red';
-  for(let b of bullets){
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
-    ctx.fill();
+  ctx.fillStyle="#aee1ff";
+  for(const b of bullets){ ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill(); }
+
+  // pelaaja (silmä katsoo samaan suuntaan kuin ammunta)
+  if(player){
+    ctx.fillStyle="#7bd7ff"; ctx.beginPath(); ctx.arc(player.x,player.y,player.r,0,Math.PI*2); ctx.fill();
+    const v=getAimVec(); const ang=Math.atan2(v.y,v.x);
+    ctx.fillStyle="#0b2030"; ctx.beginPath();
+    ctx.arc(player.x+Math.cos(ang)*player.r*0.45, player.y+Math.sin(ang)*player.r*0.45, player.r*0.4, 0, Math.PI*2); ctx.fill();
+    if(tempPower.magnet>0){ ctx.strokeStyle="rgba(120,200,255,.25)"; ctx.lineWidth=2*DPR; ctx.beginPath();
+      ctx.arc(player.x,player.y,(60+meta.upgrades.magnet*18)*DPR*0.6,0,Math.PI*2); ctx.stroke(); }
+    if(tempPower.shield>0){ ctx.strokeStyle="rgba(180,255,220,.45)"; ctx.lineWidth=3*DPR; ctx.beginPath();
+      ctx.arc(player.x,player.y,player.r+6*DPR,0,Math.PI*2); ctx.stroke(); }
   }
-}
 
-function loop() {
-  update();
-  render();
-  requestAnimationFrame(loop);
-}
-loop();
-
-// kontrollerit
-document.getElementById('startBtn').addEventListener('click', startRun);
-
-// keyboard
-window.addEventListener('keydown', e => {
-  keys[e.key] = true;
-  if (e.key===' ') { shoot(); }
-});
-window.addEventListener('keyup', e => { keys[e.key] = false; });
-function handleKeys() {
-  moveDir.x = (keys['ArrowRight']||keys['d']?1:0) - (keys['ArrowLeft']||keys['a']?1:0);
-  moveDir.y = (keys['ArrowDown']||keys['s']?1:0) - (keys['ArrowUp']||keys['w']?1:0);
-  requestAnimationFrame(handleKeys);
-}
-handleKeys();
-
-// mouse aim
-canvas.addEventListener('mousemove', e=>{
-  const rect = canvas.getBoundingClientRect();
-  aim.dx = e.clientX - rect.left - player.x;
-  aim.dy = e.clientY - rect.top - player.y;
-});
-
-// mobiili joystick
-let joy = document.getElementById('joystick');
-let joyRect = {x:70,y:H-70};
-joy.style.width = '100px';
-joy.style.height = '100px';
-joy.style.borderRadius = '50%';
-joy.style.background = 'rgba(255,255,255,0.1)';
-
-joy.addEventListener('touchstart', e=> e.preventDefault());
-joy.addEventListener('touchmove', e=>{
-  const t = e.touches[0];
-  const rect = joy.getBoundingClientRect();
-  const cx = rect.left + rect.width/2;
-  const cy = rect.top + rect.height/2;
-  let dx = t.clientX - cx;
-  let dy = t.clientY - cy;
-  const len = Math.hypot(dx,dy);
-  if (len>0) {
-    dx/=len; dy/=len;
+  // efektit
+  for(let i=effects.length-1;i>=0;i--){ const e=effects[i]; e.t+=dt;
+    if(e.type==="muzzle"){ ctx.strokeStyle="rgba(150,220,255,.5)"; ctx.lineWidth=2*DPR; ctx.beginPath();
+      ctx.arc(e.x,e.y,12*DPR*(1+e.t*3),0,Math.PI*2); ctx.stroke(); if(e.t>0.15) effects.splice(i,1); }
+    else if(e.type==="boom"){ ctx.strokeStyle="rgba(255,120,150,.5)"; ctx.lineWidth=2*DPR; ctx.beginPath();
+      ctx.arc(e.x,e.y,10*DPR+60*DPR*e.t,0,Math.PI*2); ctx.stroke(); if(e.t>0.3) effects.splice(i,1); }
+    else if(e.type==="flash"){ ctx.fillStyle="rgba(255,255,255,"+(0.5-e.t)+")"; ctx.fillRect(0,0,W,H); if(e.t>0.5) effects.splice(i,1); }
+    else if(e.type==="shield"){ ctx.strokeStyle="rgba(180,255,220,"+(0.9-e.t)+")"; ctx.lineWidth=3*DPR; ctx.beginPath();
+      ctx.arc(e.x,e.y,24*DPR+e.t*60*DPR,0,Math.PI*2); ctx.stroke(); if(e.t>0.4) effects.splice(i,1); }
   }
-  moveDir.x = dx;
-  moveDir.y = dy;
-});
-joy.addEventListener('touchend', e=>{
-  moveDir.x=0; moveDir.y=0;
-});
 
-// fire button
-let fireBtn = document.getElementById('firebtn');
-fireBtn.addEventListener('touchstart', e=>{ e.preventDefault(); firePressed=true; });
-fireBtn.addEventListener('touchend', e=>{ firePressed=false; });
+  if(!playing){ ctx.fillStyle="rgba(255,255,255,.08)"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.font=(18*DPR)+"px system-ui"; ctx.fillText("Napauta tai paina Aloita", W/2, H/2); }
+}
 
+function loop(ts){ if(!lastTs) lastTs=ts; const dt=Math.min(0.033,(ts-lastTs)/1000); lastTs=ts; update(dt); render(dt); requestAnimationFrame(loop); }
+
+// --- Boot ---
+resize(); hudStage.textContent="Taso 1";
+document.addEventListener("touchstart", ()=>{ if(!playing) startRun(); }, {once:false});
+document.addEventListener("mousedown", ()=>{ if(!playing) startRun(); }, {once:false});
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
