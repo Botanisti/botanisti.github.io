@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>Kolikkajuoksu — Endless HTML5 peli</title>
+<title>Kolikkajuoksu — Endless</title>
 <style>
   html, body { margin:0; padding:0; height:100%; background:#0a0d12; color:#e7f0ff;
     font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
@@ -27,6 +27,7 @@
   .muted { color:#9cb3d0; font-size:13px; }
   .buy { padding:8px 12px; border-radius:8px; border:1px solid #2a3a52; background:#172233; cursor:pointer; }
   .row { display:flex; gap:10px; flex-wrap:wrap; }
+
   .shop-item { display:grid; grid-template-columns:1fr auto; gap:6px 12px; align-items:center;
     padding:10px; border:1px solid #24344a; border-radius:10px; background:#0b121b; margin:8px 0; }
   .shop-item h3{ margin:0; font-size:16px; }
@@ -41,6 +42,9 @@
     background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); pointer-events:auto; display:grid; place-items:center; -webkit-tap-highlight-color:transparent; }
   .actionBtn span{ font-size:13px; color:#cfe3ff; }
   @media (min-width: 900px) { .stickZone, .actionBtn { display:none; } }
+
+  /* Powerup icons */
+  .pu { position:absolute; width:22px; height:22px; border-radius:4px; }
 </style>
 </head>
 <body>
@@ -54,7 +58,7 @@
     </div>
     <div class="right">
       <div class="btn" id="btnPause">Tauko</div>
-      <div class="btn" id="btnShop">Kauppa</div>
+      <div class="btn" id="btnShopHeader">Kauppa</div>
       <div class="btn" id="btnReset">Uusi juoksu</div>
     </div>
   </header>
@@ -65,8 +69,8 @@
 <div class="overlay" id="overlayStart">
   <div class="panel">
     <h1>Kolikkajuoksu</h1>
-    <p>Kerää kolikoita. Kun raja täyttyy, siirryt <strong>Tasolle 2</strong> (viholliset). Endless: osuma = peli ohi.</p>
-    <p class="muted">Mobiili: vasen tikku liikuttaa ja <em>myös tähtää</em> liikesuuntaan. FIRE pohjassa = automaattitulitus.</p>
+    <p>Kerää kolikoita. Taso 2 tuo viholliset (hitaina), ja <b>vaikeustaso</b> kasvaa pehmeästi tasolle 10.</p>
+    <p class="muted">Mobiili: vasen tikku liikuttaa ja <em>auto-aim</em> ampuu lähintä vihollista. FIRE pohjassa = automaattitulitus.</p>
     <div class="row" style="justify-content:space-between; align-items:center; margin-top:8px;">
       <div class="muted">Pysyvät päivitykset tallentuvat localStorageen.</div>
       <button class="buy" id="btnStart">Aloita</button>
@@ -103,21 +107,21 @@
 </div>
 
 <script>
-// --- iOS zoom guards ---
+// ===== iOS zoom guards =====
 document.addEventListener('gesturestart', e=>e.preventDefault(), {passive:false});
 let _lt=0; document.addEventListener('touchend', e=>{const n=performance.now(); if(n-_lt<350) e.preventDefault(); _lt=n;},{passive:false});
 
-// --- Utils ---
+// ===== Utils =====
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const rand=(a,b)=>Math.random()*(b-a)+a;
 const dist2=(ax,ay,bx,by)=>{const dx=ax-bx,dy=ay-by;return dx*dx+dy*dy;};
 
-// --- Persistent meta (shop) ---
+// ===== Persistent meta (shop) =====
 const DEFAULT_META={ bank:0, upgrades:{ speed:0, fireRate:0, magnet:0, shield:0 } };
 let meta=(()=>{ try{ const raw=localStorage.getItem("coinrunner_meta"); return raw?JSON.parse(raw):structuredClone(DEFAULT_META); }catch(e){ return structuredClone(DEFAULT_META);} })();
 const saveMeta=()=>localStorage.setItem("coinrunner_meta", JSON.stringify(meta));
 
-// --- Canvas ---
+// ===== Canvas =====
 const canvas=document.getElementById("game"); const ctx=canvas.getContext("2d",{alpha:false});
 let W=0,H=0,DPR=1;
 function resize(){
@@ -130,23 +134,23 @@ function resize(){
 }
 addEventListener("resize", resize);
 
-// --- HUD refs ---
+// ===== HUD refs =====
 const hudCoins=document.getElementById("hudCoins");
 const hudScore=document.getElementById("hudScore");
 const hudStage=document.getElementById("hudStage");
 
-// --- Game state ---
-let playing=false, paused=false, stage=1;
+// ===== Game state =====
+let playing=false, paused=false, stage=1;      // "stage" = näkyvä taso
+let diff=1;                                     // sisäinen vaikeustaso 1..10
 let score=0, runCoins=0, totalTime=0;
-let enemySpawnTimer=0, coinSpawnTimer=0;
-let bullets=[], enemies=[], coins=[], effects=[];
+let enemySpawnTimer=0, coinSpawnTimer=0, powerSpawnTimer=0;
+let bullets=[], enemies=[], coins=[], effects=[], powerups=[];
 let player=null, keys={}, lastTs=0, toStage2At=30;
-let tempPower={ magnet:0, rapid:0, shield:0 };
+let tempPower={ magnet:0, rapid:0, shield:0, speed:0, god:0 };
 
-// --- Input ---
+// ===== Input =====
 const aim={dx:1,dy:0};        // hiiriaim desktopille
-let moveDir={x:1,y:0};        // mobiililla tähtäys seuraa liikettä
-
+let moveDir={x:0,y:0};        // mobiili-liikesuunta = oletus-aim
 document.addEventListener("keydown",(e)=>{
   if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," ","Space","w","a","s","d","W","A","S","D"].includes(e.key)) e.preventDefault();
   keys[e.key.toLowerCase()]=true;
@@ -160,56 +164,46 @@ canvas.addEventListener("mousemove",(e)=>{ if(!player) return;
 });
 canvas.addEventListener("mousedown",()=>{ if(!player) return; shoot(); });
 
-// --- Touch joystick + hold-to-fire ---
+// Touch joystick + hold-to-fire
 const stickZone=document.getElementById("stickZone");
 const stick=document.getElementById("stick");
 const fireBtn=document.getElementById("fireBtn");
-
 let stickActive=false, stickId=null, stickCenter={x:0,y:0};
 let stickVec={x:0,y:0};
 function setStick(x,y){ stick.style.left=x+"px"; stick.style.top=y+"px"; }
 function tp(ev,t){ const rect=stickZone.getBoundingClientRect(); return {x:t.clientX-rect.left,y:t.clientY-rect.top,rect}; }
-
-stickZone.addEventListener("touchstart",(ev)=>{ const t=ev.changedTouches[0]; stickActive=true; stickId=t.identifier;
-  const p=tp(ev,t); stickCenter={x:p.x,y:p.y}; setStick(p.x,p.y); },{passive:false});
-stickZone.addEventListener("touchmove",(ev)=>{ if(!stickActive) return;
-  for(const t of ev.changedTouches) if(t.identifier===stickId){
-    const p=tp(ev,t); let dx=p.x-stickCenter.x, dy=p.y-stickCenter.y;
-    const dead=12, maxR=80; const len=Math.hypot(dx,dy);
-    if(len<dead){ stickVec.x=0; stickVec.y=0; setStick(stickCenter.x,stickCenter.y); return; }
-    const ux=dx/len, uy=dy/len, mag=Math.min(maxR,len-dead);
-    setStick(stickCenter.x+ux*mag, stickCenter.y+uy*mag);
-    stickVec.x=ux; stickVec.y=uy; moveDir.x=ux; moveDir.y=uy; // tähtäys = liikesuunta
-  }
-},{passive:false});
-stickZone.addEventListener("touchend",(ev)=>{ for(const t of ev.changedTouches) if(t.identifier===stickId){
-  stickActive=false; stickId=null; stickVec.x=0; stickVec.y=0; setStick(stickCenter.x,stickCenter.y); } },{passive:false});
+stickZone.addEventListener("touchstart",(ev)=>{ const t=ev.changedTouches[0]; stickActive=true; stickId=t.identifier; const p=tp(ev,t); stickCenter={x:p.x,y:p.y}; setStick(p.x,p.y); },{passive:false});
+stickZone.addEventListener("touchmove",(ev)=>{ if(!stickActive) return; for(const t of ev.changedTouches) if(t.identifier===stickId){
+  const p=tp(ev,t); let dx=p.x-stickCenter.x, dy=p.y-stickCenter.y; const dead=12, maxR=80; const len=Math.hypot(dx,dy);
+  if(len<dead){ stickVec.x=0; stickVec.y=0; setStick(stickCenter.x,stickCenter.y); return; }
+  const ux=dx/len, uy=dy/len, mag=Math.min(maxR,len-dead);
+  setStick(stickCenter.x+ux*mag, stickCenter.y+uy*mag); stickVec.x=ux; stickVec.y=uy; moveDir.x=ux; moveDir.y=uy; } },{passive:false});
+stickZone.addEventListener("touchend",(ev)=>{ for(const t of ev.changedTouches) if(t.identifier===stickId){ stickActive=false; stickId=null; stickVec.x=0; stickVec.y=0; setStick(stickCenter.x,stickCenter.y); } },{passive:false});
 
 let firing=false, fireTimer=null;
-function setFiring(on){ if(on && !firing){ firing=true; shoot(); fireTimer=setInterval(shoot, 90); }
-  else if(!on && firing){ firing=false; clearInterval(fireTimer); fireTimer=null; } }
+function setFiring(on){ if(on && !firing){ firing=true; shoot(); fireTimer=setInterval(shoot, 90); } else if(!on && firing){ firing=false; clearInterval(fireTimer); fireTimer=null; } }
 fireBtn.addEventListener("touchstart", ()=> setFiring(true), {passive:false});
 fireBtn.addEventListener("touchend",   ()=> setFiring(false), {passive:false});
 fireBtn.addEventListener("touchcancel",()=> setFiring(false), {passive:false});
 
-// --- Overlays/buttons ---
+// ===== Overlays/buttons =====
 const overlayStart=document.getElementById("overlayStart");
 const overlayGo=document.getElementById("overlayGameOver");
 const overlayShop=document.getElementById("overlayShop");
 document.getElementById("btnStart").onclick=()=>startRun();
 document.getElementById("btnGoRestart").onclick=()=>{ overlayGo.classList.remove("show"); startRun(); };
-document.getElementById("btnGoShop").onclick=()=>{ updateShop(); overlayShop.classList.add("show"); };
+document.getElementById("btnGoShop").onclick=()=>{ overlayGo.classList.remove("show"); updateShop(); overlayShop.classList.add("show"); };
 document.getElementById("btnPause").onclick=()=>{ if(!playing) return; paused=!paused; document.getElementById("btnPause").textContent=paused?"Jatka":"Tauko"; };
-document.getElementById("btnShop").onclick=()=>{ updateShop(); overlayShop.classList.add("show"); };
+document.getElementById("btnShopHeader").onclick=()=>{ updateShop(); overlayShop.classList.add("show"); };
 document.getElementById("btnCloseShop").onclick=()=> overlayShop.classList.remove("show");
 document.getElementById("btnReset").onclick=()=> startRun();
 
-// --- Shop ---
+// ===== Shop =====
 const shopDef=[
-  {key:"speed",name:"Liikkumisnopeus",desc:"Nopeampi liike.",base:80,step:60,max:5},
-  {key:"fireRate",name:"Tulinopeus",desc:"Ammu useammin.",base:100,step:70,max:5},
-  {key:"magnet",name:"Magneetti",desc:"Kolikot vetäytyvät lähemmäs.",base:120,step:80,max:5},
-  {key:"shield",name:"Alkusuoja",desc:"Mahd. saada suojakilpi alkuun.",base:150,step:90,max:5}
+  {key:"speed",name:"Liikkumisnopeus",desc:"Nopeampi liike.",base:60,step:60,max:6},
+  {key:"fireRate",name:"Tulinopeus",desc:"Lyhyempi laukaisuväli.",base:80,step:70,max:6},
+  {key:"magnet",name:"Magneetti",desc:"Kolikot vetäytyvät lähemmäs.",base:90,step:80,max:6},
+  {key:"shield",name:"Alkusuoja",desc:"Mahd. saada suojakilpi alkuun.",base:120,step:90,max:5}
 ];
 function priceFor(k,l){ const d=shopDef.find(x=>x.key===k); return Math.round(d.base+d.step*l); }
 function updateShop(){
@@ -228,11 +222,14 @@ function updateShop(){
   });
 }
 
-// --- Entities ---
+// ===== Entities =====
 function newPlayer(){
-  const baseSpeed=200, speedBonus=meta.upgrades.speed*18;
-  const p={ x:W/2, y:H/2, r:12*DPR, speed:(baseSpeed+speedBonus)*DPR,
-    fireCd:0, fireInterval:Math.max(0.12, 0.30 - meta.upgrades.fireRate*0.035), alive:true };
+  // Tehdään päivityksistä selvästi tuntuvia
+  const baseSpeed=180, speedPerLvl=28;
+  const baseFire=0.30, firePerLvl=0.035; // pienempi = nopeampi
+  const speed=(baseSpeed+meta.upgrades.speed*speedPerLvl)*DPR;
+  const fireInterval=Math.max(0.10, baseFire - meta.upgrades.fireRate*firePerLvl);
+  const p={ x:W/2, y:H/2, r:12*DPR, speed, fireCd:0, fireInterval, alive:true };
   if(meta.upgrades.shield>0 && Math.random()<meta.upgrades.shield*0.12) tempPower.shield=1;
   return p;
 }
@@ -245,36 +242,89 @@ function spawnCoin(x,y){
   let tries=0; do{ x=x??rand(20,W-20); y=y??rand(20,H-20); tries++; if(tries>50) break; } while(uiAvoid(x,y));
   coins.push({x,y,r:8*DPR});
 }
+function enemySpeedFor(diffLvl){
+  // Taso 2 = hidas (0.25×), taso 10 = 1.0× (eli “vanha normaali”)
+  const scale=Math.max(0.25, Math.min(1, diffLvl/10));
+  return (60 + rand(0,60)) * scale * DPR; // vanha 60..120, nyt skaalattu
+}
 function spawnEnemy(){
   const m=30*DPR; let x=0,y=0; const s=Math.floor(rand(0,4));
   if(s===0){x=rand(0,W);y=-m} if(s===1){x=W+m;y=rand(0,H)} if(s===2){x=rand(0,W);y=H+m} if(s===3){x=-m;y=rand(0,H)}
-  enemies.push({x,y,r:16*DPR,speed:rand(60,120)*DPR,hp:1});
+  enemies.push({x,y,r:16*DPR,speed:enemySpeedFor(diff),hp:1});
 }
 
-// --- Shooting (liikesuunta ensin, sitten hiiri, muuten oikealle) ---
+// ===== Auto-aim (mobiili) =====
+function nearestEnemyDir(){
+  if(enemies.length===0 || !player) return null;
+  let best=null, bestD=Infinity;
+  for(const e of enemies){ const d=dist2(player.x,player.y,e.x,e.y); if(d<bestD){ bestD=d; best=e; } }
+  if(!best) return null;
+  const dx=best.x-player.x, dy=best.y-player.y, L=Math.hypot(dx,dy)||1;
+  return {x:dx/L, y:dy/L};
+}
 function getAimVec(){
+  // Mobiili: tähtää lähintä vihollista jos löytyy
+  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints>0;
+  if(isTouch){
+    const n=nearestEnemyDir();
+    if(n) return n;
+  }
   if(Math.hypot(moveDir.x,moveDir.y)>0.01) return {x:moveDir.x,y:moveDir.y};
   if(Math.hypot(aim.dx,aim.dy)>0.01) return {x:aim.dx,y:aim.dy};
   return {x:1,y:0};
 }
+
+// ===== Shooting =====
 function shoot(){
   if(!player||!player.alive) return; if(player.fireCd>0) return;
   const dir=getAimVec(); const len=Math.hypot(dir.x,dir.y)||1; const ux=dir.x/len, uy=dir.y/len;
-  const n=tempPower.rapid>0?3:1, spread=tempPower.rapid>0?0.12:0.06, speed=480*DPR, baseA=Math.atan2(uy,ux);
-  for(let i=0;i<n;i++){ const ang=baseA+(i-(n-1)/2)*spread;
-    bullets.push({x:player.x,y:player.y,vx:Math.cos(ang)*speed,vy:Math.sin(ang)*speed,r:4*DPR,life:1.4}); }
-  player.fireCd=player.fireInterval*(tempPower.rapid>0?0.55:1);
+  const rapidMul = tempPower.rapid>0 ? 0.55 : 1;
+  const speedBoost = 480*DPR;
+  bullets.push({x:player.x,y:player.y,vx:ux*speedBoost,vy:uy*speedBoost,r:4*DPR,life:1.4});
+  player.fireCd = player.fireInterval * rapidMul;
   effects.push({type:"muzzle",x:player.x,y:player.y,t:0});
 }
 
-// --- Flow ---
+// ===== Powerups field-spawn =====
+function spawnPowerup(){
+  // types: rapid, speed, god, bag
+  const types=["rapid","speed","god","bag"];
+  const type = types[Math.floor(rand(0,types.length))];
+  let x,y,tries=0; do{ x=rand(20,W-20); y=rand(20,H-20); tries++; if(tries>40) break; }while(uiAvoid(x,y));
+  powerups.push({x,y,type,t:0});
+}
+function applyPowerup(p){
+  if(p.type==="rapid"){ tempPower.rapid=6; }
+  else if(p.type==="speed"){ tempPower.speed=6; }
+  else if(p.type==="god"){ tempPower.god=6; tempPower.shield=0; } // kuolemattomuus
+  else if(p.type==="bag"){ runCoins+=100; score+=100; }
+}
+function renderPowerups(dt){
+  ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.font=(12*DPR)+"px system-ui";
+  for(let i=powerups.length-1;i>=0;i--){
+    const p=powerups[i]; p.t+=dt;
+    const y=p.y + Math.sin(performance.now()/300 + i)*2*DPR;
+    if(p.type==="rapid"){ ctx.fillStyle="#9fd3ff"; }
+    else if(p.type==="speed"){ ctx.fillStyle="#b7ff8a"; }
+    else if(p.type==="god"){ ctx.fillStyle="#fff587"; }
+    else { ctx.fillStyle="#ffcf5b"; }
+    ctx.beginPath(); ctx.arc(p.x,y,10*DPR,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle="#0b2030";
+    const label = p.type==="rapid"?"RF":p.type==="speed"?"SPD":p.type==="god"?"GOD":"100";
+    ctx.fillText(label, p.x, y);
+  }
+}
+
+// ===== Flow =====
 function startRun(){
   overlayStart.classList.remove("show"); overlayGo.classList.remove("show"); overlayShop.classList.remove("show");
-  playing=true; paused=false; stage=1; score=0; runCoins=0; totalTime=0;
-  player=newPlayer(); bullets=[]; enemies=[]; coins=[]; effects=[]; enemySpawnTimer=0; coinSpawnTimer=0;
+  playing=true; paused=false; stage=1; diff=1; score=0; runCoins=0; totalTime=0;
+  player=newPlayer(); bullets=[]; enemies=[]; coins=[]; effects=[]; powerups=[];
+  enemySpawnTimer=0; coinSpawnTimer=0; powerSpawnTimer=2;
   toStage2At=Math.max(10, 30-meta.upgrades.magnet*2);
-  for(let i=0;i<10;i++) spawnCoin();
+  for(let i=0;i<12;i++) spawnCoin();
   document.getElementById("btnPause").textContent="Tauko";
+  hudStage.textContent="Taso 1";
 }
 function gameOver(){
   playing=false; paused=false; meta.bank+=runCoins; saveMeta();
@@ -282,9 +332,13 @@ function gameOver(){
   overlayGo.classList.add("show");
 }
 
-// --- Update/Render ---
+// ===== Update/Render =====
 function update(dt){
   if(!playing||paused) return; totalTime+=dt;
+
+  // taso/diff-progressio
+  if(stage===1 && runCoins>=toStage2At){ stage=2; diff=2; hudStage.textContent="Taso 2"; effects.push({type:"flash",t:0}); }
+  if(stage>=2){ diff = Math.min(10, 2 + Math.floor(totalTime/18)); hudStage.textContent = "Taso "+diff; }
 
   // liike
   let vx=0,vy=0;
@@ -292,21 +346,25 @@ function update(dt){
   if(keys["arrowleft"]||keys["a"]) vx-=1; if(keys["arrowright"]||keys["d"]) vx+=1;
   vx+=stickVec.x; vy+=stickVec.y;
   const len=Math.hypot(vx,vy); if(len>0){ vx/=len; vy/=len; moveDir={x:vx,y:vy}; }
-  player.x=clamp(player.x+vx*player.speed*dt, 10, W-10);
-  player.y=clamp(player.y+vy*player.speed*dt, 10, H-10);
 
+  const speedMul = tempPower.speed>0 ? 1.45 : 1.0;
+  player.x=clamp(player.x+vx*player.speed*dt*speedMul, 10, W-10);
+  player.y=clamp(player.y+vy*player.speed*dt*speedMul, 10, H-10);
+
+  // cooldownit
   if(player.fireCd>0) player.fireCd-=dt;
-  if(tempPower.magnet>0) tempPower.magnet-=dt;
-  if(tempPower.rapid>0) tempPower.rapid-=dt;
+  for(const k of ["magnet","rapid","shield","speed","god"]) if(tempPower[k]>0) tempPower[k]-=dt;
 
-  // kolikot
-  coinSpawnTimer-=dt; if(coinSpawnTimer<=0 && coins.length<20){ spawnCoin(); coinSpawnTimer=rand(0.3,0.9); }
+  // spawns
+  coinSpawnTimer-=dt; if(coinSpawnTimer<=0 && coins.length<24){ spawnCoin(); coinSpawnTimer=rand(0.3,0.9); }
 
-  // taso
-  if(stage===1 && runCoins>=toStage2At){ stage=2; hudStage.textContent="Taso 2"; effects.push({type:"flash",t:0}); }
+  if(stage>=2){
+    enemySpawnTimer-=dt; if(enemySpawnTimer<=0){ spawnEnemy(); enemySpawnTimer=Math.max(0.25, 1.2 - Math.min(40,totalTime)*0.02); }
+  }
 
-  // vihut
-  if(stage===2){ enemySpawnTimer-=dt; if(enemySpawnTimer<=0){ spawnEnemy(); enemySpawnTimer=Math.max(0.25,1.2-Math.min(40,totalTime)*0.02); } }
+  powerSpawnTimer-=dt; if(powerSpawnTimer<=0 && powerups.length<3){ spawnPowerup(); powerSpawnTimer=rand(6,12); }
+
+  // viholliset -> kohti pelaajaa
   for(const e of enemies){ const a=Math.atan2(player.y-e.y,player.x-e.x); e.x+=Math.cos(a)*e.speed*dt; e.y+=Math.sin(a)*e.speed*dt; }
 
   // ammukset
@@ -319,19 +377,30 @@ function update(dt){
       if(dist2(e.x,e.y,b.x,b.y) < (e.r+b.r)*(e.r+b.r)){ bullets.splice(j,1); e.hp-=1;
         if(e.hp<=0){ effects.push({type:"boom",x:e.x,y:e.y,t:0}); enemies.splice(i,1); score+=15; } break; } } }
 
-  // kolikon keruu + magneetti
-  const mR=(60+meta.upgrades.magnet*18)*DPR*(tempPower.magnet>0?1.8:1);
+  // kolikot
+  const mR=(70+meta.upgrades.magnet*26)*DPR*(tempPower.magnet>0?1.8:1); // isompi magneetti
   for(let i=coins.length-1;i>=0;i--){ const c=coins[i]; const d2=dist2(player.x,player.y,c.x,c.y);
     if(d2<(player.r+c.r)*(player.r+c.r)){ coins.splice(i,1); runCoins++; score+=5;
-      if(Math.random()<0.08){ const r=Math.random(); if(r<0.34) tempPower.magnet=6; else if(r<0.68) tempPower.rapid=5; else tempPower.shield=1; }
+      // pieni satunnaispudotus edelleen
+      if(Math.random()<0.06){ const r=Math.random(); if(r<0.34) tempPower.magnet=6; else if(r<0.68) tempPower.rapid=5; else tempPower.shield=1; }
       continue; }
     if(d2<mR*mR){ const d=Math.sqrt(d2)||1, ux=(player.x-c.x)/d, uy=(player.y-c.y)/d, pull=120*DPR*dt; c.x+=ux*pull; c.y+=uy*pull; } }
 
+  // powerup pick
+  for(let i=powerups.length-1;i>=0;i--){
+    const p=powerups[i];
+    if(dist2(p.x,p.y,player.x,player.y) < (10*DPR+player.r)*(10*DPR+player.r)){
+      powerups.splice(i,1); applyPowerup(p);
+    }
+  }
+
   // vihun törmäys
-  for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i];
-    if(dist2(e.x,e.y,player.x,player.y) < (e.r+player.r)*(e.r+player.r)){
-      if(tempPower.shield>0){ tempPower.shield=0; effects.push({type:"shield",x:player.x,y:player.y,t:0}); enemies.splice(i,1); }
-      else { gameOver(); break; } } }
+  if(tempPower.god<=0){ // kuolemattomuus päällä → ei vahinkoa
+    for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i];
+      if(dist2(e.x,e.y,player.x,player.y) < (e.r+player.r)*(e.r+player.r)){
+        if(tempPower.shield>0){ tempPower.shield=0; effects.push({type:"shield",x:player.x,y:player.y,t:0}); enemies.splice(i,1); }
+        else { gameOver(); break; } } }
+  }
 
   hudCoins.textContent="💰 "+runCoins;
   hudScore.textContent="⭐ "+Math.floor(score);
@@ -357,16 +426,19 @@ function render(dt){
   ctx.fillStyle="#aee1ff";
   for(const b of bullets){ ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill(); }
 
-  // pelaaja (silmä katsoo samaan suuntaan kuin ammunta)
+  // powerupit
+  renderPowerups(dt);
+
+  // pelaaja (katse = sama suunta kuin ammunta)
   if(player){
     ctx.fillStyle="#7bd7ff"; ctx.beginPath(); ctx.arc(player.x,player.y,player.r,0,Math.PI*2); ctx.fill();
     const v=getAimVec(); const ang=Math.atan2(v.y,v.x);
     ctx.fillStyle="#0b2030"; ctx.beginPath();
     ctx.arc(player.x+Math.cos(ang)*player.r*0.45, player.y+Math.sin(ang)*player.r*0.45, player.r*0.4, 0, Math.PI*2); ctx.fill();
-    if(tempPower.magnet>0){ ctx.strokeStyle="rgba(120,200,255,.25)"; ctx.lineWidth=2*DPR; ctx.beginPath();
-      ctx.arc(player.x,player.y,(60+meta.upgrades.magnet*18)*DPR*0.6,0,Math.PI*2); ctx.stroke(); }
-    if(tempPower.shield>0){ ctx.strokeStyle="rgba(180,255,220,.45)"; ctx.lineWidth=3*DPR; ctx.beginPath();
-      ctx.arc(player.x,player.y,player.r+6*DPR,0,Math.PI*2); ctx.stroke(); }
+
+    if(tempPower.god>0){ ctx.strokeStyle="rgba(255,255,160,.6)"; ctx.lineWidth=3*DPR; ctx.beginPath(); ctx.arc(player.x,player.y,player.r+8*DPR,0,Math.PI*2); ctx.stroke(); }
+    if(tempPower.magnet>0){ ctx.strokeStyle="rgba(120,200,255,.25)"; ctx.lineWidth=2*DPR; ctx.beginPath(); ctx.arc(player.x,player.y,(70+meta.upgrades.magnet*26)*DPR*0.6,0,Math.PI*2); ctx.stroke(); }
+    if(tempPower.shield>0){ ctx.strokeStyle="rgba(180,255,220,.45)"; ctx.lineWidth=3*DPR; ctx.beginPath(); ctx.arc(player.x,player.y,player.r+6*DPR,0,Math.PI*2); ctx.stroke(); }
   }
 
   // efektit
@@ -386,7 +458,7 @@ function render(dt){
 
 function loop(ts){ if(!lastTs) lastTs=ts; const dt=Math.min(0.033,(ts-lastTs)/1000); lastTs=ts; update(dt); render(dt); requestAnimationFrame(loop); }
 
-// --- Boot ---
+// ===== Boot =====
 resize(); hudStage.textContent="Taso 1";
 document.addEventListener("touchstart", ()=>{ if(!playing) startRun(); }, {once:false});
 document.addEventListener("mousedown", ()=>{ if(!playing) startRun(); }, {once:false});
