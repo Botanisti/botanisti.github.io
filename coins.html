@@ -679,6 +679,8 @@ function render(dt) {
   }
 
   // player
+// player
+if (player) {
   // body
   ctx.fillStyle = "#7bd7ff";
   ctx.beginPath();
@@ -688,7 +690,11 @@ function render(dt) {
   const ang = Math.atan2(aim.dy, aim.dx);
   ctx.fillStyle = "#0b2030";
   ctx.beginPath();
-  ctx.arc(player.x + Math.cos(ang)*player.r*0.45, player.y + Math.sin(ang)*player.r*0.45, player.r*0.4, 0, Math.PI*2);
+  ctx.arc(
+    player.x + Math.cos(ang)*player.r*0.45,
+    player.y + Math.sin(ang)*player.r*0.45,
+    player.r*0.4, 0, Math.PI*2
+  );
   ctx.fill();
 
   // powerup auras
@@ -706,6 +712,8 @@ function render(dt) {
     ctx.arc(player.x, player.y, player.r + 6*DPR, 0, Math.PI*2);
     ctx.stroke();
   }
+}
+  
 
   // effects
   for (let i=effects.length-1;i>=0;i--) {
