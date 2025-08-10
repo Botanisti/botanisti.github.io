@@ -27,7 +27,6 @@
   .muted { color:#9cb3d0; font-size:13px; }
   .buy { padding:8px 12px; border-radius:8px; border:1px solid #2a3a52; background:#172233; cursor:pointer; }
   .row { display:flex; gap:10px; flex-wrap:wrap; }
-
   .shop-item { display:grid; grid-template-columns:1fr auto; gap:6px 12px; align-items:center;
     padding:10px; border:1px solid #24344a; border-radius:10px; background:#0b121b; margin:8px 0; }
   .shop-item h3{ margin:0; font-size:16px; }
@@ -42,9 +41,6 @@
     background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); pointer-events:auto; display:grid; place-items:center; -webkit-tap-highlight-color:transparent; }
   .actionBtn span{ font-size:13px; color:#cfe3ff; }
   @media (min-width: 900px) { .stickZone, .actionBtn { display:none; } }
-
-  /* Powerup icons */
-  .pu { position:absolute; width:22px; height:22px; border-radius:4px; }
 </style>
 </head>
 <body>
@@ -69,10 +65,10 @@
 <div class="overlay" id="overlayStart">
   <div class="panel">
     <h1>Kolikkajuoksu</h1>
-    <p>Kerää kolikoita. Taso 2 tuo viholliset (hitaina), ja <b>vaikeustaso</b> kasvaa pehmeästi tasolle 10.</p>
-    <p class="muted">Mobiili: vasen tikku liikuttaa ja <em>auto-aim</em> ampuu lähintä vihollista. FIRE pohjassa = automaattitulitus.</p>
+    <p>Endless. Taso kasvaa rajatta. Joka 10. tasolla bossi. 10+ tasoilla mobeilla on enemmän HP:ta.</p>
+    <p class="muted">Mobiili: auto-aim lähimpään vihuun, FIRE pohjassa = automaattitulitus.</p>
     <div class="row" style="justify-content:space-between; align-items:center; margin-top:8px;">
-      <div class="muted">Pysyvät päivitykset tallentuvat localStorageen.</div>
+      <div class="muted">Pysyvät päivitykset tallentuvat.</div>
       <button class="buy" id="btnStart">Aloita</button>
     </div>
   </div>
@@ -117,8 +113,14 @@ const rand=(a,b)=>Math.random()*(b-a)+a;
 const dist2=(ax,ay,bx,by)=>{const dx=ax-bx,dy=ay-by;return dx*dx+dy*dy;};
 
 // ===== Persistent meta (shop) =====
-const DEFAULT_META={ bank:0, upgrades:{ speed:0, fireRate:0, magnet:0, shield:0 } };
-let meta=(()=>{ try{ const raw=localStorage.getItem("coinrunner_meta"); return raw?JSON.parse(raw):structuredClone(DEFAULT_META); }catch(e){ return structuredClone(DEFAULT_META);} })();
+const DEFAULT_META={ bank:0, upgrades:{ speed:0, fireRate:0, magnet:0, shield:0, damage:0 } };
+let meta=(()=>{ try{ const raw=localStorage.getItem("coinrunner_meta"); const v=raw?JSON.parse(raw):null;
+  if(!v) return structuredClone(DEFAULT_META);
+  // migraatio: jos damage puuttuu
+  if(v.upgrades && typeof v.upgrades.damage!=="number") v.upgrades.damage=0;
+  if(typeof v.bank!=="number") v.bank=0;
+  return v;
+} catch(e){ return structuredClone(DEFAULT_META);} })();
 const saveMeta=()=>localStorage.setItem("coinrunner_meta", JSON.stringify(meta));
 
 // ===== Canvas =====
@@ -140,28 +142,26 @@ const hudScore=document.getElementById("hudScore");
 const hudStage=document.getElementById("hudStage");
 
 // ===== Game state =====
-let playing=false, paused=false, stage=1;      // "stage" = näkyvä taso
-let diff=1;                                     // sisäinen vaikeustaso 1..10
+let playing=false, paused=false, stage=1; // näkyvä taso
 let score=0, runCoins=0, totalTime=0;
 let enemySpawnTimer=0, coinSpawnTimer=0, powerSpawnTimer=0;
 let bullets=[], enemies=[], coins=[], effects=[], powerups=[];
 let player=null, keys={}, lastTs=0, toStage2At=30;
 let tempPower={ magnet:0, rapid:0, shield:0, speed:0, god:0 };
+let bossAlive=false, nextBossAt=10;
 
 // ===== Input =====
-const aim={dx:1,dy:0};        // hiiriaim desktopille
-let moveDir={x:0,y:0};        // mobiili-liikesuunta = oletus-aim
+const aim={dx:1,dy:0};
+let moveDir={x:0,y:0};
 document.addEventListener("keydown",(e)=>{
   if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," ","Space","w","a","s","d","W","A","S","D"].includes(e.key)) e.preventDefault();
   keys[e.key.toLowerCase()]=true;
   if(e.key===" "||e.key==="Spacebar") shoot();
 });
 document.addEventListener("keyup",(e)=>{ keys[e.key.toLowerCase()]=false; });
-
 canvas.addEventListener("mousemove",(e)=>{ if(!player) return;
   const r=canvas.getBoundingClientRect(); const mx=(e.clientX-r.left)*DPR; const my=(e.clientY-r.top)*DPR;
-  aim.dx=mx-player.x; aim.dy=my-player.y;
-});
+  aim.dx=mx-player.x; aim.dy=my-player.y; });
 canvas.addEventListener("mousedown",()=>{ if(!player) return; shoot(); });
 
 // Touch joystick + hold-to-fire
@@ -179,7 +179,6 @@ stickZone.addEventListener("touchmove",(ev)=>{ if(!stickActive) return; for(cons
   const ux=dx/len, uy=dy/len, mag=Math.min(maxR,len-dead);
   setStick(stickCenter.x+ux*mag, stickCenter.y+uy*mag); stickVec.x=ux; stickVec.y=uy; moveDir.x=ux; moveDir.y=uy; } },{passive:false});
 stickZone.addEventListener("touchend",(ev)=>{ for(const t of ev.changedTouches) if(t.identifier===stickId){ stickActive=false; stickId=null; stickVec.x=0; stickVec.y=0; setStick(stickCenter.x,stickCenter.y); } },{passive:false});
-
 let firing=false, fireTimer=null;
 function setFiring(on){ if(on && !firing){ firing=true; shoot(); fireTimer=setInterval(shoot, 90); } else if(!on && firing){ firing=false; clearInterval(fireTimer); fireTimer=null; } }
 fireBtn.addEventListener("touchstart", ()=> setFiring(true), {passive:false});
@@ -200,10 +199,11 @@ document.getElementById("btnReset").onclick=()=> startRun();
 
 // ===== Shop =====
 const shopDef=[
-  {key:"speed",name:"Liikkumisnopeus",desc:"Nopeampi liike.",base:60,step:60,max:6},
-  {key:"fireRate",name:"Tulinopeus",desc:"Lyhyempi laukaisuväli.",base:80,step:70,max:6},
-  {key:"magnet",name:"Magneetti",desc:"Kolikot vetäytyvät lähemmäs.",base:90,step:80,max:6},
-  {key:"shield",name:"Alkusuoja",desc:"Mahd. saada suojakilpi alkuun.",base:120,step:90,max:5}
+  {key:"speed",  name:"Liikkumisnopeus",   desc:"Nopeampi liike.",            base:60, step:60, max:10},
+  {key:"fireRate",name:"Tulinopeus",       desc:"Lyhyempi laukaisuväli.",     base:80, step:70, max:10},
+  {key:"magnet", name:"Magneetti",         desc:"Kolikot vetäytyvät lähemmäs.",base:90, step:80, max:10},
+  {key:"shield", name:"Alkusuoja",         desc:"Mahd. saada suojakilpi alkuun.",base:120,step:90,max:8},
+  {key:"damage", name:"Ammusten teho",     desc:"+vahinko / laukaus.",        base:100,step:120,max:12}
 ];
 function priceFor(k,l){ const d=shopDef.find(x=>x.key===k); return Math.round(d.base+d.step*l); }
 function updateShop(){
@@ -224,12 +224,11 @@ function updateShop(){
 
 // ===== Entities =====
 function newPlayer(){
-  // Tehdään päivityksistä selvästi tuntuvia
   const baseSpeed=180, speedPerLvl=28;
-  const baseFire=0.30, firePerLvl=0.035; // pienempi = nopeampi
+  const baseFire=0.30, firePerLvl=0.035;                  // pienempi = nopeampi
   const speed=(baseSpeed+meta.upgrades.speed*speedPerLvl)*DPR;
-  const fireInterval=Math.max(0.10, baseFire - meta.upgrades.fireRate*firePerLvl);
-  const p={ x:W/2, y:H/2, r:12*DPR, speed, fireCd:0, fireInterval, alive:true };
+  const fireInterval=Math.max(0.08, baseFire - meta.upgrades.fireRate*firePerLvl);
+  const p={ x:W/2, y:H/2, r:12*DPR, speed, fireCd:0, fireInterval, alive:true, damage:1+meta.upgrades.damage*0.35 };
   if(meta.upgrades.shield>0 && Math.random()<meta.upgrades.shield*0.12) tempPower.shield=1;
   return p;
 }
@@ -242,15 +241,34 @@ function spawnCoin(x,y){
   let tries=0; do{ x=x??rand(20,W-20); y=y??rand(20,H-20); tries++; if(tries>50) break; } while(uiAvoid(x,y));
   coins.push({x,y,r:8*DPR});
 }
-function enemySpeedFor(diffLvl){
-  // Taso 2 = hidas (0.25×), taso 10 = 1.0× (eli “vanha normaali”)
-  const scale=Math.max(0.25, Math.min(1, diffLvl/10));
-  return (60 + rand(0,60)) * scale * DPR; // vanha 60..120, nyt skaalattu
+
+// ---- Difficulty curves ----
+// Taso 2–9: hidas; taso 10: "vanha normaali"; sen jälkeen kasvaa maltillisesti.
+function enemySpeedFor(level){
+  const baseMin=60, baseMax=120; // tasolla 10
+  const slowFactor = level<=10 ? Math.max(0.25, (level-2)/8) : 1 + Math.min(0.7, (level-10)*0.03);
+  const sp = (baseMin + rand(0, baseMax-baseMin)) * slowFactor * DPR;
+  return sp;
+}
+function enemyHpFor(level){
+  if(level<=10) return 1;
+  // nousee ~ joka 3. taso (+1), alkaa tasolta 11
+  return 1 + Math.floor((level-10)/3);
+}
+
+// ---- Boss logic every 10 levels ----
+function spawnBoss(level){
+  const r = 28*DPR + Math.min(24*DPR, level*1.2);
+  const hp = Math.floor(10 + level*2.2); // skaalautuva HP
+  const sp = 70*DPR + Math.min(150*DPR, (level-10)*2*DPR); // kohtuullinen nopeus
+  const x=rand(W*0.2,W*0.8), y=rand(H*0.2,H*0.8);
+  enemies.push({x,y,r, speed:sp, hp, boss:true});
+  bossAlive=true;
 }
 function spawnEnemy(){
   const m=30*DPR; let x=0,y=0; const s=Math.floor(rand(0,4));
   if(s===0){x=rand(0,W);y=-m} if(s===1){x=W+m;y=rand(0,H)} if(s===2){x=rand(0,W);y=H+m} if(s===3){x=-m;y=rand(0,H)}
-  enemies.push({x,y,r:16*DPR,speed:enemySpeedFor(diff),hp:1});
+  enemies.push({x,y,r:16*DPR,speed:enemySpeedFor(stage),hp:enemyHpFor(stage),boss:false});
 }
 
 // ===== Auto-aim (mobiili) =====
@@ -263,7 +281,6 @@ function nearestEnemyDir(){
   return {x:dx/L, y:dy/L};
 }
 function getAimVec(){
-  // Mobiili: tähtää lähintä vihollista jos löytyy
   const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints>0;
   if(isTouch){
     const n=nearestEnemyDir();
@@ -280,14 +297,13 @@ function shoot(){
   const dir=getAimVec(); const len=Math.hypot(dir.x,dir.y)||1; const ux=dir.x/len, uy=dir.y/len;
   const rapidMul = tempPower.rapid>0 ? 0.55 : 1;
   const speedBoost = 480*DPR;
-  bullets.push({x:player.x,y:player.y,vx:ux*speedBoost,vy:uy*speedBoost,r:4*DPR,life:1.4});
+  bullets.push({x:player.x,y:player.y,vx:ux*speedBoost,vy:uy*speedBoost,r:4*DPR,life:1.4, dmg:player.damage});
   player.fireCd = player.fireInterval * rapidMul;
   effects.push({type:"muzzle",x:player.x,y:player.y,t:0});
 }
 
 // ===== Powerups field-spawn =====
 function spawnPowerup(){
-  // types: rapid, speed, god, bag
   const types=["rapid","speed","god","bag"];
   const type = types[Math.floor(rand(0,types.length))];
   let x,y,tries=0; do{ x=rand(20,W-20); y=rand(20,H-20); tries++; if(tries>40) break; }while(uiAvoid(x,y));
@@ -296,7 +312,7 @@ function spawnPowerup(){
 function applyPowerup(p){
   if(p.type==="rapid"){ tempPower.rapid=6; }
   else if(p.type==="speed"){ tempPower.speed=6; }
-  else if(p.type==="god"){ tempPower.god=6; tempPower.shield=0; } // kuolemattomuus
+  else if(p.type==="god"){ tempPower.god=6; tempPower.shield=0; }
   else if(p.type==="bag"){ runCoins+=100; score+=100; }
 }
 function renderPowerups(dt){
@@ -318,7 +334,7 @@ function renderPowerups(dt){
 // ===== Flow =====
 function startRun(){
   overlayStart.classList.remove("show"); overlayGo.classList.remove("show"); overlayShop.classList.remove("show");
-  playing=true; paused=false; stage=1; diff=1; score=0; runCoins=0; totalTime=0;
+  playing=true; paused=false; stage=1; score=0; runCoins=0; totalTime=0; bossAlive=false; nextBossAt=10;
   player=newPlayer(); bullets=[]; enemies=[]; coins=[]; effects=[]; powerups=[];
   enemySpawnTimer=0; coinSpawnTimer=0; powerSpawnTimer=2;
   toStage2At=Math.max(10, 30-meta.upgrades.magnet*2);
@@ -328,7 +344,7 @@ function startRun(){
 }
 function gameOver(){
   playing=false; paused=false; meta.bank+=runCoins; saveMeta();
-  document.getElementById("goStats").textContent=`Pisteet: ${Math.floor(score)} ⭐ — Kolikot: ${runCoins} 💰 — Aika: ${Math.floor(totalTime)} s`;
+  document.getElementById("goStats").textContent=`Pisteet: ${Math.floor(score)} ⭐ — Kolikot: ${runCoins} 💰 — Aika: ${Math.floor(totalTime)} s (Taso ${stage})`;
   overlayGo.classList.add("show");
 }
 
@@ -336,9 +352,19 @@ function gameOver(){
 function update(dt){
   if(!playing||paused) return; totalTime+=dt;
 
-  // taso/diff-progressio
-  if(stage===1 && runCoins>=toStage2At){ stage=2; diff=2; hudStage.textContent="Taso 2"; effects.push({type:"flash",t:0}); }
-  if(stage>=2){ diff = Math.min(10, 2 + Math.floor(totalTime/18)); hudStage.textContent = "Taso "+diff; }
+  // Stage progression (ENDLESS)
+  if(stage===1 && runCoins>=toStage2At){ stage=2; hudStage.textContent="Taso 2"; effects.push({type:"flash",t:0}); }
+  if(stage>=2){
+    // Nostetaan tasoa ajalla; kasvaa rajatta
+    const newStage = 2 + Math.floor(totalTime/18);
+    if(newStage>stage){ stage=newStage; hudStage.textContent="Taso "+stage; }
+  }
+
+  // Boss spawn jokaisella 10:llä
+  if(stage>=nextBossAt && !bossAlive){
+    spawnBoss(stage);
+    nextBossAt += 10;
+  }
 
   // liike
   let vx=0,vy=0;
@@ -346,7 +372,6 @@ function update(dt){
   if(keys["arrowleft"]||keys["a"]) vx-=1; if(keys["arrowright"]||keys["d"]) vx+=1;
   vx+=stickVec.x; vy+=stickVec.y;
   const len=Math.hypot(vx,vy); if(len>0){ vx/=len; vy/=len; moveDir={x:vx,y:vy}; }
-
   const speedMul = tempPower.speed>0 ? 1.45 : 1.0;
   player.x=clamp(player.x+vx*player.speed*dt*speedMul, 10, W-10);
   player.y=clamp(player.y+vy*player.speed*dt*speedMul, 10, H-10);
@@ -358,10 +383,16 @@ function update(dt){
   // spawns
   coinSpawnTimer-=dt; if(coinSpawnTimer<=0 && coins.length<24){ spawnCoin(); coinSpawnTimer=rand(0.3,0.9); }
 
+  // jos bossi elossa → vähennä mobispawneja
   if(stage>=2){
-    enemySpawnTimer-=dt; if(enemySpawnTimer<=0){ spawnEnemy(); enemySpawnTimer=Math.max(0.25, 1.2 - Math.min(40,totalTime)*0.02); }
+    enemySpawnTimer-=dt; 
+    const cap = bossAlive ? 4 : 16;
+    if(enemySpawnTimer<=0 && enemies.filter(e=>!e.boss).length < cap){
+      spawnEnemy();
+      // spawn-väli lyhenee hitaasti tasojen myötä
+      enemySpawnTimer=Math.max(0.25, 1.2 - Math.min(120,totalTime)*0.01);
+    }
   }
-
   powerSpawnTimer-=dt; if(powerSpawnTimer<=0 && powerups.length<3){ spawnPowerup(); powerSpawnTimer=rand(6,12); }
 
   // viholliset -> kohti pelaajaa
@@ -371,17 +402,30 @@ function update(dt){
   for(let i=bullets.length-1;i>=0;i--){ const b=bullets[i]; b.x+=b.vx*dt; b.y+=b.vy*dt; b.life-=dt;
     if(b.life<=0 || b.x<-20 || b.x>W+20 || b.y<-20 || b.y>H+20) bullets.splice(i,1); }
 
-  // bullet vs enemy
-  for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i];
-    for(let j=bullets.length-1;j>=0;j--){ const b=bullets[j];
-      if(dist2(e.x,e.y,b.x,b.y) < (e.r+b.r)*(e.r+b.r)){ bullets.splice(j,1); e.hp-=1;
-        if(e.hp<=0){ effects.push({type:"boom",x:e.x,y:e.y,t:0}); enemies.splice(i,1); score+=15; } break; } } }
+  // bullet vs enemy (damage huomioiden)
+  for(let i=enemies.length-1;i>=0;i--){
+    const e=enemies[i];
+    for(let j=bullets.length-1;j>=0;j--){
+      const b=bullets[j];
+      if(dist2(e.x,e.y,b.x,b.y) < (e.r+b.r)*(e.r+b.r)){
+        bullets.splice(j,1);
+        e.hp -= b.dmg;
+        if(e.hp<=0){
+          if(e.boss) bossAlive=false;
+          effects.push({type:"boom",x:e.x,y:e.y,t:0}); 
+          enemies.splice(i,1); 
+          score+= e.boss ? 150 : 15;
+          runCoins+= e.boss ? 30 : 1; // pieni palkinto bossista
+        }
+        break;
+      }
+    }
+  }
 
-  // kolikot
-  const mR=(70+meta.upgrades.magnet*26)*DPR*(tempPower.magnet>0?1.8:1); // isompi magneetti
+  // kolikot (magneetti)
+  const mR=(70+meta.upgrades.magnet*26)*DPR*(tempPower.magnet>0?1.8:1);
   for(let i=coins.length-1;i>=0;i--){ const c=coins[i]; const d2=dist2(player.x,player.y,c.x,c.y);
     if(d2<(player.r+c.r)*(player.r+c.r)){ coins.splice(i,1); runCoins++; score+=5;
-      // pieni satunnaispudotus edelleen
       if(Math.random()<0.06){ const r=Math.random(); if(r<0.34) tempPower.magnet=6; else if(r<0.68) tempPower.rapid=5; else tempPower.shield=1; }
       continue; }
     if(d2<mR*mR){ const d=Math.sqrt(d2)||1, ux=(player.x-c.x)/d, uy=(player.y-c.y)/d, pull=120*DPR*dt; c.x+=ux*pull; c.y+=uy*pull; } }
@@ -395,10 +439,10 @@ function update(dt){
   }
 
   // vihun törmäys
-  if(tempPower.god<=0){ // kuolemattomuus päällä → ei vahinkoa
+  if(tempPower.god<=0){
     for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i];
       if(dist2(e.x,e.y,player.x,player.y) < (e.r+player.r)*(e.r+player.r)){
-        if(tempPower.shield>0){ tempPower.shield=0; effects.push({type:"shield",x:player.x,y:player.y,t:0}); enemies.splice(i,1); }
+        if(tempPower.shield>0){ tempPower.shield=0; effects.push({type:"shield",x:player.x,y:player.y,t:0}); enemies.splice(i,1); if(e.boss) bossAlive=false; }
         else { gameOver(); break; } } }
   }
 
@@ -418,18 +462,37 @@ function render(dt){
     g.addColorStop(0,"#ffe58a"); g.addColorStop(1,"#c38a1c"); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(c.x,c.y,c.r,0,Math.PI*2); ctx.fill(); }
 
   // viholliset
-  ctx.fillStyle="#ff5b6f";
-  for(const e of enemies){ ctx.beginPath(); ctx.arc(e.x,e.y,e.r,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#2b0b10";
-    ctx.beginPath(); ctx.arc(e.x+e.r*0.25, e.y-e.r*0.25, e.r*0.35, 0,Math.PI*2); ctx.fill(); ctx.fillStyle="#ff5b6f"; }
+  for(const e of enemies){
+    ctx.fillStyle=e.boss?"#ff8aa0":"#ff5b6f";
+    ctx.beginPath(); ctx.arc(e.x,e.y,e.r,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle="#2b0b10"; ctx.beginPath(); ctx.arc(e.x+e.r*0.25, e.y-e.r*0.25, e.r*0.35, 0,Math.PI*2); ctx.fill();
+    // HP-palkki
+    if(e.hp>1){
+      const w= Math.max(24*DPR, e.r*1.6), h=4*DPR;
+      const pct = Math.max(0, Math.min(1, e.hp / (e.boss? (10 + stage*2.2) : enemyHpFor(stage))));
+      ctx.fillStyle="rgba(0,0,0,.4)"; ctx.fillRect(e.x-w/2, e.y-e.r-10*DPR, w, h);
+      ctx.fillStyle="#7bff9a"; ctx.fillRect(e.x-w/2, e.y-e.r-10*DPR, w*pct, h);
+    }
+  }
 
   // ammukset
   ctx.fillStyle="#aee1ff";
   for(const b of bullets){ ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill(); }
 
   // powerupit
-  renderPowerups(dt);
+  ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.font=(12*DPR)+"px system-ui";
+  for(const p of powerups){
+    const y=p.y + Math.sin(performance.now()/300 + p.x*0.01)*2*DPR;
+    if(p.type==="rapid"){ ctx.fillStyle="#9fd3ff"; }
+    else if(p.type==="speed"){ ctx.fillStyle="#b7ff8a"; }
+    else if(p.type==="god"){ ctx.fillStyle="#fff587"; }
+    else { ctx.fillStyle="#ffcf5b"; }
+    ctx.beginPath(); ctx.arc(p.x,y,10*DPR,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle="#0b2030"; const label = p.type==="rapid"?"RF":p.type==="speed"?"SPD":p.type==="god"?"GOD":"100";
+    ctx.fillText(label, p.x, y);
+  }
 
-  // pelaaja (katse = sama suunta kuin ammunta)
+  // pelaaja
   if(player){
     ctx.fillStyle="#7bd7ff"; ctx.beginPath(); ctx.arc(player.x,player.y,player.r,0,Math.PI*2); ctx.fill();
     const v=getAimVec(); const ang=Math.atan2(v.y,v.x);
