@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+<title>Tamagotchi — Kid Edition</title>
+<style>
+  :root{--bg:#101417;--face:#eaf2df;--ink:#1b1f21;--ring:#aab99a;--btn:#1f2529;--ok:#9be37a;--warn:#ffcc66;--bad:#ff8e7a}
+  html,body{margin:0;height:100%;background:var(--bg);color:#e9f0ea;font:16px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
+  .wrap{max-width:640px;margin:16px auto;padding:16px}
+  h1{margin:0 0 8px;font-size:18px;color:#cfe8b5}
+  .device{border:2px solid #263038;border-radius:20px;padding:14px;background:radial-gradient(120% 120% at 50% -10%,#2e363b,#1a1f23);box-shadow:0 10px 40px rgba(0,0,0,.5)}
+  .screen{background:linear-gradient(#f3f8ec,#dfe8d2);border:4px solid var(--ring);border-radius:14px;padding:10px;box-shadow:inset 0 2px 8px rgba(0,0,0,.25)}
+  .lcd{background:var(--face);border:2px solid var(--ring);border-radius:10px;padding:10px;image-rendering:pixelated;color:var(--ink)}
+  .top{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#2b2f2a;margin-bottom:6px}
+  .sprite{white-space:pre;line-height:1;font-family:"Courier New",ui-monospace,monospace;font-size:18px;
+          height:120px;display:flex;align-items:center;justify-content:center;margin:4px 0 8px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-family:"Courier New",ui-monospace}
+  .badge{background:#eef4e6;border:1px solid #c9d2c1;border-radius:8px;padding:6px 8px}
+  .badge.warn{background:#fff5db;border-color:#f2d28a}
+  .badge.bad{background:#ffe6e3;border-color:#f1aba1}
+  .icons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+  button{background:var(--btn);color:#e8efea;border:1px solid #3a4248;border-radius:12px;padding:12px;font-size:16px;
+         display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-shadow:0 2px 0 #0c1013}
+  button:active{transform:translateY(1px);box-shadow:0 1px 0 #0c1013}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .pill{background:#20262a;border:1px solid #3a4146;border-radius:999px;padding:6px 10px;color:#cfe8b5}
+  select,input[type="checkbox"]{accent-color:var(--ok)}
+  .footer{margin-top:10px;color:#9aa6a9;font-size:12px;text-align:center}
+  .dead{color:#ffb0a2}
+  .muted{opacity:.7}
+  .big{font-size:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Tamagotchi — Kid Edition</h1>
+  <div class="device" role="application" aria-label="Tamagotchi Kid Edition">
+    <div class="screen">
+      <div class="top">
+        <div>Vaihe: <b id="stage">muna</b> • Ikä: <b id="age">0:00</b></div>
+        <div><span id="lights">Valot päällä</span> • <span id="life">elossa</span></div>
+      </div>
+      <div class="lcd" aria-live="polite">
+        <div id="sprite" class="sprite">( •_• )</div>
+        <div id="stats" class="stats"></div>
+        <div class="icons">
+          <button id="meal">🍚 Ruoki</button>
+          <button id="snack">🍪 Herkku</button>
+          <button id="play">🎲 Leiki</button>
+          <button id="clean">🧽 Siivoa</button>
+          <button id="med">💊 Lääke</button>
+          <button id="lightsBtn">💡 Valot</button>
+        </div>
+        <div class="controls">
+          <span class="pill">Nopeus:
+            <select id="speed">
+              <option value="60">1 min = 60 s (hidas)</option>
+              <option value="15">1 min = 15 s</option>
+              <option value="5" selected>1 min = 5 s</option>
+              <option value="1">1 min = 1 s</option>
+              <option value="0.3">1 min = 0.3 s (turbo)</option>
+            </select>
+          </span>
+          <label class="pill"><input type="checkbox" id="kidMode" checked /> Kid mode (ei kuolemaa)</label>
+          <label class="pill"><input type="checkbox" id="muteChk" /> Mykistä äänet</label>
+          <button id="reset" class="pill">Nollaa</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      Tallennus on automaattinen. Sulje sivu, avaa myöhemmin — lemmikki ikääntyy “pois ollessa”.
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Tila ---------- */
+const SAVE = "tama_kid_v1";
+const DEF = () => ({
+  ageMin: 0, stage: "egg",
+  hunger: 10, happy: 85, health: 100, poop: 0, discipline: 50,
+  sleeping: false, lightsOff: false, alive: true,
+  lastReal: Date.now()
+});
+let pet = null;
+
+/* ---------- Apurit ---------- */
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const rnd=()=>Math.random();
+const now=()=>Date.now();
+
+function updateStage(p){
+  const m=p.ageMin;
+  if (m<30) p.stage="egg";
+  else if (m<24*60) p.stage="child";
+  else if (m<72*60) p.stage="teen";
+  else p.stage="adult";
+}
+function shouldSleep(p){
+  const h=Math.floor((p.ageMin%(24*60))/60);
+  return (h>=20||h<7);
+}
+function sprite(p){
+  if(!p.alive) return String.raw`
+   ( z_z ) 
+    /|\   
+    / \   
+  `;
+  if(p.sleeping) return String.raw`
+   ( -_- ) z
+    /|\   
+    / \   
+  `;
+  const sad = p.hunger>70 || p.happy<30 || p.health<60 || p.poop>0;
+  const face = sad ? "( •︵• )" : "( •‿• )";
+  const poop = p.poop>0 ? "  💩".repeat(Math.min(3,p.poop)) : "";
+  return `${face}\n  /|\\   ${poop}\n  / \\  `;
+}
+function beep(on){
+  if(!on) return;
+  try{
+    const a=new (window.AudioContext||window.webkitAudioContext)();
+    const o=a.createOscillator(), g=a.createGain();
+    o.type="square"; o.frequency.value=900;
+    g.gain.value=0.06; o.connect(g); g.connect(a.destination);
+    o.start(); setTimeout(()=>{o.stop();a.close()},120);
+  }catch{} 
+}
+
+/* ---------- Simulagia ---------- */
+function tick(p, minutes=1, kidMode=true){
+  if(!p.alive && !kidMode) return;
+  if(!p.alive && kidMode){ /* “pitkä uni” eikä kuluteta enempää */ return; }
+
+  p.ageMin += minutes;
+  // peruskulutus
+  p.hunger = clamp(p.hunger + 0.5*(minutes/10), 0, 100); // ~+3/h
+  p.happy  = clamp(p.happy  - 0.2*(minutes/10), 0, 100); // ~-1.2/h
+
+  // kakka ~3–4h välein
+  if(rnd() < minutes/240){ p.poop += 1; p.happy = clamp(p.happy-5,0,100); }
+
+  // lika ja nälkä heikentää
+  if(p.poop>0 && rnd()<0.001*minutes) p.health = clamp(p.health-5,0,100);
+  if(p.hunger>80) p.health = clamp(p.health - 0.5*(minutes/10), 0, 100);
+
+  // uni
+  p.sleeping = shouldSleep(p);
+  if(p.sleeping && !p.lightsOff) p.happy = clamp(p.happy - 0.4*(minutes/10), 0, 100);
+
+  // kuolema tai “pitkä uni”
+  if(p.health<=0 || p.hunger>=100){
+    if(kidMode){ p.alive=false; /* ei resetoi mitään; UI näyttää “nukkuu pitkään” */ }
+    else p.alive=false;
+  }
+
+  updateStage(p);
+}
+
+/* ---------- Toiminnot ---------- */
+const actions={
+  meal(p){ if(!p.alive)return; p.hunger=clamp(p.hunger-25,0,100); p.happy=clamp(p.happy+2,0,100); },
+  snack(p){ if(!p.alive)return; p.hunger=clamp(p.hunger-10,0,100); p.happy=clamp(p.happy+6,0,100); },
+  play(p){ if(!p.alive||p.sleeping)return; // pikkupeli: arvaa 0/1
+    const hit = Math.random()<0.6; p.happy=clamp(p.happy+(hit?12:3),0,100);
+  },
+  clean(p){ if(!p.alive)return; if(p.poop>0){p.poop--; p.happy=clamp(p.happy+3,0,100);} },
+  med(p){ if(!p.alive)return; p.health=clamp(p.health+20,0,100); p.happy=clamp(p.happy-2,0,100); },
+  lights(p){ p.lightsOff=!p.lightsOff; }
+};
+
+/* ---------- Tallennus ---------- */
+function save(){ pet.lastReal=now(); localStorage.setItem(SAVE, JSON.stringify(pet)); }
+function load(){ try{ const r=localStorage.getItem(SAVE); return r?JSON.parse(r):null }catch{return null} }
+function catchUp(p){
+  const dt = now()-(p.lastReal||now());
+  if(dt<=0) return;
+  const mins = Math.min(Math.floor(dt/60000), 3*24*60); // max 3 vrk simulaatio
+  const kidMode = document.getElementById("kidMode").checked;
+  for(let m=0;m<mins;m+=10){ tick(p, Math.min(10, mins-m), kidMode); if(!p.alive && !kidMode)break; }
+}
+
+/* ---------- UI ---------- */
+const el={
+  stage:document.getElementById("stage"),
+  age:document.getElementById("age"),
+  lights:document.getElementById("lights"),
+  life:document.getElementById("life"),
+  sprite:document.getElementById("sprite"),
+  stats:document.getElementById("stats"),
+  meal:document.getElementById("meal"),
+  snack:document.getElementById("snack"),
+  play:document.getElementById("play"),
+  clean:document.getElementById("clean"),
+  med:document.getElementById("med"),
+  lightsBtn:document.getElementById("lightsBtn"),
+  speed:document.getElementById("speed"),
+  kidMode:document.getElementById("kidMode"),
+  muteChk:document.getElementById("muteChk"),
+  reset:document.getElementById("reset")
+};
+function fmtAge(min){const h=Math.floor(min/60),m=min%60;return `${h}:${String(m).padStart(2,"0")}`;}
+function badge(name,val,cl=""){return `<div class="badge ${cl}"><b>${name}:</b> ${Math.round(val)}</div>`;}
+function render(){
+  el.stage.textContent = ({egg:"muna",child:"lapsi",teen:"teini",adult:"aikuinen"})[pet.stage]||pet.stage;
+  el.age.textContent = fmtAge(pet.ageMin);
+  el.lights.textContent = pet.lightsOff? "Valot pois" : "Valot päällä";
+  el.life.innerHTML = pet.alive ? "elossa" : "<span class='dead'>nukkuu tosi pitkään</span>";
+  el.sprite.textContent = sprite(pet);
+
+  el.stats.innerHTML =
+    badge("Nälkä",pet.hunger, pet.hunger>70?"bad":"")+
+    badge("Onni",pet.happy, pet.happy<30?"warn":"")+
+    badge("Terveys",pet.health, pet.health<60?"warn":"")+
+    badge("Kuri",pet.discipline)+
+    badge("Kakka",pet.poop)+
+    badge("Uni", pet.sleeping?"nukkuu":"hereillä");
+}
+
+/* ---------- Loop ---------- */
+let last=performance.now(); let acc=0;
+function minuteMs(){ return parseFloat(el.speed.value||"5")*1000; }
+function loop(t){
+  const kidMode = el.kidMode.checked;
+  const dt=t-last; last=t; acc+=dt;
+  const ms=minuteMs();
+  while(acc>=ms){ tick(pet,1,kidMode); acc-=ms; }
+  render();
+  if(!loop._save || performance.now()-loop._save>8000){ save(); loop._save=performance.now(); }
+  requestAnimationFrame(loop);
+}
+
+/* ---------- Eventit ---------- */
+function click(btn,fn,beepIt=true){ btn.addEventListener("click",()=>{ fn(pet); render(); save(); if(beepIt && !el.muteChk.checked) beep(true) }) }
+click(el.meal,actions.meal);
+click(el.snack,actions.snack);
+click(el.play,actions.play);
+click(el.clean,actions.clean);
+click(el.med,actions.med);
+click(el.lightsBtn,actions.lights,false);
+el.reset.addEventListener("click",()=>{
+  if(confirm("Nollataanko lemmikki?")){ pet=DEF(); save(); render(); }
+});
+
+/* ---------- Boot ---------- */
+(function boot(){
+  pet = load() || DEF();
+  catchUp(pet);
+  render(); last=performance.now(); requestAnimationFrame(loop);
+  window.addEventListener("beforeunload", save);
+})();
+</script>
+</body>
+</html>
