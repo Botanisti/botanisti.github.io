@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fiktiivinen hoitosimulaattori – vatsa-demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+    h1, h2, h3 { margin-top: 0; }
+    .app {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+    .card {
+      background: #020617;
+      border-radius: 12px;
+      border: 1px solid #1f2937;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 12px;
+      border-radius: 999px;
+      background: #111827;
+      border: 1px solid #374151;
+      color: #9ca3af;
+      margin-left: 8px;
+    }
+    button, select {
+      font: inherit;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      padding: 8px 14px;
+      background: #111827;
+      color: #e5e7eb;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1f2937;
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    select {
+      width: 100%;
+    }
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+    .label {
+      font-size: 14px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+    .symptom-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 14px;
+    }
+    .symptom-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(55,65,81,0.5);
+    }
+    .symptom-name {
+      color: #e5e7eb;
+    }
+    .symptom-bar {
+      flex: 1;
+      margin: 0 8px;
+      height: 6px;
+      border-radius: 999px;
+      background: #111827;
+      overflow: hidden;
+    }
+    .symptom-bar-inner {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
+    }
+    .symptom-value {
+      min-width: 40px;
+      text-align: right;
+      color: #9ca3af;
+      font-variant-numeric: tabular-nums;
+    }
+    .log {
+      font-size: 14px;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+    .log-entry {
+      padding: 6px 0;
+      border-bottom: 1px dashed rgba(55,65,81,0.7);
+    }
+    .log-entry small {
+      display: block;
+      color: #6b7280;
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+    .warn {
+      font-size: 12px;
+      color: #f97316;
+      margin-top: 4px;
+    }
+    .pill {
+      display: inline-block;
+      margin-right: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #374151;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    @media (max-width: 800px) {
+      .row {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="card">
+      <h1>Fiktiivinen hoitosimulaattori – vatsa-demo</h1>
+      <p style="font-size:14px;color:#9ca3af;max-width:700px;">
+        Tämä on <strong>täysin fiktiivinen “lääkäri-peli”</strong>. Se EI anna oikeaa lääkeneuvontaa,
+        vaan pyörittää yksinkertaista numeromallia: oireet ovat arvoja välillä 0–1 ja hoidot muuttavat niitä.
+      </p>
+      <p class="warn">
+        Älä käytä tätä oikeiden terveyspäätösten tekemiseen. Tämä on leikkimistä logiikalla ja UX:llä, ei lääketiedettä.
+      </p>
+    </header>
+
+    <div class="row">
+      <section class="card">
+        <h2>Potilas</h2>
+        <p id="patient-header" style="margin-bottom:4px;font-weight:500;"></p>
+        <p id="patient-text" style="font-size:14px;color:#d1d5db;"></p>
+
+        <div style="margin-top:12px;">
+          <div class="label">Hoito</div>
+          <div class="controls">
+            <select id="treatment-select"></select>
+            <button id="apply-btn">Anna hoito</button>
+            <button id="new-patient-btn">Uusi potilas</button>
+          </div>
+          <div style="font-size:12px;color:#6b7280;">
+            Hoidot ovat karkeita abstraktioita: ne vain liikuttavat oireiden arvoja ylös/alas.
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <h3>Oireiden tila</h3>
+          <ul class="symptom-list" id="symptom-list"></ul>
+        </div>
+      </section>
+
+      <aside class="card">
+        <h2>Selitys & loki <span class="badge">debug-henkinen</span></h2>
+        <div id="explanation" style="font-size:14px;color:#e5e7eb;margin-bottom:8px;"></div>
+        <div class="log" id="log"></div>
+      </aside>
+    </div>
+
+    <footer style="font-size:12px;color:#6b7280;text-align:center;margin-top:8px;">
+      Koodi on tarkoitettu testipohjaksi GitHubiin. Rakenne on yksinkertainen, jotta sen päälle on helppo liimata myöhemmin AI-API tms.
+    </footer>
+  </div>
+
+  <script>
+    // -----------------------------
+    // Symptomikonfiguraatio
+    // -----------------------------
+    const symptomMeta = {
+      kipu: {
+        label: "Kipu ylävatsalla",
+        lowText: "vain satunnaista epämukavuutta",
+        midText: "selkeästi häiritsevää kipua",
+        highText: "jatkuvaa, voimakasta kipua"
+      },
+      polttelu: {
+        label: "Polttelu / närästys",
+        lowText: "harvoin polttelua",
+        midText: "toistuvaa närästystä erityisesti syömisen jälkeen",
+        highText: "jatkuvaa, rintalastan taakse säteilevää polttelua"
+      },
+      pahoinvointi: {
+        label: "Pahoinvointi",
+        lowText: "lievää oksettavaa oloa ajoittain",
+        midText: "selkeää pahoinvointia lähes päivittäin",
+        highText: "jatkuvaa pahoinvointia, vaikea syödä normaalisti"
+      },
+      limakalvo: {
+        label: "Limakalvoärsytys",
+        lowText: "limakalvot pääosin rauhalliset",
+        midText: "limakalvoilla ärsytystä ja arkuutta",
+        highText: "selvä tulehtuneisuus ja haavaista ärsytystä"
+      },
+      ummetus: {
+        label: "Ummetustaipumus",
+        lowText: "suoli toimii melko normaalisti",
+        midText: "jonkin verran ummetusta ja tukalaa oloa",
+        highText: "selvä ummetus ja turvotuksen tunne"
+      },
+      imeytyminen: {
+        label: "Lääkkeiden imeytyminen",
+        lowText: "lääkkeiden imeytyminen on heikentynyt",
+        midText: "lääkkeiden imeytyminen kohtalainen",
+        highText: "lääkkeiden imeytyminen hyvä"
+      }
+    };
+
+    // -----------------------------
+    // Hoidot: fiktiiviset “lääkkeet”
+    // -----------------------------
+    const treatments = [
+      {
+        id: "antepsin",
+        name: "Antepsin-tyyppinen valmiste",
+        short: "Suojaa limakalvoa, mutta voi lisätä ummetusta ja vähän häiritä imeytymistä.",
+        effects: {
+          // negatiivinen arvo = oire helpottuu
+          kipu: -0.1,
+          polttelu: -0.25,
+          pahoinvointi: -0.1,
+          limakalvo: -0.4,
+          ummetus: +0.25,
+          imeytyminen: -0.1
+        }
+      },
+      {
+        id: "kipulaake",
+        name: "Yleinen kipulääke (abstrakti)",
+        short: "Leikkaa kipupiikkiä, mutta ei korjaa syytä.",
+        effects: {
+          kipu: -0.4,
+          polttelu: -0.05,
+          pahoinvointi: +0.1,
+          limakalvo: 0,
+          ummetus: 0,
+          imeytyminen: 0
+        }
+      },
+      {
+        id: "stressinhallinta",
+        name: "Stressinhallinta & ruokavaliomuutos",
+        short: "Pitkällä aikavälillä rauhoittaa oireita, vaikutus maltillinen.",
+        effects: {
+          kipu: -0.15,
+          polttelu: -0.2,
+          pahoinvointi: -0.15,
+          limakalvo: -0.2,
+          ummetus: -0.05,
+          imeytyminen: +0.05
+        }
+      },
+      {
+        id: "placebo",
+        name: "Placebo / neutraali interventio",
+        short: "Lähinnä psykologinen tuki, ei suoraa fysiologista vaikutusta.",
+        effects: {
+          kipu: -0.05,
+          polttelu: -0.05,
+          pahoinvointi: -0.05,
+          limakalvo: 0,
+          ummetus: 0,
+          imeytyminen: 0
+        }
+      }
+    ];
+
+    // -----------------------------
+    // Yksinkertainen tila
+    // -----------------------------
+    let patientState = null;
+    let patientIdCounter = 1;
+
+    const patientHeaderEl = document.getElementById("patient-header");
+    const patientTextEl = document.getElementById("patient-text");
+    const symptomListEl = document.getElementById("symptom-list");
+    const treatmentSelectEl = document.getElementById("treatment-select");
+    const applyBtn = document.getElementById("apply-btn");
+    const newPatientBtn = document.getElementById("new-patient-btn");
+    const explanationEl = document.getElementById("explanation");
+    const logEl = document.getElementById("log");
+
+    // -----------------------------
+    // Util-funktiot
+    // -----------------------------
+    function clamp01(value) {
+      return Math.max(0, Math.min(1, value));
+    }
+
+    function rand(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function randomInt(min, max) {
+      return Math.floor(rand(min, max + 1));
+    }
+
+    function formatSeverity(v) {
+      if (v < 0.2) return "matala";
+      if (v < 0.6) return "kohtalainen";
+      return "korkea";
+    }
+
+    // -----------------------------
+    // Potilaan generointi (pseudo-AI)
+    // -----------------------------
+    function generateRandomPatient() {
+      const age = randomInt(25, 75);
+      const genders = ["mies", "nainen", "henkilö"];
+      const gender = genders[randomInt(0, genders.length - 1)];
+
+      // satunnaisia painotuksia: joskus paljon polttelua, joskus enemmän pahoinvointia jne
+      const base = {
+        kipu: clamp01(rand(0.2, 0.9)),
+        polttelu: clamp01(rand(0.1, 0.9)),
+        pahoinvointi: clamp01(rand(0.0, 0.9)),
+        limakalvo: clamp01(rand(0.2, 0.9)),
+        ummetus: clamp01(rand(0.0, 0.7)),
+        imeytyminen: clamp01(rand(0.3, 1.0))
+      };
+
+      const text = buildPatientDescription(age, gender, base);
+
+      return {
+        id: patientIdCounter++,
+        age,
+        gender,
+        state: base,
+        text
+      };
+    }
+
+    function buildPatientDescription(age, gender, state) {
+      const parts = [];
+      parts.push(`${age}-vuotias ${gender}, jolla on viime viikkoina ollut vatsavaivoja.`);
+
+      const symptomSentences = [];
+
+      function addIfRelevant(key, low, mid, high) {
+        const v = state[key];
+        if (v < 0.15) return;
+        if (v < 0.4) symptomSentences.push(low);
+        else if (v < 0.7) symptomSentences.push(mid);
+        else symptomSentences.push(high);
+      }
+
+      addIfRelevant(
+        "kipu",
+        "Välillä tuntuu lievää kipua ylävatsalla.",
+        "Usein on selkeää kipua ylävatsalla erityisesti syömisen jälkeen.",
+        "Kipu ylävatsalla on lähes jatkuvaa ja häiritsevää."
+      );
+
+      addIfRelevant(
+        "polttelu",
+        "Joskus nousee närästystä rintalastan taakse.",
+        "Toistuva polttava tunne rintalastan takana vaivaa erityisesti iltaisin.",
+        "Voimakas, polttava tunne rintalastan takana on jokapäiväistä."
+      );
+
+      addIfRelevant(
+        "pahoinvointi",
+        "Ajoittain on lievästi oksettava olo.",
+        "Usein on pahoinvointia, mutta oksentelua harvemmin.",
+        "Pahoinvointi on voimakasta ja syöminen on välillä vaikeaa."
+      );
+
+      addIfRelevant(
+        "limakalvo",
+        "Vatsa tuntuu välillä herkältä, mutta ei jatkuvasti.",
+        "Vatsan seutu tuntuu aralta ja ärtyneeltä.",
+        "Vatsa on selvästi ärtynyt ja herkästi kipeytyvä."
+      );
+
+      addIfRelevant(
+        "ummetus",
+        "Vatsan toiminta on hieman vaihtelevaa.",
+        "Vatsan toiminta on hidastunut ja olo tukala.",
+        "Ummetus vaivaa selvästi ja olo on raskas."
+      );
+
+      if (symptomSentences.length > 0) {
+        parts.push(symptomSentences.join(" "));
+      }
+
+      return parts.join(" ");
+    }
+
+    // -----------------------------
+    // Hoidon soveltaminen
+    // -----------------------------
+    function applyTreatment(state, treatment) {
+      const newState = { ...state };
+      const lines = [];
+
+      for (const key of Object.keys(symptomMeta)) {
+        if (!(key in treatment.effects)) continue;
+        const effect = treatment.effects[key];
+        if (effect === 0) continue;
+
+        const oldVal = newState[key];
+        const newVal = clamp01(oldVal + effect);
+        newState[key] = newVal;
+
+        const meta = symptomMeta[key];
+        if (!meta) continue;
+
+        if (effect < 0) {
+          lines.push(
+            `${meta.label.toLowerCase()} helpottui hieman (${oldVal.toFixed(2)} → ${newVal.toFixed(2)}).`
+          );
+        } else if (effect > 0) {
+          lines.push(
+            `${meta.label.toLowerCase()} paheni hieman (${oldVal.toFixed(2)} → ${newVal.toFixed(2)}).`
+          );
+        }
+      }
+
+      if (lines.length === 0) {
+        lines.push("Tällä hoidolla ei ollut merkittävää vaikutusta oireisiin tässä simulaatiossa.");
+      }
+
+      return { newState, lines };
+    }
+
+    // -----------------------------
+    // UI-päivitykset
+    // -----------------------------
+    function renderPatient(patient) {
+      patientHeaderEl.textContent = `Potilas #${patient.id} – ${patient.age}-vuotias ${patient.gender}`;
+      patientTextEl.textContent = patient.text;
+      renderSymptoms(patient.state);
+    }
+
+    function renderSymptoms(state) {
+      symptomListEl.innerHTML = "";
+      for (const key of Object.keys(symptomMeta)) {
+        const meta = symptomMeta[key];
+        const raw = state[key] ?? 0;
+        const value = clamp01(raw);
+        const li = document.createElement("li");
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "symptom-name";
+        nameSpan.textContent = meta.label;
+
+        const bar = document.createElement("div");
+        bar.className = "symptom-bar";
+        const inner = document.createElement("div");
+        inner.className = "symptom-bar-inner";
+        inner.style.width = (value * 100).toFixed(0) + "%";
+        bar.appendChild(inner);
+
+        const valSpan = document.createElement("span");
+        valSpan.className = "symptom-value";
+        valSpan.textContent = value.toFixed(2);
+
+        li.appendChild(nameSpan);
+        li.appendChild(bar);
+        li.appendChild(valSpan);
+        symptomListEl.appendChild(li);
+      }
+    }
+
+    function appendLogEntry(type, text) {
+      const entry = document.createElement("div");
+      entry.className = "log-entry";
+
+      const time = new Date().toLocaleTimeString("fi-FI", { hour12: false });
+      const label = type === "patient" ? "Uusi potilas" : "Hoito";
+
+      const small = document.createElement("small");
+      small.textContent = `[${time}] ${label}`;
+      entry.appendChild(small);
+
+      const p = document.createElement("div");
+      p.textContent = text;
+      entry.appendChild(p);
+
+      logEl.prepend(entry);
+    }
+
+    function renderTreatments() {
+      treatmentSelectEl.innerHTML = "";
+      treatments.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t.id;
+        opt.textContent = t.name;
+        treatmentSelectEl.appendChild(opt);
+      });
+    }
+
+    // -----------------------------
+    // Tapahtumat
+    // -----------------------------
+    applyBtn.addEventListener("click", () => {
+      if (!patientState) return;
+      const id = treatmentSelectEl.value;
+      const treatment = treatments.find(t => t.id === id);
+      if (!treatment) return;
+
+      const { newState, lines } = applyTreatment(patientState.state, treatment);
+      patientState.state = newState;
+
+      const expl = [
+        `${treatment.name}: ${treatment.short}`,
+        "",
+        ...lines
+      ].join(" ");
+
+      explanationEl.textContent = expl;
+      renderSymptoms(patientState.state);
+      appendLogEntry("treatment", expl);
+    });
+
+    newPatientBtn.addEventListener("click", () => {
+      patientState = generateRandomPatient();
+      renderPatient(patientState);
+      explanationEl.textContent = "Valitse hoito ja katso, mihin suuntaan oireet liikkuvat tässä simulaatiossa.";
+      appendLogEntry("patient", patientState.text);
+    });
+
+    // -----------------------------
+    // Init
+    // -----------------------------
+    function init() {
+      renderTreatments();
+      patientState = generateRandomPatient();
+      renderPatient(patientState);
+      explanationEl.textContent = "Tämä on ensimmäinen potilas. Valitse hoito ja seuraa, mitä simulaatio väittää tapahtuvaksi.";
+      appendLogEntry("patient", patientState.text);
+    }
+
+    init();
+
+    // -----------------------------
+    // HUOM: AI-hook tulevaisuutta varten
+    // -----------------------------
+    // Jos haluat myöhemmin liittää OpenAI:n:
+    // - tee backend-endpoint /api/generate-patient,
+    // - pyydä sieltä JSON { age, gender, state, text },
+    // - ja korvaa generateRandomPatient() hakemaan datan sieltä.
+  </script>
+</body>
+</html>
