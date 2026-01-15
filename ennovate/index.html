@@ -1,431 +1,231 @@
+<!-- index.html -->
 <!doctype html>
-<html lang="fi" class="scroll-smooth">
+<html lang="fi">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ennovate — Modernit verkkosivut ilman säätöä</title>
-  <meta name="description" content="Ennovate rakentaa nopeat ja selkeät verkkosivut sekä digiratkaisut pienyrityksille. Staattiset sivut, lomakkeet ja perusinfra kuntoon." />
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
-
-  <style>
-    :root{
-      --bg: #05080f;
-      --card-bg: rgba(20, 27, 41, 0.6);
-      --card-border: rgba(255, 255, 255, 0.08);
-      
-      --text-main: #f1f5f9;
-      --text-muted: #94a3b8;
-      
-      --accent: #38bdf8;       /* Sky blue */
-      --accent-glow: #0ea5e9;
-      --secondary: #34d399;    /* Emerald */
-      
-      --radius: 20px;
-      --max-w: 1100px;
-      --header-h: 70px;
-    }
-
-    * { box-sizing: border-box; }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      margin: 0;
-      font-family: 'Inter', system-ui, sans-serif;
-      background-color: var(--bg);
-      color: var(--text-main);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    /* Taustaefektit */
-    .bg-gradient {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100vh;
-      z-index: -1;
-      background: 
-        radial-gradient(circle at 15% 10%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 85% 30%, rgba(52, 211, 153, 0.06) 0%, transparent 40%);
-      pointer-events: none;
-    }
-
-    /* Verkko-tausta */
-    .bg-grid {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      z-index: -1;
-      background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-    }
-
-    /* Layout */
-    .wrap {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    /* Header & Nav */
-    header {
-      position: sticky;
-      top: 10px;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: var(--header-h);
-      padding: 0 24px;
-      margin: 0 auto;
-      max-width: calc(var(--max-w) + 40px);
-      
-      /* Glassmorphism naville */
-      background: rgba(5, 8, 15, 0.7);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--card-border);
-      border-radius: 999px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 800;
-      font-size: 18px;
-      letter-spacing: -0.5px;
-      color: #fff;
-      text-decoration: none;
-    }
-
-    .logo-icon {
-      width: 20px; height: 20px;
-      background: linear-gradient(135deg, var(--accent), var(--secondary));
-      border-radius: 6px;
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-    }
-
-    nav { display: none; gap: 24px; font-size: 15px; font-weight: 500; }
-    nav a { text-decoration: none; color: var(--text-muted); transition: color 0.2s; }
-    nav a:hover { color: #fff; }
-    
-    @media (min-width: 600px) { nav { display: flex; } }
-
-    /* Hero Section */
-    .hero {
-      padding: 100px 0 60px;
-      max-width: 800px;
-      animation: fadeInUp 0.8s ease-out;
-    }
-    
-    .hero h1 {
-      font-size: clamp(36px, 6vw, 64px);
-      line-height: 1.1;
-      letter-spacing: -1.5px;
-      margin: 0 0 24px;
-      background: linear-gradient(to right, #fff, #cbd5e1);
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hero p {
-      font-size: clamp(18px, 2vw, 20px);
-      color: var(--text-muted);
-      max-width: 600px;
-      margin-bottom: 32px;
-    }
-
-    /* Buttons */
-    .btn-group { display: flex; flex-wrap: wrap; gap: 16px; }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 14px 28px;
-      border-radius: 12px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      font-size: 15px;
-    }
-
-    .btn-primary {
-      background: #fff;
-      color: #000;
-      border: 1px solid #fff;
-    }
-    .btn-primary:hover {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
-    }
-
-    .btn-secondary {
-      background: rgba(255,255,255,0.05);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .btn-secondary:hover {
-      background: rgba(255,255,255,0.1);
-      border-color: rgba(255,255,255,0.2);
-    }
-
-    /* Section Styles */
-    .section-title {
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: var(--accent);
-      margin: 80px 0 20px;
-      font-weight: 700;
-    }
-
-    /* Grid Layouts */
-    .grid {
-      display: grid;
-      gap: 24px;
-      grid-template-columns: 1fr;
-    }
-    @media(min-width: 768px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
-
-    /* Cards */
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 32px;
-      transition: transform 0.2s, border-color 0.2s;
-    }
-    .card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(255,255,255,0.2);
-    }
-
-    .icon-box {
-      width: 48px; height: 48px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 20px;
-      color: var(--accent);
-    }
-    
-    .card h3 { margin: 0 0 10px; font-size: 20px; color: #fff; }
-    .card p { margin: 0; font-size: 15px; color: var(--text-muted); }
-
-    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
-    .tag {
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 99px;
-      background: rgba(56, 189, 248, 0.1);
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    /* Process Steps */
-    .step-card {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 24px;
-      border-left: 1px solid var(--card-border);
-      background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
-    }
-    .step-num { font-size: 12px; color: var(--secondary); font-weight: 700; letter-spacing: 1px; text-transform: uppercase;}
-    .step-card h3 { margin: 0; font-size: 18px; }
-
-    /* Contact Form Area */
-    .contact-wrapper {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 40px;
-      margin-top: 40px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 40px;
-    }
-    @media(min-width: 800px) { .contact-wrapper { grid-template-columns: 1fr 1fr; } }
-
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-size: 14px; margin-bottom: 8px; color: #fff; }
-    .input-field {
-      width: 100%;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid var(--card-border);
-      padding: 12px;
-      border-radius: 8px;
-      color: #fff;
-      font-family: inherit;
-    }
-    .input-field:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    /* Footer */
-    footer {
-      margin-top: 100px;
-      padding: 40px 0;
-      border-top: 1px solid var(--card-border);
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 14px;
-    }
-
-    .text-gradient {
-      background: linear-gradient(135deg, var(--accent), var(--secondary));
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-  </style>
+  <meta name="color-scheme" content="light dark" />
+  <title>Ennovate</title>
+  <meta name="description" content="Teollinen, dokumentaatiomainen esitys siitä mitä Ennovate tekee ja missä vaiheessa projekti on." />
+  <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
+  <a class="skip" href="#sisalto">Siirry sisältöön</a>
 
-  <div class="bg-gradient"></div>
-  <div class="bg-grid"></div>
+  <header class="site-header" role="banner">
+    <div class="wrap">
+      <div class="brand" aria-label="Ennovate">
+        <span class="brand__mark" aria-hidden="true"></span>
+        <span class="brand__name">Ennovate</span>
+      </div>
 
-  <header>
-    <a href="#" class="brand">
-      <div class="logo-icon"></div>
-      Ennovate
-    </a>
-    <nav>
-      <a href="#palvelut">Palvelut</a>
-      <a href="#prosessi">Prosessi</a>
-      <a href="#yhteys">Ota yhteyttä</a>
-    </nav>
+      <nav class="nav" aria-label="Päänavigaatio">
+        <a href="#mitateemme">Mitä teemme</a>
+        <a href="#ratkaisut">Ratkaisut</a>
+        <a href="#tila">Tila</a>
+        <a href="#yhteys">Yhteys</a>
+      </nav>
+    </div>
   </header>
 
-  <div class="wrap">
-    
-    <section class="hero">
-      <h1>Verkkosivut ja digiratkaisut <br>ilman turhaa säätöä.</h1>
-      <p>
-        Rakennamme nopeita ja selkeitä sivuja pienyrityksille. Ne näyttävät hyvältä, 
-        latautuvat heti ja vähentävät IT-huolia.
-      </p>
-      <div class="btn-group">
-        <a href="#yhteys" class="btn btn-primary">Pyydä tarjous</a>
-        <a href="#palvelut" class="btn btn-secondary">Katso palvelut</a>
-      </div>
-    </section>
-
-    <div id="palvelut" class="section-title">Palvelut</div>
-    <section class="grid grid-3">
-      
-      <div class="card">
-        <div class="icon-box">
-          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-        </div>
-        <h3>Staattiset verkkosivut</h3>
-        <p>Yksinkertainen toteutus ilman raskasta taustajärjestelmää. Koodaamme sivut käsin, jolloin ne ovat salamannopeita.</p>
-        <div class="tags">
-          <span class="tag">Nopea</span>
-          <span class="tag">Turvallinen</span>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="icon-box">
-          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-        </div>
-        <h3>Älykkäät lomakkeet</h3>
-        <p>Yhteydenotot suoraan sähköpostiisi ilman serverisäätöä. Teemme lomakkeista helppoja täyttää.</p>
-        <div class="tags">
-          <span class="tag">Spam-suojaus</span>
-          <span class="tag">Helppo</span>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="icon-box">
-          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        </div>
-        <h3>Perusinfra kuntoon</h3>
-        <p>Hoidamme domainit, sähköpostiohjaukset ja SSL-sertifikaatit puolestasi. Yksi selkeä kokonaisuus.</p>
-        <div class="tags">
-          <span class="tag">DNS</span>
-          <span class="tag">SSL</span>
-        </div>
-      </div>
-    </section>
-
-    <div id="prosessi" class="section-title">Kuinka toimimme</div>
-    <section class="grid grid-3">
-      <div class="step-card">
-        <div class="step-num">Vaihe 01</div>
-        <h3>Lyhyt kartoitus</h3>
-        <p style="font-size:14px; color:var(--text-muted)">15 minuutin puhelu riittää. Käydään läpi tarpeet, sisältö ja tavoitteet.</p>
-      </div>
-      <div class="step-card">
-        <div class="step-num">Vaihe 02</div>
-        <h3>Proto & Toteutus</h3>
-        <p style="font-size:14px; color:var(--text-muted)">Rakennamme ensimmäisen version nopeasti nähtäville. Viilataan kuntoon.</p>
-      </div>
-      <div class="step-card">
-        <div class="step-num">Vaihe 03</div>
-        <h3>Julkaisu</h3>
-        <p style="font-size:14px; color:var(--text-muted)">Sivut liveksi. Opastamme ylläpidossa tai hoidamme sen puolestasi.</p>
-      </div>
-    </section>
-
-    <div id="yhteys" class="section-title">Aloitetaan projekti</div>
-    <section class="contact-wrapper">
-      <div>
-        <h2 style="margin-top:0; font-size:28px;">Ota yhteyttä</h2>
-        <p style="color:var(--text-muted)">
-          Kerro lyhyesti mitä tarvitset. Vastaamme yleensä saman työpäivän aikana selkeällä ehdotuksella.
+  <main id="sisalto" class="main" role="main">
+    <!-- HERO -->
+    <section class="hero" aria-label="Johdanto">
+      <div class="wrap">
+        <h1 class="hero__title">Ennovate</h1>
+        <p class="hero__lead">
+          Rakennamme festivaaliympäristöihin suunniteltua kylmäsäilytys- ja palveluinfrastruktuuria.
         </p>
-        <div style="margin-top:20px; display:flex; align-items:center; gap:10px; font-family:'monospace'; color:var(--accent);">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-          sahkoposti@ennovate.fi
-        </div>
+
+        <dl class="meta" aria-label="Sivun metatiedot">
+          <div class="meta__row">
+            <dt>Luonne</dt>
+            <dd>dokumentaatio</dd>
+          </div>
+          <div class="meta__row">
+            <dt>Päivitysrytmi</dt>
+            <dd>tarpeen mukaan</dd>
+          </div>
+          <div class="meta__row">
+            <dt>Ydinperiaate</dt>
+            <dd>kuvaus ennen lupausta</dd>
+          </div>
+        </dl>
       </div>
-      
-      <form action="#" method="POST">
-        <div class="form-group">
-          <label>Nimi</label>
-          <input type="text" class="input-field" placeholder="Matti Meikäläinen">
-        </div>
-        <div class="form-group">
-          <label>Sähköposti</label>
-          <input type="email" class="input-field" placeholder="matti@yritys.fi">
-        </div>
-        <div class="form-group">
-          <label>Viesti</label>
-          <textarea class="input-field" rows="4" placeholder="Tarvitsen uudet kotisivut..."></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width:100%; border:none;">Lähetä viesti</button>
-      </form>
     </section>
 
-    <footer>
-      <p>© <span id="year"></span> Ennovate. Rakennettu Helsingissä.</p>
-      <p style="font-size:12px; opacity:0.6;">Moderni. Nopea. Yksinkertainen.</p>
-    </footer>
+    <hr class="rule" />
 
-  </div>
+    <!-- MITÄ TEEMME -->
+    <section id="mitateemme" class="section">
+      <div class="wrap">
+        <h2>MITÄ TEEMME</h2>
+
+        <p>
+          Ennovate kehittää modulaarista kokonaisuutta, joka tuo festivaalialueelle käytännöllisiä palveluja:
+          kylmäsäilytystä, lukittavia lokeroita ja operoitavaa jakelua. Tarkoitus on olla osa alueen toimivaa
+          infrastruktuuria — ei erillinen markkinointitemppu.
+        </p>
+
+        <p class="note">
+          Sivusto on tarkoituksella niukka. Tavoite ei ole vakuutella, vaan näyttää rakenne ja tila.
+        </p>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- RATKAISUT (ongelma -> ratkaisu) -->
+    <section id="ratkaisut" class="section">
+      <div class="wrap">
+        <h2>RATKAISUT</h2>
+
+        <div class="flow">
+          <article class="flow__item" aria-label="Ongelma ja ratkaisu 1">
+            <h3>1. Kylmä säilytys festivaaliympäristössä</h3>
+            <p class="label">Ongelma</p>
+            <p>
+              Festivaalileirinnässä kylmän säilytyksen tarve on toistuva, mutta ratkaisujen laatu ja saatavuus vaihtelee.
+            </p>
+            <p class="label">Ratkaisu</p>
+            <p>
+              Siirrettävä kylmäkontti, jonka käyttö on jaettu lukittaviin lokeroihin. Kokonaisuus on suunniteltu
+              käytettäväksi tapahtumaympäristössä: käyttöoikeus, lokerojako ja operointi ovat osa itse rakennetta.
+            </p>
+          </article>
+
+          <article class="flow__item" aria-label="Ongelma ja ratkaisu 2">
+            <h3>2. Jakelu ja operointi</h3>
+            <p class="label">Ongelma</p>
+            <p>
+              Pelkkä laite ei riitä, jos käytön hallinta, jonot, luovutus ja valvonta jäävät “sitten katsotaan” -tasolle.
+            </p>
+            <p class="label">Ratkaisu</p>
+            <p>
+              Operointimalli, jossa fyysinen rakenne ja prosessi ovat yhteensopivia: selkeä käyttölogiikka,
+              rajattu palvelulupaus ja mitattava toiminta.
+            </p>
+          </article>
+
+          <article class="flow__item" aria-label="Ongelma ja ratkaisu 3">
+            <h3>3. Modulaarisuus ja toistettavuus</h3>
+            <p class="label">Ongelma</p>
+            <p>
+              Tapahtumat ovat erilaisia, mutta tuotannon pitäisi silti olla toistettavaa ja huollettavaa.
+            </p>
+            <p class="label">Ratkaisu</p>
+            <p>
+              Vakioitu rakenne, jossa komponentit ovat vaihdettavissa (lukitus, lokeromitoitus, opasteet, pintamateriaalit),
+              ilman että peruslogiikka muuttuu.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- KUVAT (yksi kerrallaan, ankkuroi todellisuuteen) -->
+    <section class="section" aria-label="Kuvamateriaali">
+      <div class="wrap">
+        <h2>KUVAT</h2>
+
+        <figure class="figure">
+          <!-- Vaihda src oikeaan tiedostoon. Nyt käytetään neutraalia placeholderia. -->
+          <img
+            src="assets/ennovate-placeholder.jpg"
+            alt="Neutraali konseptikuva / dokumentaatiokuva (vaihda omaan)."
+            loading="lazy"
+          />
+          <figcaption>
+            Yksi kuva kerrallaan. Desaturoitu, rauhallinen kuvakieli. (2028: vaihda tähän aito käyttökuva.)
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- TILA (yksi rivi vaihtuu 2028) -->
+    <section id="tila" class="section">
+      <div class="wrap">
+        <h2>PROJEKTIN TILA</h2>
+
+        <div class="status" role="region" aria-label="Projektin tila">
+          <div class="status__row">
+            <span class="status__key">Tila</span>
+            <span class="status__val" data-now="kehitysvaiheessa" data-2028="operational / deployed">
+              kehitysvaiheessa
+            </span>
+          </div>
+          <div class="status__row">
+            <span class="status__key">Määrittely</span>
+            <span class="status__val">konseptitaso → prototyyppi → operointi</span>
+          </div>
+          <div class="status__row">
+            <span class="status__key">Periaate</span>
+            <span class="status__val">rakennetaan ensin toimiva rakenne, sitten skaalataan</span>
+          </div>
+        </div>
+
+        <p class="note">
+          Vuonna 2028 tämän osion ulkoasu on sama. Yksi tekstirivi vaihtuu.
+        </p>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- YHTEYS -->
+    <section id="yhteys" class="section">
+      <div class="wrap">
+        <h2>YHTEYS</h2>
+
+        <p>
+          Yhteydenotto tapahtuu suoraan. Ei lomakkeita, ei automaatiota tässä vaiheessa.
+        </p>
+
+        <dl class="contact">
+          <div class="contact__row">
+            <dt>Sähköposti</dt>
+            <dd><a href="mailto:info@ennovate.fi">info@ennovate.fi</a></dd>
+          </div>
+          <div class="contact__row">
+            <dt>Verkkotunnus</dt>
+            <dd>ennovate.fi</dd>
+          </div>
+          <div class="contact__row">
+            <dt>Sijainti</dt>
+            <dd>Suomi</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <footer class="footer" role="contentinfo">
+      <div class="wrap">
+        <p class="fine">
+          © <span id="year"></span> Ennovate. Tämä sivu on tarkoituksella niukka.
+        </p>
+      </div>
+    </footer>
+  </main>
 
   <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
+    // Pidetään JS minimissä: vain vuosiluku.
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // (Valinnainen) 2028-tilan esikatselu:
+    // lisää body-tagille data-mode="2028"
+    // esim. <body data-mode="2028">
+    (function () {
+      const mode = document.body.getAttribute("data-mode");
+      if (mode !== "2028") return;
+      document.querySelectorAll("[data-2028]").forEach((el) => {
+        el.textContent = el.getAttribute("data-2028");
+      });
+    })();
   </script>
 </body>
 </html>
