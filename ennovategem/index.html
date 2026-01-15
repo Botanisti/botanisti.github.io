@@ -111,10 +111,22 @@
             height: auto;
             border-radius: var(--border-radius);
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            /* Esimerkkikuva inspiraation mukaan */
-            background-image: url("images/KonttiHahmotelma.jpg");
+            
+            /* Aseta ensimmäinen kuva oletukseksi tähän */
+            background-image: url('/ennovategem/images/KonttiHahmotelma.jpg'); 
+            
             background-size: cover;
+            background-position: center;
             aspect-ratio: 16/9;
+            
+            /* LISÄTTY: Pehmeä siirtymä */
+            transition: opacity 0.5s ease-in-out;
+            opacity: 1;
+        }
+
+        /* LISÄTTY: Häivytys-efektiä varten */
+        .hero-image.fade-out {
+            opacity: 0;
         }
         .hero-subtext {
             font-size: 1.25rem;
@@ -229,7 +241,7 @@
                 <a href="mailto:contact@ennovate.fi" class="btn">Pyydä tarjous</a>
             </div>
             <div class="hero-image-container">
-                <div class="hero-image" role="img" aria-label="Visualisaatio kylmäkontista ja lokerikoista"></div>
+                <div id="hero-slider" class="hero-image" role="img" aria-label="Kuvia festarialueelta"></div>
             </div>
         </header>
     </div>
@@ -317,6 +329,42 @@
             nav.classList.toggle('nav-active');
         });
     </script>
+    <script>
+    // 1. LISTAA TÄHÄN KUVIESI TIEDOSTONIMET (Varmista että kuvat ovat "images" kansiossa)
+    const images = [
+        'images/KonttiHahmotelma.jpg',
+        'images/KonttiHahmotelma3.jpg',
+        'images/KonttiHahmotelma4.png',
+        'images/KonttiHahmotelma1.jpg'
+    ];
+
+    let currentIndex = 0;
+    const heroElement = document.getElementById('hero-slider');
+
+    // Jos kuvia on listassa, aloitetaan pyöritys
+    if (images.length > 0) {
+        
+        // Asetetaan heti ensimmäinen kuva (varmuuden vuoksi)
+        heroElement.style.backgroundImage = `url('${images[0]}')`;
+
+        setInterval(() => {
+            // 1. Häivytä kuva näkymättömiin
+            heroElement.classList.add('fade-out');
+
+            // 2. Odota hetki (0.5s), vaihda kuva ja tuo takaisin
+            setTimeout(() => {
+                currentIndex = (currentIndex + 1) % images.length; // Siirry seuraavaan, palaa alkuun lopussa
+                
+                // Vaihda taustakuva
+                heroElement.style.backgroundImage = `url('${images[currentIndex]}')`;
+                
+                // Tuo kuva takaisin näkyviin
+                heroElement.classList.remove('fade-out');
+            }, 500); // Tämän pitää vastata CSS:n transition aikaa (0.5s = 500ms)
+
+        }, 5000); // 5000ms = 5 sekuntia
+    }
+</script>
 
 </body>
 </html>
