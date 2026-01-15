@@ -1,231 +1,656 @@
-<!-- index.html -->
 <!doctype html>
 <html lang="fi">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light dark" />
-  <title>Ennovate</title>
-  <meta name="description" content="Teollinen, dokumentaatiomainen esitys siitä mitä Ennovate tekee ja missä vaiheessa projekti on." />
-  <link rel="stylesheet" href="styles.css" />
+  <title>Ennovate — Kylmäkontti-infrastruktuuri festareille</title>
+  <meta name="description" content="Ennovate toimittaa itsepalveluperiaatteella toimivan kylmäkontin lukittavilla kylmälokeroilla festivaalien ja tapahtumien leirintäalueille. Kuljetus, kytkentä ja operointi tapahtuman ajaksi." />
+  <style>
+    /* ==========================================================================
+      Ennovate — static site (HTML + CSS only)
+      Principles: calm, sparse, industrial UI; no hype; no JS; no external libs.
+    ========================================================================== */
+
+    :root{
+      --bg: #f6f7f8;
+      --panel: #ffffff;
+      --text: #0f1114;
+      --muted: #4c5560;
+      --line: #d9dee5;
+      --accent: #2e5f86; /* steel-blue */
+      --accent-ink: #1f4b6b;
+      --max: 1040px;
+      --pad: 20px;
+      --r: 10px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    *{ box-sizing: border-box; }
+    html, body{ height: 100%; }
+    body{
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      font-synthesis-weight: none;
+    }
+
+    a{
+      color: var(--accent-ink);
+      text-decoration: none;
+    }
+    a:hover{ text-decoration: underline; }
+
+    /* Layout */
+    .wrap{
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 var(--pad);
+    }
+
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(246,247,248,0.92);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .topbar{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 0;
+    }
+
+    .brand{
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      white-space: nowrap;
+    }
+
+    .brand .name{
+      font-weight: 650;
+      letter-spacing: 0.2px;
+    }
+
+    .brand .tag{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      border-left: 1px solid var(--line);
+      padding-left: 12px;
+    }
+
+    nav{
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    nav a{
+      font-size: 13px;
+      color: var(--muted);
+      padding: 6px 8px;
+      border-radius: 8px;
+    }
+    nav a:hover{
+      background: #eef2f6;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    /* Sections */
+    main{ padding: 36px 0 60px; }
+
+    section{
+      padding: 40px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    section:last-of-type{ border-bottom: 0; }
+
+    .kicker{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0 0 10px;
+    }
+
+    h1, h2{
+      margin: 0 0 12px;
+      letter-spacing: -0.02em;
+    }
+
+    h1{
+      font-size: clamp(28px, 3.6vw, 44px);
+      line-height: 1.1;
+      font-weight: 720;
+    }
+
+    h2{
+      font-size: clamp(18px, 2.2vw, 26px);
+      line-height: 1.25;
+      font-weight: 680;
+    }
+
+    p{
+      margin: 0 0 12px;
+      color: var(--text);
+      max-width: 70ch;
+    }
+
+    .muted{ color: var(--muted); }
+
+    /* Hero */
+    .hero{
+      padding-top: 34px;
+    }
+
+    .hero-grid{
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .hero-card{
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 22px;
+    }
+
+    .hero p{
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .spec-strip{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      margin-top: 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .pill{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fbfcfd;
+    }
+
+    .dot{
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+    }
+
+    .contact-link{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+      font-size: 13px;
+      font-family: var(--mono);
+      color: var(--accent-ink);
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #f9fbfd;
+    }
+    .contact-link:hover{
+      background: #eef4fa;
+      text-decoration: none;
+      border-color: #cdd7e3;
+    }
+
+    /* Right-side panel */
+    .side{
+      display: grid;
+      gap: 12px;
+    }
+
+    .mini{
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 16px;
+    }
+
+    .mini h3{
+      margin: 0 0 8px;
+      font-size: 14px;
+      font-weight: 650;
+      letter-spacing: -0.01em;
+    }
+
+    .mini .kv{
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 8px 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .mini .kv div:nth-child(odd){
+      color: var(--text);
+      opacity: 0.75;
+    }
+
+    /* Content grids */
+    .grid-2{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card{
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 18px;
+    }
+
+    .card p{ color: var(--muted); }
+
+    /* Box diagram */
+    .diagram{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding-top: 4px;
+    }
+
+    .node{
+      border: 1px solid var(--line);
+      background: #fbfcfd;
+      border-radius: 12px;
+      padding: 14px 14px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .node strong{
+      font-size: 13px;
+      letter-spacing: -0.01em;
+    }
+
+    .node span{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .arrow{
+      height: 10px;
+      border-left: 2px solid var(--accent);
+      margin-left: 18px;
+    }
+
+    /* Process steps */
+    .steps{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .step{
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      min-height: 120px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .step .n{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .step .t{
+      font-size: 14px;
+      font-weight: 650;
+      letter-spacing: -0.01em;
+    }
+
+    .step .d{
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    /* Reliability section */
+    .rules{
+      display: grid;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .rule{
+      display: grid;
+      grid-template-columns: 14px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 14px 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .rule .mark{
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      background: var(--accent);
+      margin-top: 3px;
+    }
+
+    .rule p{
+      margin: 0;
+      color: var(--muted);
+      max-width: 80ch;
+    }
+
+    /* Footer */
+    footer{
+      border-top: 1px solid var(--line);
+      padding: 22px 0 34px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .foot{
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .small-mono{ font-family: var(--mono); font-size: 12px; }
+
+    /* Responsiveness */
+    @media (max-width: 980px){
+      .hero-grid{ grid-template-columns: 1fr; }
+      .grid-2{ grid-template-columns: 1fr; }
+      .steps{ grid-template-columns: 1fr 1fr; }
+      .mini .kv{ grid-template-columns: 140px 1fr; }
+    }
+    @media (max-width: 560px){
+      nav{ display: none; }
+      .steps{ grid-template-columns: 1fr; }
+      .mini .kv{ grid-template-columns: 1fr; }
+      .brand .tag{ display: none; }
+    }
+
+    /* Accessibility */
+    :focus-visible{
+      outline: 2px solid #9bb9d3;
+      outline-offset: 2px;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 
 <body>
-  <a class="skip" href="#sisalto">Siirry sisältöön</a>
-
-  <header class="site-header" role="banner">
+  <!-- ============================= Header ============================= -->
+  <header>
     <div class="wrap">
-      <div class="brand" aria-label="Ennovate">
-        <span class="brand__mark" aria-hidden="true"></span>
-        <span class="brand__name">Ennovate</span>
-      </div>
+      <div class="topbar">
+        <div class="brand" aria-label="Ennovate">
+          <div class="name">Ennovate</div>
+          <div class="tag">kylmäkontti-infrastruktuuri</div>
+        </div>
 
-      <nav class="nav" aria-label="Päänavigaatio">
-        <a href="#mitateemme">Mitä teemme</a>
-        <a href="#ratkaisut">Ratkaisut</a>
-        <a href="#tila">Tila</a>
-        <a href="#yhteys">Yhteys</a>
-      </nav>
+        <nav aria-label="Sivunavigaatio">
+          <a href="#tuote">Mitä se on</a>
+          <a href="#toiminta">Miten se toimii</a>
+          <a href="#kenelle">Kenelle</a>
+          <a href="#varmuus">Toimintavarmuus</a>
+          <a href="#yhteys">Yhteys</a>
+        </nav>
+      </div>
     </div>
   </header>
 
-  <main id="sisalto" class="main" role="main">
-    <!-- HERO -->
-    <section class="hero" aria-label="Johdanto">
-      <div class="wrap">
-        <h1 class="hero__title">Ennovate</h1>
-        <p class="hero__lead">
-          Rakennamme festivaaliympäristöihin suunniteltua kylmäsäilytys- ja palveluinfrastruktuuria.
-        </p>
+  <main>
+    <div class="wrap">
 
-        <dl class="meta" aria-label="Sivun metatiedot">
-          <div class="meta__row">
-            <dt>Luonne</dt>
-            <dd>dokumentaatio</dd>
+      <!-- ============================= 1) Hero ============================= -->
+      <section class="hero" id="etusivu">
+        <p class="kicker">Etusivu</p>
+
+        <div class="hero-grid">
+          <div class="hero-card">
+            <h1>Kylmäkontti lukittavilla lokeroilla festareille.</h1>
+            <p>Toimitus, asennus ja operointi tapahtuman ajaksi. Itsepalvelu käyttäjille.</p>
+
+            <div class="spec-strip" aria-label="Tekniset avainsanat">
+              <span class="pill"><span class="dot" aria-hidden="true"></span>Reefer container</span>
+              <span class="pill"><span class="dot" aria-hidden="true"></span>Lockers</span>
+              <span class="pill"><span class="dot" aria-hidden="true"></span>Grid power</span>
+              <span class="pill"><span class="dot" aria-hidden="true"></span>On-site operations</span>
+            </div>
+
+            <a class="contact-link" href="#yhteys">Ota yhteyttä →</a>
           </div>
-          <div class="meta__row">
-            <dt>Päivitysrytmi</dt>
-            <dd>tarpeen mukaan</dd>
-          </div>
-          <div class="meta__row">
-            <dt>Ydinperiaate</dt>
-            <dd>kuvaus ennen lupausta</dd>
-          </div>
-        </dl>
-      </div>
-    </section>
 
-    <hr class="rule" />
+          <aside class="side" aria-label="Yhteenvetopaneeli">
+            <div class="mini">
+              <h3>Ratkaisu paikan päällä</h3>
+              <div class="kv" role="list">
+                <div role="listitem">Fyysinen yksikkö</div><div>kylmäkontti (reefer)</div>
+                <div role="listitem">Käyttö</div><div>lukittavat kylmälokerot</div>
+                <div role="listitem">Sijainti</div><div>festivaali / leirintäalue</div>
+                <div role="listitem">Operointi</div><div>tapahtuman ajan</div>
+              </div>
+            </div>
 
-    <!-- MITÄ TEEMME -->
-    <section id="mitateemme" class="section">
-      <div class="wrap">
-        <h2>MITÄ TEEMME</h2>
-
-        <p>
-          Ennovate kehittää modulaarista kokonaisuutta, joka tuo festivaalialueelle käytännöllisiä palveluja:
-          kylmäsäilytystä, lukittavia lokeroita ja operoitavaa jakelua. Tarkoitus on olla osa alueen toimivaa
-          infrastruktuuria — ei erillinen markkinointitemppu.
-        </p>
-
-        <p class="note">
-          Sivusto on tarkoituksella niukka. Tavoite ei ole vakuutella, vaan näyttää rakenne ja tila.
-        </p>
-      </div>
-    </section>
-
-    <hr class="rule" />
-
-    <!-- RATKAISUT (ongelma -> ratkaisu) -->
-    <section id="ratkaisut" class="section">
-      <div class="wrap">
-        <h2>RATKAISUT</h2>
-
-        <div class="flow">
-          <article class="flow__item" aria-label="Ongelma ja ratkaisu 1">
-            <h3>1. Kylmä säilytys festivaaliympäristössä</h3>
-            <p class="label">Ongelma</p>
-            <p>
-              Festivaalileirinnässä kylmän säilytyksen tarve on toistuva, mutta ratkaisujen laatu ja saatavuus vaihtelee.
-            </p>
-            <p class="label">Ratkaisu</p>
-            <p>
-              Siirrettävä kylmäkontti, jonka käyttö on jaettu lukittaviin lokeroihin. Kokonaisuus on suunniteltu
-              käytettäväksi tapahtumaympäristössä: käyttöoikeus, lokerojako ja operointi ovat osa itse rakennetta.
-            </p>
-          </article>
-
-          <article class="flow__item" aria-label="Ongelma ja ratkaisu 2">
-            <h3>2. Jakelu ja operointi</h3>
-            <p class="label">Ongelma</p>
-            <p>
-              Pelkkä laite ei riitä, jos käytön hallinta, jonot, luovutus ja valvonta jäävät “sitten katsotaan” -tasolle.
-            </p>
-            <p class="label">Ratkaisu</p>
-            <p>
-              Operointimalli, jossa fyysinen rakenne ja prosessi ovat yhteensopivia: selkeä käyttölogiikka,
-              rajattu palvelulupaus ja mitattava toiminta.
-            </p>
-          </article>
-
-          <article class="flow__item" aria-label="Ongelma ja ratkaisu 3">
-            <h3>3. Modulaarisuus ja toistettavuus</h3>
-            <p class="label">Ongelma</p>
-            <p>
-              Tapahtumat ovat erilaisia, mutta tuotannon pitäisi silti olla toistettavaa ja huollettavaa.
-            </p>
-            <p class="label">Ratkaisu</p>
-            <p>
-              Vakioitu rakenne, jossa komponentit ovat vaihdettavissa (lukitus, lokeromitoitus, opasteet, pintamateriaalit),
-              ilman että peruslogiikka muuttuu.
-            </p>
-          </article>
+            <div class="mini">
+              <h3>Toimituksen rajaus</h3>
+              <div class="kv" role="list">
+                <div role="listitem">Kuljetus</div><div>kohteeseen ja pois</div>
+                <div role="listitem">Kytkentä</div><div>verkkosähköön</div>
+                <div role="listitem">Ylläpito</div><div>osana operointia</div>
+                <div role="listitem">Käyttäjä</div><div>itsepalvelu</div>
+              </div>
+            </div>
+          </aside>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <hr class="rule" />
+      <!-- ============================= 2) Mitä se on ============================= -->
+      <section id="tuote">
+        <p class="kicker">Mitä se on</p>
+        <h2>Itsepalveluperiaatteella toimiva kylmäkontti (reefer), jaettu lukittaviin kylmälokeroihin.</h2>
 
-    <!-- KUVAT (yksi kerrallaan, ankkuroi todellisuuteen) -->
-    <section class="section" aria-label="Kuvamateriaali">
-      <div class="wrap">
-        <h2>KUVAT</h2>
-
-        <figure class="figure">
-          <!-- Vaihda src oikeaan tiedostoon. Nyt käytetään neutraalia placeholderia. -->
-          <img
-            src="assets/ennovate-placeholder.jpg"
-            alt="Neutraali konseptikuva / dokumentaatiokuva (vaihda omaan)."
-            loading="lazy"
-          />
-          <figcaption>
-            Yksi kuva kerrallaan. Desaturoitu, rauhallinen kuvakieli. (2028: vaihda tähän aito käyttökuva.)
-          </figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <hr class="rule" />
-
-    <!-- TILA (yksi rivi vaihtuu 2028) -->
-    <section id="tila" class="section">
-      <div class="wrap">
-        <h2>PROJEKTIN TILA</h2>
-
-        <div class="status" role="region" aria-label="Projektin tila">
-          <div class="status__row">
-            <span class="status__key">Tila</span>
-            <span class="status__val" data-now="kehitysvaiheessa" data-2028="operational / deployed">
-              kehitysvaiheessa
-            </span>
+        <div class="grid-2">
+          <div>
+            <p>Paikan päällä kävijä näkee kylmäkontin, jonka etupinta on jaettu useiksi lukittaviksi lokeroiksi.</p>
+            <p>Käyttäjä tuo omat tavarat lokeroon ja lukitsee ne.</p>
+            <p>Kontti pidetään kylmänä koko tapahtuman ajan.</p>
+            <p class="muted">Ratkaisu on fyysinen laite + operointi. Ei sovellusriippuvuutta vaadittuna esittelyyn.</p>
           </div>
-          <div class="status__row">
-            <span class="status__key">Määrittely</span>
-            <span class="status__val">konseptitaso → prototyyppi → operointi</span>
-          </div>
-          <div class="status__row">
-            <span class="status__key">Periaate</span>
-            <span class="status__val">rakennetaan ensin toimiva rakenne, sitten skaalataan</span>
+
+          <div class="card" aria-label="Yksinkertainen kaavio">
+            <p class="muted" style="margin-bottom: 10px; font-family: var(--mono); font-size: 12px;">Rakenne (looginen ketju)</p>
+
+            <div class="diagram">
+              <div class="node">
+                <strong>Container</strong>
+                <span>kylmätila / runko</span>
+              </div>
+              <div class="arrow" aria-hidden="true"></div>
+              <div class="node">
+                <strong>Lockers</strong>
+                <span>lukittavat lokerot</span>
+              </div>
+              <div class="arrow" aria-hidden="true"></div>
+              <div class="node">
+                <strong>Power</strong>
+                <span>verkkosähkö</span>
+              </div>
+              <div class="arrow" aria-hidden="true"></div>
+              <div class="node">
+                <strong>Operations</strong>
+                <span>valvonta + ylläpito</span>
+              </div>
+            </div>
           </div>
         </div>
+      </section>
 
-        <p class="note">
-          Vuonna 2028 tämän osion ulkoasu on sama. Yksi tekstirivi vaihtuu.
-        </p>
-      </div>
-    </section>
+      <!-- ============================= 3) Miten se toimii ============================= -->
+      <section id="toiminta">
+        <p class="kicker">Miten se toimii</p>
+        <h2>Toimitus ja käyttö neljänä selkeänä vaiheena.</h2>
+        <p class="muted">Jokainen vaihe on osa toimitusta tapahtuman ajaksi.</p>
 
-    <hr class="rule" />
-
-    <!-- YHTEYS -->
-    <section id="yhteys" class="section">
-      <div class="wrap">
-        <h2>YHTEYS</h2>
-
-        <p>
-          Yhteydenotto tapahtuu suoraan. Ei lomakkeita, ei automaatiota tässä vaiheessa.
-        </p>
-
-        <dl class="contact">
-          <div class="contact__row">
-            <dt>Sähköposti</dt>
-            <dd><a href="mailto:info@ennovate.fi">info@ennovate.fi</a></dd>
+        <div class="steps" aria-label="Prosessin vaiheet">
+          <div class="step">
+            <div class="n">01</div>
+            <div class="t">Kuljetus paikalle</div>
+            <p class="d">Kontti tuodaan sovittuun paikkaan alueella ja sijoitetaan suunnitelman mukaan.</p>
           </div>
-          <div class="contact__row">
-            <dt>Verkkotunnus</dt>
-            <dd>ennovate.fi</dd>
-          </div>
-          <div class="contact__row">
-            <dt>Sijainti</dt>
-            <dd>Suomi</dd>
-          </div>
-        </dl>
-      </div>
-    </section>
 
-    <footer class="footer" role="contentinfo">
-      <div class="wrap">
-        <p class="fine">
-          © <span id="year"></span> Ennovate. Tämä sivu on tarkoituksella niukka.
-        </p>
-      </div>
-    </footer>
+          <div class="step">
+            <div class="n">02</div>
+            <div class="t">Sähköön kytkentä</div>
+            <p class="d">Kytkentä verkkosähköön, perustoiminnan tarkistus ja käyttövalmiiksi asettaminen.</p>
+          </div>
+
+          <div class="step">
+            <div class="n">03</div>
+            <div class="t">Käyttö ja valvonta</div>
+            <p class="d">Operointi tapahtuman ajan: lämpötilan seuranta ja tarvittava tekninen ylläpito.</p>
+          </div>
+
+          <div class="step">
+            <div class="n">04</div>
+            <div class="t">Purku ja poisvienti</div>
+            <p class="d">Tapahtuman jälkeen laite tyhjennetään, irrotetaan ja kuljetetaan pois.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================= 4) Kenelle ============================= -->
+      <section id="kenelle">
+        <p class="kicker">Kenelle</p>
+        <h2>Rajattu kohderyhmä: alueoperaattorit ja kävijät.</h2>
+
+        <div class="grid-2">
+          <div class="card">
+            <h2 style="font-size: 18px; margin-bottom: 8px;">Tapahtumajärjestäjille / alueoperaattoreille</h2>
+            <p>Palvelu, joka tuo kylmäsäilytyksen alueelle ilman oman infran rakentamista.</p>
+            <p class="muted">Toimitus sisältää laitteiston ja operoinnin sovitulla ajanjaksolla.</p>
+          </div>
+
+          <div class="card">
+            <h2 style="font-size: 18px; margin-bottom: 8px;">Kävijöille</h2>
+            <p>Lukittava kylmäsäilytys henkilökohtaisille tavaroille ja juomille.</p>
+            <p class="muted">Itsepalvelu: käyttäjä hoitaa säilytyksen omalla lokeroalueellaan.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================= 5) Luotettavuus ============================= -->
+      <section id="varmuus">
+        <p class="kicker">Toimintavarmuus</p>
+        <h2>Periaatteet, joilla operointi pysyy hallinnassa.</h2>
+        <p class="muted">Ei lupauksia. Ei superlatiiveja. Selkeä vastuunjako ja tekemisen tapa.</p>
+
+        <div class="rules" aria-label="Toimintavarmuuden periaatteet">
+          <div class="rule">
+            <div class="mark" aria-hidden="true"></div>
+            <p>Toiminta perustuu selkeään vastuunjakoon ja dokumentoituihin toimintamalleihin.</p>
+          </div>
+
+          <div class="rule">
+            <div class="mark" aria-hidden="true"></div>
+            <p>Operointi ja tekninen ylläpito on osa toimitusta (ei erillinen lisäpalvelu).</p>
+          </div>
+
+          <div class="rule">
+            <div class="mark" aria-hidden="true"></div>
+            <p>Laite on tarkoitettu tapahtumaolosuhteisiin: kuljetettava, kytkettävä ja käytössä valvottava yksikkö.</p>
+          </div>
+
+          <div class="rule">
+            <div class="mark" aria-hidden="true"></div>
+            <p>Rajapinnat pidetään yksinkertaisina: fyysinen käyttö paikan päällä, selkeä käyttölogiikka ja huollettavuus.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================= 6) Yhteystiedot ============================= -->
+      <section id="yhteys">
+        <p class="kicker">Yhteystiedot</p>
+        <h2>Ennovate</h2>
+
+        <div class="grid-2">
+          <div class="card">
+            <p class="muted" style="margin-bottom: 10px; font-family: var(--mono); font-size: 12px;">Sähköposti</p>
+            <p style="margin-bottom: 0;">
+              <a href="mailto:info@ennovate.fi">info@ennovate.fi</a>
+            </p>
+          </div>
+
+          <div class="card">
+            <p class="muted" style="margin-bottom: 10px; font-family: var(--mono); font-size: 12px;">Puhelin (valinnainen)</p>
+            <p style="margin-bottom: 0;">
+              <span class="muted">+358 XX XXX XXXX</span>
+            </p>
+          </div>
+        </div>
+
+        <p class="muted" style="margin-top: 14px;">Ei lomakkeita. Ei uutiskirjeitä. Yksi yhteyskanava riittää.</p>
+      </section>
+
+    </div>
   </main>
 
-  <script>
-    // Pidetään JS minimissä: vain vuosiluku.
-    document.getElementById("year").textContent = new Date().getFullYear();
+  <footer>
+    <div class="wrap">
+      <div class="foot">
+        <div>© <span id="year">2026</span> Ennovate</div>
+        <div class="small-mono">static HTML + CSS • no JS • no external libraries</div>
+      </div>
+    </div>
+  </footer>
 
-    // (Valinnainen) 2028-tilan esikatselu:
-    // lisää body-tagille data-mode="2028"
-    // esim. <body data-mode="2028">
-    (function () {
-      const mode = document.body.getAttribute("data-mode");
-      if (mode !== "2028") return;
-      document.querySelectorAll("[data-2028]").forEach((el) => {
-        el.textContent = el.getAttribute("data-2028");
-      });
-    })();
-  </script>
+  <!--
+    Note: No JS requested. The year is static on purpose.
+    Replace contact details, refine copy, and add legal info as needed.
+  -->
 </body>
 </html>

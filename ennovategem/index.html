@@ -3,212 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ennovate</title>
+    <title>Ennovate | Reefer Locker Systems</title>
     <style>
-        /* --- PERUSASETUKSET & MUUTTUJAT --- */
+        /* --- TEKNISET MUUTTUJAT --- */
         :root {
-            --bg-color: #F2F2F2;          /* Hyvin vaalea harmaa, "betoni/paperi" */
-            --text-color: #111111;        /* Lähes musta, ei täysin musta kontrastin pehmentämiseksi */
-            --accent-color: #4A5D75;      /* Teräksinen sininen, viileä ja asiallinen */
-            --line-color: #D1D1D1;        /* Hienovaraiset erottimet */
-            --spacing-unit: 2rem;         /* Modulaarinen välistys */
+            --bg-color: #F4F4F4;          /* Teollinen vaaleanharmaa */
+            --text-main: #1A1A1A;         /* Musta, mutta ei 000 */
+            --text-muted: #555555;        /* Toissijainen informaatio */
+            --accent: #5B7C99;            /* Teräksinen sininen */
+            --border: #D1D1D1;            /* Rakenteelliset viivat */
             --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --mono-stack: "Courier New", Courier, monospace; /* Datalle */
+            --spacing: 2rem;
+            --max-width: 800px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        /* --- GLOBAL RESET --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             background-color: var(--bg-color);
-            color: var(--text-color);
+            color: var(--text-main);
             font-family: var(--font-stack);
-            font-size: 16px;
-            line-height: 1.6;
+            line-height: 1.5;
             -webkit-font-smoothing: antialiased;
-            display: flex;
-            justify-content: center;
-            padding: var(--spacing-unit);
+            padding: var(--spacing);
         }
 
         /* --- LAYOUT --- */
         .container {
-            width: 100%;
-            max-width: 720px; /* Dokumenttimainen leveys */
-            margin-top: 5vh;
-            margin-bottom: 10vh;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            border-top: 4px solid var(--text-main); /* Yläreunan ankkuri */
+            background: #fff;
+            padding: calc(var(--spacing) * 2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
         /* --- TYPOGRAFIA --- */
         h1, h2, h3 {
-            font-weight: 500;
+            font-weight: 600;
+            color: var(--text-main);
             margin-bottom: 1rem;
             letter-spacing: -0.02em;
         }
 
-        h1 {
-            font-size: 1.5rem; /* Ei liian iso */
-            margin-bottom: 0.5rem;
-        }
+        h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+        h2 { font-size: 1.25rem; margin-top: 3rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+        h3 { font-size: 1rem; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; font-size: 0.85rem; letter-spacing: 0.05em; }
+        
+        p { margin-bottom: 1.5rem; color: var(--text-muted); max-width: 65ch; }
 
-        h2 {
-            font-size: 1.1rem;
-            margin-top: 3rem;
-            color: var(--accent-color); /* Korostusväri vain rakenteessa */
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.05em;
-        }
-
-        p {
-            margin-bottom: 1.5rem;
-            max-width: 65ch; /* Optimaalinen lukuleveys */
-        }
-
-        ul {
-            list-style: none;
-            padding-left: 0;
-            margin-bottom: 1.5rem;
-        }
-
-        li {
-            padding-left: 1rem;
-            border-left: 2px solid var(--line-color);
-            margin-bottom: 0.5rem;
-        }
-
-        /* --- HEADER & STATUS --- */
-        header {
+        /* --- UI KOMPONENTIT --- */
+        
+        /* Spec Strip - Tekninen tiivistelmä */
+        .spec-strip {
             display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            border-bottom: 1px solid var(--text-color);
-            padding-bottom: var(--spacing-unit);
-            margin-bottom: calc(var(--spacing-unit) * 2);
-        }
-
-        .status {
-            font-family: "Courier New", Courier, monospace;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-family: var(--mono-stack);
             font-size: 0.8rem;
-            color: var(--accent-color);
+            color: var(--accent);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 0;
+            margin: 2rem 0;
+        }
+        
+        .spec-item:not(:last-child)::after {
+            content: "•";
+            margin-left: 1rem;
+            color: var(--border);
         }
 
-        .status::before {
-            content: "● ";
-            font-size: 1.2em;
-        }
-
-        /* --- HERO --- */
-        .hero-statement {
-            font-size: 1.8rem;
-            line-height: 1.4;
-            font-weight: 400;
-            color: var(--text-color);
-            margin-bottom: calc(var(--spacing-unit) * 2);
-        }
-
-        /* --- ELEMENTIT --- */
-        hr {
-            border: 0;
-            height: 1px;
-            background: var(--line-color);
-            margin: 3rem 0;
-        }
-
-        .image-placeholder {
-            width: 100%;
-            height: 400px;
-            background-color: #E0E0E0; /* Tummempi harmaa */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #888;
-            font-family: monospace;
-            font-size: 0.9rem;
+        /* Diagram Box System - CSS-kaavio */
+        .system-diagram {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
             margin: 2rem 0;
         }
 
-        .meta-data {
-            font-family: monospace;
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 4rem;
-            border-top: 1px solid var(--line-color);
-            padding-top: 1rem;
+        .diagram-box {
+            border: 1px solid var(--border);
+            padding: 1rem;
+            text-align: center;
+            background: #FAFAFA;
         }
 
-        /* --- RESPONSIIVISUUS --- */
+        .diagram-box strong { display: block; font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .diagram-box span { font-size: 0.75rem; color: var(--text-muted); font-family: var(--mono-stack); }
+
+        /* Prosessilista */
+        .process-list {
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .process-list li {
+            position: relative;
+            padding-left: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .process-list li::before {
+            counter-increment: step;
+            content: "0" counter(step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-family: var(--mono-stack);
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* Kohderyhmät grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        /* Button (Hillitty linkki) */
+        .btn-text {
+            display: inline-block;
+            margin-top: 1rem;
+            text-decoration: none;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--accent);
+            font-size: 0.9rem;
+            padding-bottom: 2px;
+        }
+        .btn-text:hover { opacity: 0.7; }
+
+        /* Footer */
+        footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Responsiivisuus */
         @media (max-width: 600px) {
-            .hero-statement {
-                font-size: 1.4rem;
-            }
-            body {
-                padding: 1rem;
-            }
+            .grid-2 { grid-template-columns: 1fr; gap: 1rem; }
+            .container { padding: 1.5rem; width: 100%; margin: 0; border-top: none; }
+            body { padding: 0; background: #fff; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        
-        <header>
-            <h1>Ennovate</h1>
-            <div class="status">System Status: Development</div>
-        </header>
+<div class="container">
+    
+    <header style="margin-bottom: 3rem;">
+        <div style="font-weight: 700; letter-spacing: -0.05em; font-size: 1.2rem;">Ennovate</div>
+    </header>
 
-        <main>
-            <div class="hero-statement">
-                Skaalautuva infrastruktuuri teollisen mittakaavan energianhallintaan ja varastointiin.
+    <main>
+        <section>
+            <h1>Kylmäkontti lukittavilla lokeroilla festareille.</h1>
+            <p style="font-size: 1.1rem; color: var(--text-main);">
+                Toimitus, asennus ja operointi tapahtuman ajaksi. Itsepalvelu käyttäjille.
+            </p>
+            
+            <div class="spec-strip">
+                <span class="spec-item">Reefer Container</span>
+                <span class="spec-item">Secure Lockers</span>
+                <span class="spec-item">Grid Power</span>
+                <span class="spec-item">On-site Operations</span>
             </div>
 
-            <hr>
+            <a href="mailto:contact@ennovate.fi" class="btn-text">Ota yhteyttä →</a>
+        </section>
 
-            <section>
-                <h2>Lähtökohta</h2>
-                <p>
-                    Nykyinen sähköverkko on rakennettu keskitetyn tuotannon mallille. Uusiutuvien energiamuotojen volatiliteetti aiheuttaa epätasapainoa, jota nykyinen infrastruktuuri ei pysty kustannustehokkaasti korjaamaan ilman merkittäviä muutoksia siirtoverkkoihin.
-                </p>
-            </section>
+        <section>
+            <h2>Järjestelmä</h2>
+            <p>
+                Itsepalveluperiaatteella toimiva kylmäkontti (reefer), joka on jaettu lukittaviin kylmälokeroihin. 
+                Käyttäjä tuo omat tavarat lokeroon ja lukitsee ne. Kontti pidetään tasaisen kylmänä koko tapahtuman ajan.
+            </p>
 
-            <div class="image-placeholder">
-                [ VISUALISAATIO: MODULAARINEN LAITOSYKSIKKÖ ]
+            <div class="system-diagram">
+                <div class="diagram-box">
+                    <strong>ISO Container</strong>
+                    <span>Standard Unit</span>
+                </div>
+                <div class="diagram-box">
+                    <strong>Lockers</strong>
+                    <span>User Access</span>
+                </div>
+                <div class="diagram-box">
+                    <strong>Cooling</strong>
+                    <span>Active Power</span>
+                </div>
+                <div class="diagram-box">
+                    <strong>Ops</strong>
+                    <span>Monitoring</span>
+                </div>
             </div>
+        </section>
 
-            <section>
-                <h2>Ratkaisumalli</h2>
-                <p>
-                    Ennovate toimittaa itsenäisiä säätövoimayksiköitä, jotka integroituvat olemassa olevaan verkkoon. Järjestelmä on suunniteltu toimimaan autonomisesti.
-                </p>
-                <ul>
-                    <li>Reaaliaikainen taajuudensäätö</li>
-                    <li>Modulaarinen kapasiteetin lisäys</li>
-                    <li>Riippumaton ulkoisista tietoliikenneyhteyksistä</li>
-                </ul>
-                <p>
-                    Ratkaisu ei vaadi loppukäyttäjän toimenpiteitä. Se on osa verkon taustajärjestelmää.
-                </p>
-            </section>
+        <section>
+            <h2>Toimintamalli</h2>
+            <ul class="process-list">
+                <li>
+                    <strong>Kuljetus paikalle</strong><br>
+                    <span style="font-size: 0.9rem; color: #666;">Yksikkö toimitetaan tapahtuma-alueelle sovitun aikataulun mukaisesti.</span>
+                </li>
+                <li>
+                    <strong>Sähköön kytkentä</strong><br>
+                    <span style="font-size: 0.9rem; color: #666;">Kytketään alueen sähköverkkoon (3-vaihe). Järjestelmäajot ja lämpötilan tasaus.</span>
+                </li>
+                <li>
+                    <strong>Käyttö ja valvonta</strong><br>
+                    <span style="font-size: 0.9rem; color: #666;">Jatkuva lämpötilaseuranta ja tekninen päivystys tapahtuman ajan.</span>
+                </li>
+                <li>
+                    <strong>Purku ja poisvienti</strong><br>
+                    <span style="font-size: 0.9rem; color: #666;">Järjestelmän alasajo ja kuljetus pois tapahtuman päätyttyä.</span>
+                </li>
+            </ul>
+        </section>
 
-            <hr>
+        <section>
+            <h2>Käyttötarkoitus</h2>
+            <div class="grid-2">
+                <div>
+                    <h3>Tapahtumajärjestäjälle</h3>
+                    <p style="font-size: 0.9rem;">
+                        Palvelu, joka tuo kylmäsäilytyksen alueelle ilman oman infran rakentamista. Skaalautuva kapasiteetti.
+                    </p>
+                </div>
+                <div>
+                    <h3>Loppukäyttäjälle</h3>
+                    <p style="font-size: 0.9rem;">
+                        Lukittava kylmäsäilytys henkilökohtaisille tavaroille ja juomille. Vähentää tarvetta kertakäyttöjäille.
+                    </p>
+                </div>
+            </div>
+        </section>
 
-            <section>
-                <h2>Aikajana</h2>
-                <p>
-                    Järjestelmän konseptivalidointi on käynnissä. Pilottilaitoksen käyttöönotto on aikataulutettu vuodelle 2026.
-                </p>
-            </section>
+        <section>
+            <h2>Operatiiviset periaatteet</h2>
+            <p>
+                Toiminta perustuu selkeään vastuunjakoon ja dokumentoituihin toimintamalleihin. 
+                Operointi ja tekninen ylläpito on osa toimitusta, ei lisäpalvelu.
+            </p>
+        </section>
 
-        </main>
+    </main>
 
-        <footer class="meta-data">
-            &copy; 2026 Ennovate Corp. <br>
-            Documentation ID: ENV-WEB-V1
-        </footer>
+    <footer>
+        <p>
+            <strong>Ennovate Oy</strong><br>
+            contact@ennovate.fi<br>
+            +358 40 123 4567
+        </p>
+        <p style="font-family: var(--mono-stack); font-size: 0.75rem; color: #999;">
+            SYSTEM: ENV-REEFER-V2 // LAST UPDATE: 2026-05
+        </p>
+    </footer>
 
-    </div>
+</div>
 
 </body>
 </html>
