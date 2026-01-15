@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ennovate</title>
+    <style>
+        /* --- PERUSASETUKSET & MUUTTUJAT --- */
+        :root {
+            --bg-color: #F2F2F2;          /* Hyvin vaalea harmaa, "betoni/paperi" */
+            --text-color: #111111;        /* Lähes musta, ei täysin musta kontrastin pehmentämiseksi */
+            --accent-color: #4A5D75;      /* Teräksinen sininen, viileä ja asiallinen */
+            --line-color: #D1D1D1;        /* Hienovaraiset erottimet */
+            --spacing-unit: 2rem;         /* Modulaarinen välistys */
+            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-stack);
+            font-size: 16px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            justify-content: center;
+            padding: var(--spacing-unit);
+        }
+
+        /* --- LAYOUT --- */
+        .container {
+            width: 100%;
+            max-width: 720px; /* Dokumenttimainen leveys */
+            margin-top: 5vh;
+            margin-bottom: 10vh;
+        }
+
+        /* --- TYPOGRAFIA --- */
+        h1, h2, h3 {
+            font-weight: 500;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        h1 {
+            font-size: 1.5rem; /* Ei liian iso */
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            margin-top: 3rem;
+            color: var(--accent-color); /* Korostusväri vain rakenteessa */
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            max-width: 65ch; /* Optimaalinen lukuleveys */
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            padding-left: 1rem;
+            border-left: 2px solid var(--line-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* --- HEADER & STATUS --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px solid var(--text-color);
+            padding-bottom: var(--spacing-unit);
+            margin-bottom: calc(var(--spacing-unit) * 2);
+        }
+
+        .status {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+        }
+
+        .status::before {
+            content: "● ";
+            font-size: 1.2em;
+        }
+
+        /* --- HERO --- */
+        .hero-statement {
+            font-size: 1.8rem;
+            line-height: 1.4;
+            font-weight: 400;
+            color: var(--text-color);
+            margin-bottom: calc(var(--spacing-unit) * 2);
+        }
+
+        /* --- ELEMENTIT --- */
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--line-color);
+            margin: 3rem 0;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 400px;
+            background-color: #E0E0E0; /* Tummempi harmaa */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin: 2rem 0;
+        }
+
+        .meta-data {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 4rem;
+            border-top: 1px solid var(--line-color);
+            padding-top: 1rem;
+        }
+
+        /* --- RESPONSIIVISUUS --- */
+        @media (max-width: 600px) {
+            .hero-statement {
+                font-size: 1.4rem;
+            }
+            body {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <h1>Ennovate</h1>
+            <div class="status">System Status: Development</div>
+        </header>
+
+        <main>
+            <div class="hero-statement">
+                Skaalautuva infrastruktuuri teollisen mittakaavan energianhallintaan ja varastointiin.
+            </div>
+
+            <hr>
+
+            <section>
+                <h2>Lähtökohta</h2>
+                <p>
+                    Nykyinen sähköverkko on rakennettu keskitetyn tuotannon mallille. Uusiutuvien energiamuotojen volatiliteetti aiheuttaa epätasapainoa, jota nykyinen infrastruktuuri ei pysty kustannustehokkaasti korjaamaan ilman merkittäviä muutoksia siirtoverkkoihin.
+                </p>
+            </section>
+
+            <div class="image-placeholder">
+                [ VISUALISAATIO: MODULAARINEN LAITOSYKSIKKÖ ]
+            </div>
+
+            <section>
+                <h2>Ratkaisumalli</h2>
+                <p>
+                    Ennovate toimittaa itsenäisiä säätövoimayksiköitä, jotka integroituvat olemassa olevaan verkkoon. Järjestelmä on suunniteltu toimimaan autonomisesti.
+                </p>
+                <ul>
+                    <li>Reaaliaikainen taajuudensäätö</li>
+                    <li>Modulaarinen kapasiteetin lisäys</li>
+                    <li>Riippumaton ulkoisista tietoliikenneyhteyksistä</li>
+                </ul>
+                <p>
+                    Ratkaisu ei vaadi loppukäyttäjän toimenpiteitä. Se on osa verkon taustajärjestelmää.
+                </p>
+            </section>
+
+            <hr>
+
+            <section>
+                <h2>Aikajana</h2>
+                <p>
+                    Järjestelmän konseptivalidointi on käynnissä. Pilottilaitoksen käyttöönotto on aikataulutettu vuodelle 2026.
+                </p>
+            </section>
+
+        </main>
+
+        <footer class="meta-data">
+            &copy; 2026 Ennovate Corp. <br>
+            Documentation ID: ENV-WEB-V1
+        </footer>
+
+    </div>
+
+</body>
+</html>
