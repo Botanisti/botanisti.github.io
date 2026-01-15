@@ -1,239 +1,431 @@
 <!doctype html>
-<html lang="fi">
+<html lang="fi" class="scroll-smooth">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ennovate — verkkosivut ja digiratkaisut ilman säätöä</title>
+  <title>Ennovate — Modernit verkkosivut ilman säätöä</title>
   <meta name="description" content="Ennovate rakentaa nopeat ja selkeät verkkosivut sekä digiratkaisut pienyrityksille. Staattiset sivut, lomakkeet ja perusinfra kuntoon." />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+
   <style>
     :root{
-      --bg:#0b0f19;
-      --card:#121a2a;
-      --text:#e7edf7;
-      --muted:#a9b4c7;
-      --accent:#62d0ff;
-      --accent2:#7cffc2;
-      --border: rgba(255,255,255,.10);
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius: 18px;
-      --max: 1050px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      background: radial-gradient(1200px 600px at 20% 0%, rgba(98,208,255,.18), transparent 60%),
-                  radial-gradient(900px 500px at 85% 10%, rgba(124,255,194,.14), transparent 55%),
-                  var(--bg);
-      color:var(--text);
-      line-height:1.5;
-    }
-    a{color:inherit}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 70px}
-    header{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px; padding:10px 0 20px;
-    }
-    .brand{
-      display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.4px;
-    }
-    .dot{
-      width:14px; height:14px; border-radius:50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 0 0 6px rgba(98,208,255,.10);
-    }
-    nav{display:flex; gap:14px; color:var(--muted); font-size:14px}
-    nav a{opacity:.9; text-decoration:none}
-    nav a:hover{opacity:1; text-decoration:underline}
-    .hero{
-      display:grid; gap:18px;
-      padding:34px 0 14px;
-    }
-    .hero h1{
-      margin:0;
-      font-size: clamp(28px, 4.2vw, 46px);
-      line-height:1.08;
-      letter-spacing:-.6px;
-    }
-    .hero p{
-      margin:0; max-width:68ch; color:var(--muted);
-      font-size: clamp(15px, 1.3vw, 18px);
-    }
-    .ctaRow{display:flex; flex-wrap:wrap; gap:12px; padding-top:10px}
-    .btn{
-      display:inline-flex; align-items:center; gap:10px;
-      padding:12px 16px; border-radius:14px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.04);
-      text-decoration:none;
-    }
-    .btn.primary{
-      border:none;
-      background: linear-gradient(135deg, rgba(98,208,255,.95), rgba(124,255,194,.90));
-      color:#06101a;
-      font-weight:700;
-      box-shadow: var(--shadow);
-    }
-    .btn:hover{transform: translateY(-1px)}
-    .note{color:var(--muted); font-size:13px; padding-top:8px}
-
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap:14px;
-      margin-top:26px;
-    }
-    .card{
-      grid-column: span 12;
-      background: rgba(18,26,42,.75);
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding:18px;
-      backdrop-filter: blur(6px);
-    }
-    .card h2{margin:0 0 10px; font-size:18px}
-    .card p{margin:0; color:var(--muted)}
-    .pillRow{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
-    .pill{
-      font-size:12px; color:rgba(255,255,255,.85);
-      border:1px solid rgba(255,255,255,.12);
-      padding:6px 10px; border-radius:999px;
-      background: rgba(255,255,255,.03);
+      --bg: #05080f;
+      --card-bg: rgba(20, 27, 41, 0.6);
+      --card-border: rgba(255, 255, 255, 0.08);
+      
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      
+      --accent: #38bdf8;       /* Sky blue */
+      --accent-glow: #0ea5e9;
+      --secondary: #34d399;    /* Emerald */
+      
+      --radius: 20px;
+      --max-w: 1100px;
+      --header-h: 70px;
     }
 
-    .cols-3 .card{grid-column: span 12}
-    @media (min-width: 860px){
-      .cols-3 .card{grid-column: span 4}
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
     }
 
-    .sectionTitle{
-      margin:34px 0 10px;
-      font-size:16px;
-      color:rgba(255,255,255,.9);
-      letter-spacing:.3px;
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      overflow-x: hidden;
     }
-    .steps{
-      display:grid; gap:14px;
+
+    /* Taustaefektit */
+    .bg-gradient {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100vh;
+      z-index: -1;
+      background: 
+        radial-gradient(circle at 15% 10%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 30%, rgba(52, 211, 153, 0.06) 0%, transparent 40%);
+      pointer-events: none;
+    }
+
+    /* Verkko-tausta */
+    .bg-grid {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -1;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+    }
+
+    /* Layout */
+    .wrap {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header & Nav */
+    header {
+      position: sticky;
+      top: 10px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: var(--header-h);
+      padding: 0 24px;
+      margin: 0 auto;
+      max-width: calc(var(--max-w) + 40px);
+      
+      /* Glassmorphism naville */
+      background: rgba(5, 8, 15, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 999px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.5px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 20px; height: 20px;
+      background: linear-gradient(135deg, var(--accent), var(--secondary));
+      border-radius: 6px;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    }
+
+    nav { display: none; gap: 24px; font-size: 15px; font-weight: 500; }
+    nav a { text-decoration: none; color: var(--text-muted); transition: color 0.2s; }
+    nav a:hover { color: #fff; }
+    
+    @media (min-width: 600px) { nav { display: flex; } }
+
+    /* Hero Section */
+    .hero {
+      padding: 100px 0 60px;
+      max-width: 800px;
+      animation: fadeInUp 0.8s ease-out;
+    }
+    
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 64px);
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin: 0 0 24px;
+      background: linear-gradient(to right, #fff, #cbd5e1);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: clamp(18px, 2vw, 20px);
+      color: var(--text-muted);
+      max-width: 600px;
+      margin-bottom: 32px;
+    }
+
+    /* Buttons */
+    .btn-group { display: flex; flex-wrap: wrap; gap: 16px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      font-size: 15px;
+    }
+
+    .btn-primary {
+      background: #fff;
+      color: #000;
+      border: 1px solid #fff;
+    }
+    .btn-primary:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    /* Section Styles */
+    .section-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent);
+      margin: 80px 0 20px;
+      font-weight: 700;
+    }
+
+    /* Grid Layouts */
+    .grid {
+      display: grid;
+      gap: 24px;
       grid-template-columns: 1fr;
     }
-    @media (min-width: 860px){
-      .steps{grid-template-columns: 1fr 1fr 1fr;}
-    }
-    .step{
-      background: rgba(18,26,42,.55);
-      border:1px solid var(--border);
+    @media(min-width: 768px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: var(--radius);
-      padding:16px;
+      padding: 32px;
+      transition: transform 0.2s, border-color 0.2s;
     }
-    .kicker{
-      font-size:12px; color:rgba(255,255,255,.75);
-      letter-spacing:.35px;
-      text-transform:uppercase;
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.2);
     }
-    .step h3{margin:6px 0 8px; font-size:16px}
-    footer{
-      margin-top:40px; padding-top:18px;
-      border-top:1px solid var(--border);
-      color:var(--muted);
-      font-size:14px;
-      display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between;
+
+    .icon-box {
+      width: 48px; height: 48px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+      color: var(--accent);
     }
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+    
+    .card h3 { margin: 0 0 10px; font-size: 20px; color: #fff; }
+    .card p { margin: 0; font-size: 15px; color: var(--text-muted); }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .tag {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* Process Steps */
+    .step-card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 24px;
+      border-left: 1px solid var(--card-border);
+      background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+    }
+    .step-num { font-size: 12px; color: var(--secondary); font-weight: 700; letter-spacing: 1px; text-transform: uppercase;}
+    .step-card h3 { margin: 0; font-size: 18px; }
+
+    /* Contact Form Area */
+    .contact-wrapper {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 40px;
+      margin-top: 40px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 40px;
+    }
+    @media(min-width: 800px) { .contact-wrapper { grid-template-columns: 1fr 1fr; } }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 14px; margin-bottom: 8px; color: #fff; }
+    .input-field {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--card-border);
+      padding: 12px;
+      border-radius: 8px;
+      color: #fff;
+      font-family: inherit;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 100px;
+      padding: 40px 0;
+      border-top: 1px solid var(--card-border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .text-gradient {
+      background: linear-gradient(135deg, var(--accent), var(--secondary));
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
   </style>
 </head>
 <body>
+
+  <div class="bg-gradient"></div>
+  <div class="bg-grid"></div>
+
+  <header>
+    <a href="#" class="brand">
+      <div class="logo-icon"></div>
+      Ennovate
+    </a>
+    <nav>
+      <a href="#palvelut">Palvelut</a>
+      <a href="#prosessi">Prosessi</a>
+      <a href="#yhteys">Ota yhteyttä</a>
+    </nav>
+  </header>
+
   <div class="wrap">
-    <header>
-      <div class="brand">
-        <span class="dot" aria-hidden="true"></span>
-        <span>Ennovate</span>
-      </div>
-      <nav>
-        <a href="#palvelut">Palvelut</a>
-        <a href="#prosessi">Prosessi</a>
-        <a href="#yhteys">Yhteys</a>
-      </nav>
-    </header>
-
+    
     <section class="hero">
-      <h1>Verkkosivut ja digiratkaisut ilman säätöä.</h1>
+      <h1>Verkkosivut ja digiratkaisut <br>ilman turhaa säätöä.</h1>
       <p>
-        Rakennamme nopeita ja selkeitä sivuja pienyrityksille — sellaisia, jotka näyttävät hyvältä,
-        latautuvat nopeasti ja vähentävät turhia “voitko katsoa kun tämä ei toimi” -puheluja.
+        Rakennamme nopeita ja selkeitä sivuja pienyrityksille. Ne näyttävät hyvältä, 
+        latautuvat heti ja vähentävät IT-huolia.
       </p>
-      <div class="ctaRow">
-        <a class="btn primary" href="#yhteys">Ota yhteyttä</a>
-        <a class="btn" href="#palvelut">Katso palvelut</a>
-      </div>
-      <div class="note">
-        Staattinen toteutus → nopea, edullinen ja luotettava. SSL ja domain kunnossa.
+      <div class="btn-group">
+        <a href="#yhteys" class="btn btn-primary">Pyydä tarjous</a>
+        <a href="#palvelut" class="btn btn-secondary">Katso palvelut</a>
       </div>
     </section>
 
-    <div class="sectionTitle" id="palvelut">Palvelut</div>
-    <section class="grid cols-3">
+    <div id="palvelut" class="section-title">Palvelut</div>
+    <section class="grid grid-3">
+      
       <div class="card">
-        <h2>Staattiset verkkosivut</h2>
-        <p>Yksinkertainen ja nopea toteutus HTML/CSS/JS:llä. Ei turhaa backend-säätöä, jos sitä ei tarvita.</p>
-        <div class="pillRow">
-          <span class="pill">Nopea</span><span class="pill">Edullinen</span><span class="pill">Helppo ylläpitää</span>
+        <div class="icon-box">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        </div>
+        <h3>Staattiset verkkosivut</h3>
+        <p>Yksinkertainen toteutus ilman raskasta taustajärjestelmää. Koodaamme sivut käsin, jolloin ne ovat salamannopeita.</p>
+        <div class="tags">
+          <span class="tag">Nopea</span>
+          <span class="tag">Turvallinen</span>
         </div>
       </div>
+
       <div class="card">
-        <h2>Yhteydenottolomakkeet</h2>
-        <p>Lomake asiakkaan sähköpostiin (esim. Formspree tms.). Asiakas ei joudu opettelemaan mitään.</p>
-        <div class="pillRow">
-          <span class="pill">Vähemmän IT-puheluja</span><span class="pill">Toimii heti</span>
+        <div class="icon-box">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        </div>
+        <h3>Älykkäät lomakkeet</h3>
+        <p>Yhteydenotot suoraan sähköpostiisi ilman serverisäätöä. Teemme lomakkeista helppoja täyttää.</p>
+        <div class="tags">
+          <span class="tag">Spam-suojaus</span>
+          <span class="tag">Helppo</span>
         </div>
       </div>
+
       <div class="card">
-        <h2>Perusinfra kuntoon</h2>
-        <p>Domain, sähköposti, SSL ja ohjaukset. Yksi selkeä kokonaisuus ilman mystiikkaa.</p>
-        <div class="pillRow">
-          <span class="pill">DNS</span><span class="pill">SSL</span><span class="pill">Redirectit</span>
+        <div class="icon-box">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </div>
+        <h3>Perusinfra kuntoon</h3>
+        <p>Hoidamme domainit, sähköpostiohjaukset ja SSL-sertifikaatit puolestasi. Yksi selkeä kokonaisuus.</p>
+        <div class="tags">
+          <span class="tag">DNS</span>
+          <span class="tag">SSL</span>
         </div>
       </div>
     </section>
 
-    <div class="sectionTitle" id="prosessi">Miten homma etenee</div>
-    <section class="steps">
-      <div class="step">
-        <div class="kicker">1) Kartoitus</div>
-        <h3>15 minuuttia riittää</h3>
-        <p>Käydään läpi mitä sivun pitää tehdä: yhteydenotot, palvelut, luottamus, ja minimi sisältö.</p>
+    <div id="prosessi" class="section-title">Kuinka toimimme</div>
+    <section class="grid grid-3">
+      <div class="step-card">
+        <div class="step-num">Vaihe 01</div>
+        <h3>Lyhyt kartoitus</h3>
+        <p style="font-size:14px; color:var(--text-muted)">15 minuutin puhelu riittää. Käydään läpi tarpeet, sisältö ja tavoitteet.</p>
       </div>
-      <div class="step">
-        <div class="kicker">2) Ensiversio</div>
-        <h3>Näet jotain nopeasti</h3>
-        <p>Tehdään ensimmäinen versio ja tarkennetaan. Staattinen = nopea julkaista ja helppo muokata.</p>
+      <div class="step-card">
+        <div class="step-num">Vaihe 02</div>
+        <h3>Proto & Toteutus</h3>
+        <p style="font-size:14px; color:var(--text-muted)">Rakennamme ensimmäisen version nopeasti nähtäville. Viilataan kuntoon.</p>
       </div>
-      <div class="step">
-        <div class="kicker">3) Julkaisu</div>
-        <h3>Valmis ja selkeä ylläpito</h3>
-        <p>Julkaistaan ja sovitaan päivitystapa: itse, tai pyydät meiltä kun tarvitsee.</p>
+      <div class="step-card">
+        <div class="step-num">Vaihe 03</div>
+        <h3>Julkaisu</h3>
+        <p style="font-size:14px; color:var(--text-muted)">Sivut liveksi. Opastamme ylläpidossa tai hoidamme sen puolestasi.</p>
       </div>
     </section>
 
-    <div class="sectionTitle" id="yhteys">Yhteys</div>
-    <section class="card">
-      <h2>Ota yhteyttä</h2>
-      <p>Vastataan nopeasti ja selkeästi. Kerro lyhyesti mitä tarvitset (uusi sivu / päivitys / domain / sähköposti).</p>
-      <div class="ctaRow" style="margin-top:12px">
-        <a class="btn primary" href="mailto:SÄHKÖPOSTI@ENNOVATE.FI?subject=Ennovate%20-%20yhteydenotto">Lähetä sähköposti</a>
-        <a class="btn" href="#palvelut">Palvelut</a>
+    <div id="yhteys" class="section-title">Aloitetaan projekti</div>
+    <section class="contact-wrapper">
+      <div>
+        <h2 style="margin-top:0; font-size:28px;">Ota yhteyttä</h2>
+        <p style="color:var(--text-muted)">
+          Kerro lyhyesti mitä tarvitset. Vastaamme yleensä saman työpäivän aikana selkeällä ehdotuksella.
+        </p>
+        <div style="margin-top:20px; display:flex; align-items:center; gap:10px; font-family:'monospace'; color:var(--accent);">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          sahkoposti@ennovate.fi
+        </div>
       </div>
-      <p class="note mono" style="margin-top:12px">SÄHKÖPOSTI@ENNOVATE.FI</p>
+      
+      <form action="#" method="POST">
+        <div class="form-group">
+          <label>Nimi</label>
+          <input type="text" class="input-field" placeholder="Matti Meikäläinen">
+        </div>
+        <div class="form-group">
+          <label>Sähköposti</label>
+          <input type="email" class="input-field" placeholder="matti@yritys.fi">
+        </div>
+        <div class="form-group">
+          <label>Viesti</label>
+          <textarea class="input-field" rows="4" placeholder="Tarvitsen uudet kotisivut..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; border:none;">Lähetä viesti</button>
+      </form>
     </section>
 
     <footer>
-      <div>© <span id="y"></span> Ennovate</div>
-      <div>Rakennettu staattisesti. Nopea. Yksinkertainen. Luotettava.</div>
+      <p>© <span id="year"></span> Ennovate. Rakennettu Helsingissä.</p>
+      <p style="font-size:12px; opacity:0.6;">Moderni. Nopea. Yksinkertainen.</p>
     </footer>
+
   </div>
 
   <script>
-    document.getElementById("y").textContent = new Date().getFullYear();
+    document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
