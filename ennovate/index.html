@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ennovate — verkkosivut ja digiratkaisut ilman säätöä</title>
+  <meta name="description" content="Ennovate rakentaa nopeat ja selkeät verkkosivut sekä digiratkaisut pienyrityksille. Staattiset sivut, lomakkeet ja perusinfra kuntoon." />
+  <style>
+    :root{
+      --bg:#0b0f19;
+      --card:#121a2a;
+      --text:#e7edf7;
+      --muted:#a9b4c7;
+      --accent:#62d0ff;
+      --accent2:#7cffc2;
+      --border: rgba(255,255,255,.10);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --max: 1050px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 20% 0%, rgba(98,208,255,.18), transparent 60%),
+                  radial-gradient(900px 500px at 85% 10%, rgba(124,255,194,.14), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.5;
+    }
+    a{color:inherit}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 70px}
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; padding:10px 0 20px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.4px;
+    }
+    .dot{
+      width:14px; height:14px; border-radius:50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 0 0 6px rgba(98,208,255,.10);
+    }
+    nav{display:flex; gap:14px; color:var(--muted); font-size:14px}
+    nav a{opacity:.9; text-decoration:none}
+    nav a:hover{opacity:1; text-decoration:underline}
+    .hero{
+      display:grid; gap:18px;
+      padding:34px 0 14px;
+    }
+    .hero h1{
+      margin:0;
+      font-size: clamp(28px, 4.2vw, 46px);
+      line-height:1.08;
+      letter-spacing:-.6px;
+    }
+    .hero p{
+      margin:0; max-width:68ch; color:var(--muted);
+      font-size: clamp(15px, 1.3vw, 18px);
+    }
+    .ctaRow{display:flex; flex-wrap:wrap; gap:12px; padding-top:10px}
+    .btn{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:12px 16px; border-radius:14px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      text-decoration:none;
+    }
+    .btn.primary{
+      border:none;
+      background: linear-gradient(135deg, rgba(98,208,255,.95), rgba(124,255,194,.90));
+      color:#06101a;
+      font-weight:700;
+      box-shadow: var(--shadow);
+    }
+    .btn:hover{transform: translateY(-1px)}
+    .note{color:var(--muted); font-size:13px; padding-top:8px}
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:14px;
+      margin-top:26px;
+    }
+    .card{
+      grid-column: span 12;
+      background: rgba(18,26,42,.75);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:18px;
+      backdrop-filter: blur(6px);
+    }
+    .card h2{margin:0 0 10px; font-size:18px}
+    .card p{margin:0; color:var(--muted)}
+    .pillRow{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
+    .pill{
+      font-size:12px; color:rgba(255,255,255,.85);
+      border:1px solid rgba(255,255,255,.12);
+      padding:6px 10px; border-radius:999px;
+      background: rgba(255,255,255,.03);
+    }
+
+    .cols-3 .card{grid-column: span 12}
+    @media (min-width: 860px){
+      .cols-3 .card{grid-column: span 4}
+    }
+
+    .sectionTitle{
+      margin:34px 0 10px;
+      font-size:16px;
+      color:rgba(255,255,255,.9);
+      letter-spacing:.3px;
+    }
+    .steps{
+      display:grid; gap:14px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 860px){
+      .steps{grid-template-columns: 1fr 1fr 1fr;}
+    }
+    .step{
+      background: rgba(18,26,42,.55);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding:16px;
+    }
+    .kicker{
+      font-size:12px; color:rgba(255,255,255,.75);
+      letter-spacing:.35px;
+      text-transform:uppercase;
+    }
+    .step h3{margin:6px 0 8px; font-size:16px}
+    footer{
+      margin-top:40px; padding-top:18px;
+      border-top:1px solid var(--border);
+      color:var(--muted);
+      font-size:14px;
+      display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between;
+    }
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Ennovate</span>
+      </div>
+      <nav>
+        <a href="#palvelut">Palvelut</a>
+        <a href="#prosessi">Prosessi</a>
+        <a href="#yhteys">Yhteys</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <h1>Verkkosivut ja digiratkaisut ilman säätöä.</h1>
+      <p>
+        Rakennamme nopeita ja selkeitä sivuja pienyrityksille — sellaisia, jotka näyttävät hyvältä,
+        latautuvat nopeasti ja vähentävät turhia “voitko katsoa kun tämä ei toimi” -puheluja.
+      </p>
+      <div class="ctaRow">
+        <a class="btn primary" href="#yhteys">Ota yhteyttä</a>
+        <a class="btn" href="#palvelut">Katso palvelut</a>
+      </div>
+      <div class="note">
+        Staattinen toteutus → nopea, edullinen ja luotettava. SSL ja domain kunnossa.
+      </div>
+    </section>
+
+    <div class="sectionTitle" id="palvelut">Palvelut</div>
+    <section class="grid cols-3">
+      <div class="card">
+        <h2>Staattiset verkkosivut</h2>
+        <p>Yksinkertainen ja nopea toteutus HTML/CSS/JS:llä. Ei turhaa backend-säätöä, jos sitä ei tarvita.</p>
+        <div class="pillRow">
+          <span class="pill">Nopea</span><span class="pill">Edullinen</span><span class="pill">Helppo ylläpitää</span>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Yhteydenottolomakkeet</h2>
+        <p>Lomake asiakkaan sähköpostiin (esim. Formspree tms.). Asiakas ei joudu opettelemaan mitään.</p>
+        <div class="pillRow">
+          <span class="pill">Vähemmän IT-puheluja</span><span class="pill">Toimii heti</span>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Perusinfra kuntoon</h2>
+        <p>Domain, sähköposti, SSL ja ohjaukset. Yksi selkeä kokonaisuus ilman mystiikkaa.</p>
+        <div class="pillRow">
+          <span class="pill">DNS</span><span class="pill">SSL</span><span class="pill">Redirectit</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="sectionTitle" id="prosessi">Miten homma etenee</div>
+    <section class="steps">
+      <div class="step">
+        <div class="kicker">1) Kartoitus</div>
+        <h3>15 minuuttia riittää</h3>
+        <p>Käydään läpi mitä sivun pitää tehdä: yhteydenotot, palvelut, luottamus, ja minimi sisältö.</p>
+      </div>
+      <div class="step">
+        <div class="kicker">2) Ensiversio</div>
+        <h3>Näet jotain nopeasti</h3>
+        <p>Tehdään ensimmäinen versio ja tarkennetaan. Staattinen = nopea julkaista ja helppo muokata.</p>
+      </div>
+      <div class="step">
+        <div class="kicker">3) Julkaisu</div>
+        <h3>Valmis ja selkeä ylläpito</h3>
+        <p>Julkaistaan ja sovitaan päivitystapa: itse, tai pyydät meiltä kun tarvitsee.</p>
+      </div>
+    </section>
+
+    <div class="sectionTitle" id="yhteys">Yhteys</div>
+    <section class="card">
+      <h2>Ota yhteyttä</h2>
+      <p>Vastataan nopeasti ja selkeästi. Kerro lyhyesti mitä tarvitset (uusi sivu / päivitys / domain / sähköposti).</p>
+      <div class="ctaRow" style="margin-top:12px">
+        <a class="btn primary" href="mailto:SÄHKÖPOSTI@ENNOVATE.FI?subject=Ennovate%20-%20yhteydenotto">Lähetä sähköposti</a>
+        <a class="btn" href="#palvelut">Palvelut</a>
+      </div>
+      <p class="note mono" style="margin-top:12px">SÄHKÖPOSTI@ENNOVATE.FI</p>
+    </section>
+
+    <footer>
+      <div>© <span id="y"></span> Ennovate</div>
+      <div>Rakennettu staattisesti. Nopea. Yksinkertainen. Luotettava.</div>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
