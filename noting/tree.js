@@ -256,7 +256,12 @@ export class TreeRenderer {
 
     input.focus();
 
+    let saved = false;
+
     const save = async () => {
+      if (saved) return;
+      saved = true;
+      
       const name = input.value.trim();
       if (name) {
         const node = await store.createNode({
@@ -274,8 +279,10 @@ export class TreeRenderer {
 
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
+        e.preventDefault();
         save();
       } else if (e.key === 'Escape') {
+        saved = true; // Prevent save on blur
         inputWrapper.remove();
       }
     });
