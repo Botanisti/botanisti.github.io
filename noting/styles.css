@@ -6,21 +6,21 @@
   --bg-tertiary: #0f3460;
   --bg-hover: #1e2a4a;
   --bg-active: #2a3a5a;
-  
+
   --text-primary: #eaeaea;
   --text-secondary: #a0a0a0;
   --text-muted: #666;
-  
+
   --accent-primary: #e94560;
   --accent-secondary: #ff6b6b;
   --accent-success: #4ecdc4;
   --accent-warning: #ffe66d;
-  
+
   --border-color: #2a3a5a;
   --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   --radius: 8px;
   --radius-sm: 4px;
-  
+
   --sidebar-width: 280px;
   --header-height: 50px;
   --transition: all 0.2s ease;
@@ -676,7 +676,7 @@ body {
 }
 
 .tag button:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 #tag-input {
@@ -1137,23 +1137,23 @@ kbd {
     z-index: 100;
     transform: translateX(-100%);
   }
-  
+
   .sidebar.open {
     transform: translateX(0);
   }
-  
+
   .fields-list {
     grid-template-columns: 1fr;
   }
-  
+
   .shortcuts-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .template-options {
     grid-template-columns: 1fr;
   }
-  
+
   .shortcut-list {
     grid-template-columns: 1fr;
   }

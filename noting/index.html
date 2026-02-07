@@ -1,345 +1,349 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DnD Notes Vault</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DnD Notes Vault</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
-  <div id="app">
-    <!-- Command Palette / Search Modal -->
-    <div id="command-palette" class="modal hidden">
-      <div class="modal-overlay"></div>
-      <div class="modal-content">
-        <div class="search-box">
-          <i class="fas fa-search"></i>
-          <input type="text" id="search-input" placeholder="Search notes... (Ctrl+K)" autocomplete="off">
-          <kbd class="shortcut-hint">ESC</kbd>
-        </div>
-        <div id="search-results" class="search-results"></div>
-      </div>
-    </div>
-
-    <!-- Header -->
-    <header class="app-header">
-      <div class="header-left">
-        <button id="sidebar-toggle" class="btn-icon" title="Toggle Sidebar">
-          <i class="fas fa-bars"></i>
-        </button>
-        <h1 class="app-title">
-          <i class="fas fa-dungeon"></i>
-          <span>DnD Notes Vault</span>
-        </h1>
-      </div>
-      <div class="header-center">
-        <button id="search-trigger" class="search-trigger">
-          <i class="fas fa-search"></i>
-          <span>Search...</span>
-          <kbd>Ctrl+K</kbd>
-        </button>
-      </div>
-      <div class="header-right">
-        <button id="export-btn" class="btn-icon" title="Export Vault">
-          <i class="fas fa-download"></i>
-        </button>
-        <button id="import-btn" class="btn-icon" title="Import Vault">
-          <i class="fas fa-upload"></i>
-        </button>
-        <input type="file" id="import-file" accept=".json" hidden>
-        <button id="help-btn" class="btn-icon" title="Keyboard Shortcuts">
-          <i class="fas fa-keyboard"></i>
-        </button>
-      </div>
-    </header>
-
-    <!-- Main Layout -->
-    <div class="app-layout">
-      <!-- Sidebar: Tree Navigation -->
-      <aside id="sidebar" class="sidebar">
-        <div class="sidebar-header">
-          <button id="new-folder-root" class="btn-text">
-            <i class="fas fa-folder-plus"></i> New Folder
-          </button>
-          <button id="new-note-root" class="btn-text">
-            <i class="fas fa-file-plus"></i> New Note
-          </button>
-        </div>
-        <div id="close-note-bar" class="close-note-bar hidden">
-          <button id="close-note-sidebar-btn" class="btn-text btn-full">
-            <i class="fas fa-arrow-left"></i> Close Note
-          </button>
-        </div>
-        <div id="tree-container" class="tree-container">
-          <!-- Tree will be rendered here -->
-        </div>
-      </aside>
-
-      <!-- Main Content: Editor -->
-      <main id="main-content" class="main-content">
-        <!-- Breadcrumbs -->
-        <nav id="breadcrumbs" class="breadcrumbs"></nav>
-
-        <!-- Empty State -->
-        <div id="empty-state" class="empty-state">
-          <div class="empty-icon">
-            <i class="fas fa-scroll"></i>
-          </div>
-          <h2>Welcome to your DnD Notes Vault</h2>
-          <p>Select a note from the sidebar or create a new one to get started.</p>
-          <div class="empty-actions">
-            <button id="empty-new-note" class="btn-primary">
-              <i class="fas fa-plus"></i> Create Your First Note
-            </button>
-          </div>
-          <div class="shortcuts-help">
-            <h3>Keyboard Shortcuts</h3>
-            <div class="shortcut-list">
-              <div><kbd>Ctrl+K</kbd> <span>Search</span></div>
-              <div><kbd>Ctrl+N</kbd> <span>New Note</span></div>
-              <div><kbd>Ctrl+Shift+N</kbd> <span>New Folder</span></div>
-              <div><kbd>Ctrl+S</kbd> <span>Save</span></div>
-              <div><kbd>Del</kbd> <span>Delete Node</span></div>
-              <div><kbd>F2</kbd> <span>Rename</span></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Editor -->
-        <div id="editor" class="editor hidden">
-          <div class="editor-header">
-            <div class="editor-title-row">
-              <div class="icon-picker">
-                <button id="node-icon" class="icon-btn">📄</button>
-                <div id="icon-dropdown" class="icon-dropdown hidden">
-                  <div class="icon-grid">
-                    <span data-icon="📄">📄</span>
-                    <span data-icon="👤">👤</span>
-                    <span data-icon="🧙">🧙</span>
-                    <span data-icon="🗡️">🗡️</span>
-                    <span data-icon="🛡️">🛡️</span>
-                    <span data-icon="🏰">🏰</span>
-                    <span data-icon="🌲">🌲</span>
-                    <span data-icon="🏔️">🏔️</span>
-                    <span data-icon="💰">💰</span>
-                    <span data-icon="📜">📜</span>
-                    <span data-icon="🧪">🧪</span>
-                    <span data-icon="🐉">🐉</span>
-                    <span data-icon="👹">👹</span>
-                    <span data-icon="👺">👺</span>
-                    <span data-icon="💀">💀</span>
-                    <span data-icon="👻">👻</span>
-                    <span data-icon="🧌">🧌</span>
-                    <span data-icon="🧝">🧝</span>
-                    <span data-icon="🧟">🧟</span>
-                    <span data-icon="⚔️">⚔️</span>
-                  </div>
+    <div id="app">
+        <!-- Command Palette / Search Modal -->
+        <div id="command-palette" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search notes... (Ctrl+K)" autocomplete="off">
+                    <kbd class="shortcut-hint">ESC</kbd>
                 </div>
-              </div>
-              <input type="text" id="editor-title" class="editor-title-input" placeholder="Note Title">
-              <div class="editor-actions">
-                <span id="save-indicator" class="save-indicator">Saved</span>
-                <button id="save-btn" class="btn-icon" title="Save (Ctrl+S)">
-                  <i class="fas fa-save"></i>
-                </button>
-                <button id="close-editor-btn" class="btn-icon" title="Close Note">
-                  <i class="fas fa-times"></i>
-                </button>
-                <button id="duplicate-btn" class="btn-icon" title="Duplicate">
-                  <i class="fas fa-copy"></i>
-                </button>
-                <button id="delete-btn" class="btn-icon danger" title="Delete">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
+                <div id="search-results" class="search-results"></div>
             </div>
-            <div class="editor-tags-row">
-              <div class="tags-input-container">
-                <i class="fas fa-tags"></i>
-                <div id="tags-list" class="tags-list"></div>
-                <input type="text" id="tag-input" placeholder="Add tag..." maxlength="20">
-              </div>
-            </div>
-          </div>
-
-          <div class="editor-body">
-            <!-- Template Selector -->
-            <div id="template-panel" class="template-panel">
-              <label>Template:</label>
-              <select id="template-select">
-                <option value="">None (Blank)</option>
-                <option value="npc">NPC</option>
-                <option value="location">Location</option>
-                <option value="item">Item</option>
-                <option value="quest">Quest</option>
-                <option value="monster">Monster</option>
-                <option value="faction">Faction</option>
-              </select>
-              <button id="apply-template" class="btn-small">Apply</button>
-            </div>
-
-            <!-- Structured Fields -->
-            <div id="fields-panel" class="fields-panel">
-              <div class="panel-header">
-                <h3><i class="fas fa-list-alt"></i> Fields</h3>
-                <button id="add-field" class="btn-small">
-                  <i class="fas fa-plus"></i> Add
-                </button>
-              </div>
-              <div id="fields-list" class="fields-list"></div>
-            </div>
-
-            <!-- Markdown Editor -->
-            <div class="markdown-section">
-              <div class="panel-header">
-                <h3><i class="fas fa-edit"></i> Notes</h3>
-              </div>
-              <textarea id="markdown-editor" class="markdown-editor" placeholder="Write your notes here... (Markdown supported)"></textarea>
-            </div>
-
-            <!-- Links Panel -->
-            <div id="links-panel" class="links-panel">
-              <div class="panel-header">
-                <h3><i class="fas fa-link"></i> Linked Notes</h3>
-                <button id="add-link" class="btn-small">
-                  <i class="fas fa-plus"></i> Link
-                </button>
-              </div>
-              <div id="links-list" class="links-list"></div>
-            </div>
-          </div>
         </div>
-      </main>
-    </div>
-  </div>
 
-  <!-- Context Menu -->
-  <div id="context-menu" class="context-menu hidden">
-    <div class="context-item" data-action="new-folder">
-      <i class="fas fa-folder-plus"></i> New Folder
-    </div>
-    <div class="context-item" data-action="new-note">
-      <i class="fas fa-file-plus"></i> New Note
-    </div>
-    <div class="context-separator"></div>
-    <div class="context-item" data-action="rename">
-      <i class="fas fa-edit"></i> Rename
-    </div>
-    <div class="context-item" data-action="duplicate">
-      <i class="fas fa-copy"></i> Duplicate
-    </div>
-    <div class="context-item" data-action="export-subtree">
-      <i class="fas fa-download"></i> Export Subtree
-    </div>
-    <div class="context-separator"></div>
-    <div class="context-item danger" data-action="delete">
-      <i class="fas fa-trash"></i> Delete
-    </div>
-  </div>
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <button id="sidebar-toggle" class="btn-icon" title="Toggle Sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="app-title">
+                    <i class="fas fa-dungeon"></i>
+                    <span>DnD Notes Vault</span>
+                </h1>
+            </div>
+            <div class="header-center">
+                <button id="search-trigger" class="search-trigger">
+                    <i class="fas fa-search"></i>
+                    <span>Search...</span>
+                    <kbd>Ctrl+K</kbd>
+                </button>
+            </div>
+            <div class="header-right">
+                <button id="export-btn" class="btn-icon" title="Export Vault">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button id="import-btn" class="btn-icon" title="Import Vault">
+                    <i class="fas fa-upload"></i>
+                </button>
+                <input type="file" id="import-file" accept=".json" hidden>
+                <button id="help-btn" class="btn-icon" title="Keyboard Shortcuts">
+                    <i class="fas fa-keyboard"></i>
+                </button>
+            </div>
+        </header>
 
-  <!-- Template Selection Modal -->
-  <div id="template-modal" class="modal hidden">
-    <div class="modal-overlay"></div>
-    <div class="modal-content modal-small">
-      <h3>Choose a Template</h3>
-      <p class="modal-subtitle">Select a template for your new note, or start blank.</p>
-      <div class="template-options">
-        <button class="template-option" data-template="">
-          <span class="template-icon">📄</span>
-          <span class="template-name">Blank Note</span>
-        </button>
-        <button class="template-option" data-template="npc">
-          <span class="template-icon">👤</span>
-          <span class="template-name">NPC</span>
-        </button>
-        <button class="template-option" data-template="location">
-          <span class="template-icon">🏰</span>
-          <span class="template-name">Location</span>
-        </button>
-        <button class="template-option" data-template="item">
-          <span class="template-icon">🗡️</span>
-          <span class="template-name">Item</span>
-        </button>
-        <button class="template-option" data-template="quest">
-          <span class="template-icon">📜</span>
-          <span class="template-name">Quest</span>
-        </button>
-        <button class="template-option" data-template="monster">
-          <span class="template-icon">🐉</span>
-          <span class="template-name">Monster</span>
-        </button>
-        <button class="template-option" data-template="faction">
-          <span class="template-icon">⚔️</span>
-          <span class="template-name">Faction</span>
-        </button>
-      </div>
-      <div class="modal-actions">
-        <button id="template-cancel" class="btn-secondary">Cancel</button>
-      </div>
-    </div>
-  </div>
+        <!-- Main Layout -->
+        <div class="app-layout">
+            <!-- Sidebar: Tree Navigation -->
+            <aside id="sidebar" class="sidebar">
+                <div class="sidebar-header">
+                    <button id="new-folder-root" class="btn-text">
+                        <i class="fas fa-folder-plus"></i> New Folder
+                    </button>
+                    <button id="new-note-root" class="btn-text">
+                        <i class="fas fa-file-plus"></i> New Note
+                    </button>
+                </div>
+                <div id="close-note-bar" class="close-note-bar hidden">
+                    <button id="close-note-sidebar-btn" class="btn-text btn-full">
+                        <i class="fas fa-arrow-left"></i> Close Note
+                    </button>
+                </div>
+                <div id="tree-container" class="tree-container">
+                    <!-- Tree will be rendered here -->
+                </div>
+            </aside>
 
-  <!-- Confirm Dialog -->
-  <div id="confirm-modal" class="modal hidden">
-    <div class="modal-overlay"></div>
-    <div class="modal-content modal-small">
-      <h3 id="confirm-title">Confirm</h3>
-      <p id="confirm-message">Are you sure?</p>
-      <div class="modal-actions">
-        <button id="confirm-cancel" class="btn-secondary">Cancel</button>
-        <button id="confirm-ok" class="btn-danger">Delete</button>
-      </div>
-    </div>
-  </div>
+            <!-- Main Content: Editor -->
+            <main id="main-content" class="main-content">
+                <!-- Breadcrumbs -->
+                <nav id="breadcrumbs" class="breadcrumbs"></nav>
 
-  <!-- Help Modal -->
-  <div id="help-modal" class="modal hidden">
-    <div class="modal-overlay"></div>
-    <div class="modal-content">
-      <h3><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h3>
-      <div class="shortcuts-grid">
-        <div class="shortcut-group">
-          <h4>Navigation</h4>
-          <div class="shortcut-item"><kbd>Ctrl+K</kbd> <span>Open Search</span></div>
-          <div class="shortcut-item"><kbd>↑</kbd> <kbd>↓</kbd> <span>Navigate tree/results</span></div>
-          <div class="shortcut-item"><kbd>Enter</kbd> <span>Open selected</span></div>
-          <div class="shortcut-item"><kbd>Esc</kbd> <span>Close/Cancel</span></div>
+                <!-- Empty State -->
+                <div id="empty-state" class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-scroll"></i>
+                    </div>
+                    <h2>Welcome to your DnD Notes Vault</h2>
+                    <p>Select a note from the sidebar or create a new one to get started.</p>
+                    <div class="empty-actions">
+                        <button id="empty-new-note" class="btn-primary">
+                            <i class="fas fa-plus"></i> Create Your First Note
+                        </button>
+                    </div>
+                    <div class="shortcuts-help">
+                        <h3>Keyboard Shortcuts</h3>
+                        <div class="shortcut-list">
+                            <div><kbd>Ctrl+K</kbd> <span>Search</span></div>
+                            <div><kbd>Ctrl+N</kbd> <span>New Note</span></div>
+                            <div><kbd>Ctrl+Shift+N</kbd> <span>New Folder</span></div>
+                            <div><kbd>Ctrl+S</kbd> <span>Save</span></div>
+                            <div><kbd>Del</kbd> <span>Delete Node</span></div>
+                            <div><kbd>F2</kbd> <span>Rename</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editor -->
+                <div id="editor" class="editor hidden">
+                    <div class="editor-header">
+                        <div class="editor-title-row">
+                            <div class="icon-picker">
+                                <button id="node-icon" class="icon-btn">📄</button>
+                                <div id="icon-dropdown" class="icon-dropdown hidden">
+                                    <div class="icon-grid">
+                                        <span data-icon="📄">📄</span>
+                                        <span data-icon="👤">👤</span>
+                                        <span data-icon="🧙">🧙</span>
+                                        <span data-icon="🗡️">🗡️</span>
+                                        <span data-icon="🛡️">🛡️</span>
+                                        <span data-icon="🏰">🏰</span>
+                                        <span data-icon="🌲">🌲</span>
+                                        <span data-icon="🏔️">🏔️</span>
+                                        <span data-icon="💰">💰</span>
+                                        <span data-icon="📜">📜</span>
+                                        <span data-icon="🧪">🧪</span>
+                                        <span data-icon="🐉">🐉</span>
+                                        <span data-icon="👹">👹</span>
+                                        <span data-icon="👺">👺</span>
+                                        <span data-icon="💀">💀</span>
+                                        <span data-icon="👻">👻</span>
+                                        <span data-icon="🧌">🧌</span>
+                                        <span data-icon="🧝">🧝</span>
+                                        <span data-icon="🧟">🧟</span>
+                                        <span data-icon="⚔️">⚔️</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="text" id="editor-title" class="editor-title-input" placeholder="Note Title">
+                            <div class="editor-actions">
+                                <span id="save-indicator" class="save-indicator">Saved</span>
+                                <button id="save-btn" class="btn-icon" title="Save (Ctrl+S)">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                                <button id="close-editor-btn" class="btn-icon" title="Close Note">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <button id="duplicate-btn" class="btn-icon" title="Duplicate">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button id="delete-btn" class="btn-icon danger" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="editor-tags-row">
+                            <div class="tags-input-container">
+                                <i class="fas fa-tags"></i>
+                                <div id="tags-list" class="tags-list"></div>
+                                <input type="text" id="tag-input" placeholder="Add tag..." maxlength="20">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="editor-body">
+                        <!-- Template Selector -->
+                        <div id="template-panel" class="template-panel">
+                            <label>Template:</label>
+                            <select id="template-select">
+                                <option value="">None (Blank)</option>
+                                <option value="npc">NPC</option>
+                                <option value="location">Location</option>
+                                <option value="item">Item</option>
+                                <option value="quest">Quest</option>
+                                <option value="monster">Monster</option>
+                                <option value="faction">Faction</option>
+                            </select>
+                            <button id="apply-template" class="btn-small">Apply</button>
+                        </div>
+
+                        <!-- Structured Fields -->
+                        <div id="fields-panel" class="fields-panel">
+                            <div class="panel-header">
+                                <h3><i class="fas fa-list-alt"></i> Fields</h3>
+                                <button id="add-field" class="btn-small">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                            <div id="fields-list" class="fields-list"></div>
+                        </div>
+
+                        <!-- Markdown Editor -->
+                        <div class="markdown-section">
+                            <div class="panel-header">
+                                <h3><i class="fas fa-edit"></i> Notes</h3>
+                            </div>
+                            <textarea id="markdown-editor" class="markdown-editor"
+                                placeholder="Write your notes here... (Markdown supported)"></textarea>
+                        </div>
+
+                        <!-- Links Panel -->
+                        <div id="links-panel" class="links-panel">
+                            <div class="panel-header">
+                                <h3><i class="fas fa-link"></i> Linked Notes</h3>
+                                <button id="add-link" class="btn-small">
+                                    <i class="fas fa-plus"></i> Link
+                                </button>
+                            </div>
+                            <div id="links-list" class="links-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
-        <div class="shortcut-group">
-          <h4>Creation</h4>
-          <div class="shortcut-item"><kbd>Ctrl+N</kbd> <span>New Note</span></div>
-          <div class="shortcut-item"><kbd>Ctrl+Shift+N</kbd> <span>New Folder</span></div>
-        </div>
-        <div class="shortcut-group">
-          <h4>Editing</h4>
-          <div class="shortcut-item"><kbd>Ctrl+S</kbd> <span>Save</span></div>
-          <div class="shortcut-item"><kbd>F2</kbd> <span>Rename node</span></div>
-          <div class="shortcut-item"><kbd>Del</kbd> <span>Delete node</span></div>
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button id="help-close" class="btn-primary">Got it</button>
-      </div>
     </div>
-  </div>
 
-  <!-- Link Selector Modal -->
-  <div id="link-modal" class="modal hidden">
-    <div class="modal-overlay"></div>
-    <div class="modal-content">
-      <h3>Link to Note</h3>
-      <div class="search-box">
-        <i class="fas fa-search"></i>
-        <input type="text" id="link-search-input" placeholder="Search notes to link...">
-      </div>
-      <div id="link-search-results" class="search-results"></div>
-      <div class="modal-actions">
-        <button id="link-cancel" class="btn-secondary">Cancel</button>
-      </div>
+    <!-- Context Menu -->
+    <div id="context-menu" class="context-menu hidden">
+        <div class="context-item" data-action="new-folder">
+            <i class="fas fa-folder-plus"></i> New Folder
+        </div>
+        <div class="context-item" data-action="new-note">
+            <i class="fas fa-file-plus"></i> New Note
+        </div>
+        <div class="context-separator"></div>
+        <div class="context-item" data-action="rename">
+            <i class="fas fa-edit"></i> Rename
+        </div>
+        <div class="context-item" data-action="duplicate">
+            <i class="fas fa-copy"></i> Duplicate
+        </div>
+        <div class="context-item" data-action="export-subtree">
+            <i class="fas fa-download"></i> Export Subtree
+        </div>
+        <div class="context-separator"></div>
+        <div class="context-item danger" data-action="delete">
+            <i class="fas fa-trash"></i> Delete
+        </div>
     </div>
-  </div>
 
-  <script type="module" src="app.js"></script>
+    <!-- Template Selection Modal -->
+    <div id="template-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-small">
+            <h3>Choose a Template</h3>
+            <p class="modal-subtitle">Select a template for your new note, or start blank.</p>
+            <div class="template-options">
+                <button class="template-option" data-template="">
+                    <span class="template-icon">📄</span>
+                    <span class="template-name">Blank Note</span>
+                </button>
+                <button class="template-option" data-template="npc">
+                    <span class="template-icon">👤</span>
+                    <span class="template-name">NPC</span>
+                </button>
+                <button class="template-option" data-template="location">
+                    <span class="template-icon">🏰</span>
+                    <span class="template-name">Location</span>
+                </button>
+                <button class="template-option" data-template="item">
+                    <span class="template-icon">🗡️</span>
+                    <span class="template-name">Item</span>
+                </button>
+                <button class="template-option" data-template="quest">
+                    <span class="template-icon">📜</span>
+                    <span class="template-name">Quest</span>
+                </button>
+                <button class="template-option" data-template="monster">
+                    <span class="template-icon">🐉</span>
+                    <span class="template-name">Monster</span>
+                </button>
+                <button class="template-option" data-template="faction">
+                    <span class="template-icon">⚔️</span>
+                    <span class="template-name">Faction</span>
+                </button>
+            </div>
+            <div class="modal-actions">
+                <button id="template-cancel" class="btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Dialog -->
+    <div id="confirm-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-small">
+            <h3 id="confirm-title">Confirm</h3>
+            <p id="confirm-message">Are you sure?</p>
+            <div class="modal-actions">
+                <button id="confirm-cancel" class="btn-secondary">Cancel</button>
+                <button id="confirm-ok" class="btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <h3><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h3>
+            <div class="shortcuts-grid">
+                <div class="shortcut-group">
+                    <h4>Navigation</h4>
+                    <div class="shortcut-item"><kbd>Ctrl+K</kbd> <span>Open Search</span></div>
+                    <div class="shortcut-item"><kbd>↑</kbd> <kbd>↓</kbd> <span>Navigate tree/results</span></div>
+                    <div class="shortcut-item"><kbd>Enter</kbd> <span>Open selected</span></div>
+                    <div class="shortcut-item"><kbd>Esc</kbd> <span>Close/Cancel</span></div>
+                </div>
+                <div class="shortcut-group">
+                    <h4>Creation</h4>
+                    <div class="shortcut-item"><kbd>Ctrl+N</kbd> <span>New Note</span></div>
+                    <div class="shortcut-item"><kbd>Ctrl+Shift+N</kbd> <span>New Folder</span></div>
+                </div>
+                <div class="shortcut-group">
+                    <h4>Editing</h4>
+                    <div class="shortcut-item"><kbd>Ctrl+S</kbd> <span>Save</span></div>
+                    <div class="shortcut-item"><kbd>F2</kbd> <span>Rename node</span></div>
+                    <div class="shortcut-item"><kbd>Del</kbd> <span>Delete node</span></div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="help-close" class="btn-primary">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link Selector Modal -->
+    <div id="link-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <h3>Link to Note</h3>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="link-search-input" placeholder="Search notes to link...">
+            </div>
+            <div id="link-search-results" class="search-results"></div>
+            <div class="modal-actions">
+                <button id="link-cancel" class="btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
 </body>
+
 </html>

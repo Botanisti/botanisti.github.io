@@ -20,7 +20,7 @@ class App {
   async init() {
     try {
       await store.init();
-      
+
       // Check if we have any data, if not seed with example data
       const nodes = Array.from(store.nodes.values());
       if (nodes.length === 0) {
@@ -29,7 +29,7 @@ class App {
 
       this.treeRenderer.render();
       this.setupKeyboardShortcuts();
-      
+
       console.log('DnD Notes Vault initialized');
     } catch (error) {
       console.error('Failed to initialize app:', error);
@@ -198,7 +198,7 @@ class App {
       // Folders just show in tree, maybe expand/collapse
       store.toggleExpanded(nodeId);
       this.treeRenderer.render();
-      
+
       // Clear main panel or show folder info
       emptyState.classList.remove('hidden');
       editor.classList.add('hidden');
@@ -217,7 +217,7 @@ class App {
   updateBreadcrumbs(nodeId) {
     const breadcrumbs = document.getElementById('breadcrumbs');
     const path = store.getNodePath(nodeId);
-    
+
     breadcrumbs.innerHTML = path.map((node, index) => `
       <span class="breadcrumb-item" data-id="${node.id}" style="cursor: pointer;">
         ${node.name}
@@ -248,14 +248,14 @@ class App {
         parentId,
         template: template || null
       });
-      
+
       // Auto-expand parent
       if (parentId) {
         store.expandedNodes.add(parentId);
       }
-      
+
       store.selectNode(node.id);
-      
+
       // Focus title for immediate editing
       setTimeout(() => {
         document.getElementById('editor-title').focus();
@@ -301,7 +301,7 @@ class App {
       const data = await store.exportVault();
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      
+
       const a = document.createElement('a');
       a.href = url;
       a.download = `dnd-vault-${new Date().toISOString().split('T')[0]}.json`;
@@ -321,7 +321,7 @@ class App {
     try {
       const text = await file.text();
       const data = JSON.parse(text);
-      
+
       if (confirm('This will replace all current data. Are you sure?')) {
         await store.importVault(data);
         alert('Import successful!');
@@ -346,20 +346,20 @@ class App {
 
   async seedExampleData() {
     // Create folder structure and nodes
-    
+
     // NPCs
     const npcFolder = await store.createNode({ name: 'NPCs', type: 'folder', parentId: null });
     const trollsFolder = await store.createNode({ name: 'Trolls', type: 'folder', parentId: npcFolder.id });
     const emeraldTrollsFolder = await store.createNode({ name: 'Emerald Trolls', type: 'folder', parentId: trollsFolder.id });
-    
-    const grahda = await store.createNode({ 
-      name: 'Grahda', 
-      type: 'leaf', 
+
+    const grahda = await store.createNode({
+      name: 'Grahda',
+      type: 'leaf',
       parentId: emeraldTrollsFolder.id,
       template: 'npc',
       icon: '🧌'
     });
-    
+
     await db.saveContent({
       nodeId: grahda.id,
       icon: '🧌',
@@ -382,15 +382,15 @@ class App {
     // Locations
     const locationsFolder = await store.createNode({ name: 'Locations', type: 'folder', parentId: null });
     const swampsFolder = await store.createNode({ name: 'Swamps', type: 'folder', parentId: locationsFolder.id });
-    
-    const emeraldMire = await store.createNode({ 
-      name: 'Emerald Mire', 
-      type: 'leaf', 
+
+    const emeraldMire = await store.createNode({
+      name: 'Emerald Mire',
+      type: 'leaf',
       parentId: swampsFolder.id,
       template: 'location',
       icon: '🌲'
     });
-    
+
     await db.saveContent({
       nodeId: emeraldMire.id,
       icon: '🌲',
@@ -410,15 +410,15 @@ class App {
 
     // Quests
     const questsFolder = await store.createNode({ name: 'Quests', type: 'folder', parentId: null });
-    
-    const oilQuest = await store.createNode({ 
-      name: 'Oil in the Midnight Marsh', 
-      type: 'leaf', 
+
+    const oilQuest = await store.createNode({
+      name: 'Oil in the Midnight Marsh',
+      type: 'leaf',
       parentId: questsFolder.id,
       template: 'quest',
       icon: '📜'
     });
-    
+
     await db.saveContent({
       nodeId: oilQuest.id,
       icon: '📜',
@@ -437,14 +437,14 @@ class App {
     });
 
     // Add a few more example NPCs
-    const elara = await store.createNode({ 
-      name: 'Mayor Elara', 
-      type: 'leaf', 
+    const elara = await store.createNode({
+      name: 'Mayor Elara',
+      type: 'leaf',
       parentId: npcFolder.id,
       template: 'npc',
       icon: '👤'
     });
-    
+
     await db.saveContent({
       nodeId: elara.id,
       icon: '👤',

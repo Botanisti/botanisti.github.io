@@ -94,7 +94,7 @@ export class Editor {
   async load(nodeId) {
     this.nodeId = nodeId;
     const node = store.getNode(nodeId);
-    
+
     // Get content directly without triggering selectionChanged event
     const content = await db.getContent(nodeId);
 
@@ -134,7 +134,7 @@ export class Editor {
 
   addField(key = '', value = '', focus = true) {
     const container = document.getElementById('fields-list');
-    
+
     const fieldEl = document.createElement('div');
     fieldEl.className = 'field-item';
     fieldEl.innerHTML = `
@@ -175,7 +175,7 @@ export class Editor {
         ${this.escapeHtml(tag)}
         <button type="button" data-tag="${this.escapeHtml(tag)}"><i class="fas fa-times"></i></button>
       `;
-      
+
       tagEl.querySelector('button').addEventListener('click', () => {
         this.removeTag(tag);
       });
@@ -186,7 +186,7 @@ export class Editor {
 
   addTag(tag) {
     if (!tag) return;
-    
+
     const content = store.currentContent;
     if (!content) return;
 
@@ -241,7 +241,7 @@ export class Editor {
     const modal = document.getElementById('link-modal');
     const input = document.getElementById('link-search-input');
     const results = document.getElementById('link-search-results');
-    
+
     modal.classList.remove('hidden');
     input.value = '';
     input.focus();
@@ -256,7 +256,7 @@ export class Editor {
         const nodes = Array.from(store.nodes.values())
           .filter(n => n.id !== this.nodeId && n.type === 'leaf')
           .slice(0, 10);
-        
+
         for (const node of nodes) {
           this.addLinkResult(node, results);
         }
@@ -322,20 +322,20 @@ export class Editor {
   applyTemplate() {
     const template = document.getElementById('template-select').value;
     const fields = store.getTemplateFields(template);
-    
+
     // Merge with existing fields
     const currentFields = this.collectFields();
     const mergedFields = { ...fields, ...currentFields };
-    
+
     this.renderFields(mergedFields);
     this.scheduleSave();
   }
 
   detectTemplate(fields) {
     if (!fields || Object.keys(fields).length === 0) return '';
-    
+
     const fieldKeys = Object.keys(fields);
-    
+
     // Check which template matches best
     const templates = {
       npc: ['Role', 'Species', 'Alignment'],
@@ -368,7 +368,7 @@ export class Editor {
 
   scheduleSave() {
     this.showSaveIndicator(false);
-    
+
     if (this.debounceTimer) {
       clearTimeout(this.debounceTimer);
     }
@@ -428,10 +428,10 @@ export class Editor {
   closeEditor() {
     // Save before closing
     this.forceSave();
-    
+
     // Clear selection and show empty state
     store.selectNode(null);
-    
+
     // Clear editor state
     this.nodeId = null;
   }

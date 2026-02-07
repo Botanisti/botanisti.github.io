@@ -79,7 +79,7 @@ export class Search {
 
     // Search in store
     const searchResults = store.search(query, 15);
-    
+
     for (const result of searchResults) {
       this.addResultItem(result);
     }
@@ -88,7 +88,7 @@ export class Search {
     this.addCreateOption(query);
 
     this.currentResults = searchResults;
-    
+
     if (searchResults.length === 0) {
       this.results.innerHTML = `
         <div class="no-results">
@@ -212,7 +212,7 @@ export class Search {
   activateSelected() {
     const items = this.results.querySelectorAll('.search-result-item');
     const selected = items[this.selectedIndex];
-    
+
     if (selected) {
       selected.click();
     }
@@ -238,7 +238,7 @@ export class Search {
 
   async createNode(name, type) {
     this.close();
-    
+
     const node = await store.createNode({
       name,
       type,

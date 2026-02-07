@@ -17,7 +17,7 @@ export class TreeRenderer {
 
   render() {
     this.container.innerHTML = '';
-    
+
     // Render root nodes
     for (const nodeId of store.rootNodes) {
       const node = store.getNode(nodeId);
@@ -135,11 +135,11 @@ export class TreeRenderer {
     element.addEventListener('drop', async (e) => {
       e.preventDefault();
       element.classList.remove('drag-over');
-      
+
       if (this.draggedNodeId && this.draggedNodeId !== nodeId) {
         const draggedNode = store.getNode(this.draggedNodeId);
         const targetNode = store.getNode(nodeId);
-        
+
         if (targetNode.type === 'folder') {
           // Move into folder
           await store.moveNode(this.draggedNodeId, nodeId);
@@ -175,11 +175,11 @@ export class TreeRenderer {
 
   showContextMenu(e, nodeId) {
     this.contextNodeId = nodeId;
-    
+
     const rect = this.container.getBoundingClientRect();
     const x = Math.min(e.clientX, window.innerWidth - 180);
     const y = Math.min(e.clientY, window.innerHeight - 200);
-    
+
     this.contextMenu.style.left = `${x}px`;
     this.contextMenu.style.top = `${y}px`;
     this.contextMenu.classList.remove('hidden');
@@ -213,7 +213,7 @@ export class TreeRenderer {
 
   async startCreatingNode(parentId, type) {
     // Create a temporary node for inline editing
-    const container = parentId 
+    const container = parentId
       ? document.querySelector(`.tree-node[data-id="${parentId}"] .tree-children`)
       : this.container;
 
@@ -223,7 +223,7 @@ export class TreeRenderer {
     if (parentId) {
       store.expandedNodes.add(parentId);
       this.render();
-      
+
       // Get the updated container after render
       const parentNode = document.querySelector(`.tree-node[data-id="${parentId}"]`);
       const childrenContainer = parentNode?.querySelector('.tree-children');
@@ -247,7 +247,7 @@ export class TreeRenderer {
     `;
 
     const input = inputWrapper.querySelector('input');
-    
+
     if (appendToEnd) {
       container.appendChild(inputWrapper);
     } else {
@@ -264,7 +264,7 @@ export class TreeRenderer {
           type,
           parentId
         });
-        
+
         if (type === 'leaf') {
           store.selectNode(node.id);
         }
@@ -291,11 +291,11 @@ export class TreeRenderer {
 
     const node = store.getNode(nodeId);
     const labelEl = nodeEl.querySelector('.tree-label');
-    
+
     const input = document.createElement('input');
     input.type = 'text';
     input.value = node.name;
-    
+
     labelEl.replaceWith(input);
     input.focus();
     input.select();
@@ -361,7 +361,7 @@ export class TreeRenderer {
       const node = store.getNode(id);
       const content = node.type === 'leaf' ? await db.getContent(id) : null;
       const children = store.getChildren(id);
-      
+
       const subtree = {
         node,
         content,
@@ -378,7 +378,7 @@ export class TreeRenderer {
     const subtree = await collectSubtree(nodeId);
     const blob = new Blob([JSON.stringify(subtree, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
+
     const node = store.getNode(nodeId);
     const a = document.createElement('a');
     a.href = url;

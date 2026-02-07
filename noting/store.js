@@ -92,7 +92,7 @@ class Store extends EventEmitter {
   // Search nodes
   search(query, limit = 20) {
     if (!query.trim()) return [];
-    
+
     const lowerQuery = query.toLowerCase();
     const results = [];
 
@@ -111,7 +111,7 @@ class Store extends EventEmitter {
 
   calculateSearchScore(query, indexed) {
     let score = 0;
-    
+
     // Exact name match
     if (indexed.name === query) score += 100;
     // Name starts with query
@@ -144,12 +144,12 @@ class Store extends EventEmitter {
   getNodePath(nodeId) {
     const path = [];
     let current = this.nodes.get(nodeId);
-    
+
     while (current) {
       path.unshift(current);
       current = current.parentId ? this.nodes.get(current.parentId) : null;
     }
-    
+
     return path;
   }
 
@@ -249,9 +249,9 @@ class Store extends EventEmitter {
     }
 
     const siblings = this.getChildren(newParentId);
-    const updated = { 
-      ...node, 
-      parentId: newParentId, 
+    const updated = {
+      ...node,
+      parentId: newParentId,
       orderIndex: siblings.length,
       updatedAt: Date.now()
     };
@@ -283,7 +283,7 @@ class Store extends EventEmitter {
 
     const siblings = this.getChildren(node.parentId);
     const oldIndex = siblings.findIndex(n => n.id === nodeId);
-    
+
     if (oldIndex === -1 || oldIndex === newIndex) return;
 
     // Remove from old position and insert at new position
@@ -357,7 +357,7 @@ class Store extends EventEmitter {
   // Select a node
   async selectNode(nodeId) {
     this.selectedNodeId = nodeId;
-    
+
     if (nodeId) {
       this.currentContent = await db.getContent(nodeId);
     } else {
