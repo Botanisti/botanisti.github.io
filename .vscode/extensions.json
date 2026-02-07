@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        // Fast built-in preview - no external dependencies needed
+        "ms-vscode.live-server",
+        // Alternative: Live Preview (requires extension but faster)
+        "ms-vscode.live-preview"
+    ],
+    "unwantedRecommendations": []
+}

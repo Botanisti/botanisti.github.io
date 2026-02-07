@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lakeuden Sähkö – Tapio Myllymäki | Sähköasennukset ja päivystys 24/7</title>
+  <meta name="description" content="Lakeuden Sähkö (Tapio Myllymäki). Sähköasennukset, huolto ja vianetsintä Etelä-Pohjanmaalla ja Pohjanmaalla. Päivystys 24/7. Perustettu 2007, alan kokemus 35+ vuotta." />
+
+  <style>
+    :root{
+      --ink:#0b1020;
+      --muted:rgba(11,16,32,.68);
+      --line:rgba(11,16,32,.12);
+
+      --bg:#081225;
+      --bg2:#0b1b35;
+
+      --card:#ffffff;
+      --soft:#f6f7fb;
+
+      --accent:#ff9f1a;   /* kupari / sähköoranssi */
+      --accent2:#33b5ff;  /* sähkönsininen */
+
+      --radius:18px;
+      --shadow: 0 18px 50px rgba(0,0,0,.16);
+
+      --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--ink);
+      background:var(--soft);
+      line-height:1.6;
+    }
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:1100px;margin:0 auto;padding:0 18px}
+
+    /* Top bar */
+    header{
+      position:sticky; top:0; z-index:50;
+      background:linear-gradient(180deg, rgba(8,18,37,.94), rgba(8,18,37,.76));
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid rgba(255,255,255,.10);
+    }
+    .nav{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 0; gap:14px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      color:#fff; min-width:240px;
+    }
+    .logoMark{
+      width:38px;height:38px;border-radius:14px;
+      background:
+        radial-gradient(70% 70% at 30% 30%, rgba(51,181,255,.55), transparent 55%),
+        radial-gradient(70% 70% at 70% 70%, rgba(255,159,26,.55), transparent 55%),
+        linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.18);
+      position:relative;
+      overflow:hidden;
+    }
+    .logoMark:after{
+      content:"";
+      position:absolute; inset:-30% -40%;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.18), transparent 60%);
+      transform: rotate(15deg);
+    }
+    .brand b{
+      font-size:15px;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      font-weight:1000;
+      line-height:1.1;
+      display:block;
+    }
+    .brand small{
+      display:block;
+      margin-top:2px;
+      color:rgba(255,255,255,.72);
+      font-weight:700;
+      font-size:12px;
+      letter-spacing:.02em;
+    }
+
+    .links{
+      display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    }
+    .links a{
+      color:rgba(255,255,255,.86);
+      font-weight:800;
+      font-size:14px;
+      padding:10px 10px;
+      border-radius:999px;
+    }
+    .links a:hover{background:rgba(255,255,255,.08)}
+    .cta{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:999px;
+      font-weight:1000;
+      white-space:nowrap;
+      border:1px solid transparent;
+      cursor:pointer;
+    }
+    .cta.call{
+      background:rgba(51,181,255,.18);
+      border-color:rgba(51,181,255,.30);
+      color:#fff;
+    }
+    .cta.call:hover{filter:brightness(1.05)}
+    .cta.msg{
+      background:var(--accent);
+      border-color:rgba(0,0,0,.08);
+      color:#1b1204;
+    }
+    .cta.msg:hover{filter:brightness(1.03)}
+
+    /* Hero */
+    .hero{
+      background:
+        radial-gradient(900px 520px at 15% 0%, rgba(51,181,255,.22), transparent 60%),
+        radial-gradient(900px 520px at 85% 0%, rgba(255,159,26,.20), transparent 60%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      color:#fff;
+      padding:52px 0 28px;
+      border-bottom: 5px solid rgba(255,159,26,.55);
+    }
+    .heroGrid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:22px;
+      align-items:start;
+    }
+    .hero h1{
+      margin:0 0 10px;
+      font-size:clamp(30px, 4vw, 52px);
+      letter-spacing:-.02em;
+      line-height:1.05;
+    }
+    .hero .lead{
+      margin:0;
+      color:rgba(255,255,255,.84);
+      max-width:65ch;
+      font-size:16px;
+    }
+    .hero .subline{
+      margin-top:12px;
+      color:rgba(255,255,255,.76);
+      font-size:14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 14px;
+    }
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.16);
+      font-weight:900;
+    }
+    .heroActions{
+      display:flex; gap:12px; flex-wrap:wrap;
+      margin-top:18px;
+    }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:10px;
+      padding:12px 16px;
+      border-radius:999px;
+      font-weight:1000;
+      border:1px solid transparent;
+      cursor:pointer;
+    }
+    .btn.primary{
+      background: var(--accent);
+      color:#1b1204;
+      border-color: rgba(0,0,0,.08);
+    }
+    .btn.primary:hover{filter:brightness(1.03)}
+    .btn.ghost{
+      background: rgba(255,255,255,.10);
+      border-color: rgba(255,255,255,.18);
+      color:#fff;
+    }
+    .btn.ghost:hover{background: rgba(255,255,255,.14)}
+
+    .heroCard{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius: var(--radius);
+      padding:16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.20);
+    }
+    .heroCard h2{
+      margin:0 0 10px;
+      font-size:14px;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.72);
+    }
+    .facts{display:grid; gap:10px}
+    .fact{
+      display:flex; justify-content:space-between; gap:10px;
+      padding:10px 10px;
+      border-radius:14px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      font-size:14px;
+    }
+    .fact span{color:rgba(255,255,255,.72)}
+    .fact b{color:#fff}
+
+    /* Sections */
+    main{padding:26px 0 54px}
+    .sectionHead{
+      display:flex; align-items:flex-end; justify-content:space-between;
+      gap:12px;
+      margin: 10px 0 14px;
+      flex-wrap:wrap;
+    }
+    .sectionHead h2{
+      margin:0;
+      font-size: clamp(18px, 2.4vw, 26px);
+      letter-spacing:-.01em;
+    }
+    .sectionHead p{
+      margin:0;
+      color:var(--muted);
+      max-width:60ch;
+    }
+
+    .panel{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 24px rgba(11,16,32,.06);
+      padding:16px;
+    }
+
+    /* Personality block */
+    .aboutGrid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:16px;
+      margin-top:16px;
+      align-items:stretch;
+    }
+    .aboutCopy p{margin:0; color:rgba(11,16,32,.74)}
+    .aboutCopy p + p{margin-top:10px}
+    .pillRow{
+      display:flex; flex-wrap:wrap; gap:10px;
+      margin-top:14px;
+    }
+    .pill{
+      padding:10px 12px;
+      border-radius: 999px;
+      background: rgba(11,16,32,.04);
+      border: 1px solid rgba(11,16,32,.10);
+      font-weight:900;
+      font-size:13px;
+      color: rgba(11,16,32,.78);
+    }
+
+    /* Services list (NOT cards) */
+    .serviceList{
+      margin-top:12px;
+      display:grid;
+      gap:10px;
+    }
+    .service{
+      display:grid;
+      grid-template-columns: 52px 1fr;
+      gap:12px;
+      padding:14px;
+      border-radius: var(--radius);
+      border:1px solid rgba(11,16,32,.10);
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(11,16,32,.06);
+    }
+    .service .num{
+      width:44px; height:44px;
+      border-radius: 16px;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:1000;
+      background: rgba(51,181,255,.10);
+      border: 1px solid rgba(51,181,255,.22);
+      color:#0b2a52;
+      margin-top:2px;
+    }
+    .service h3{margin:0 0 4px; font-size:16px}
+    .service p{margin:0; color:var(--muted); font-size:14px}
+    .service ul{
+      margin:10px 0 0;
+      padding-left:18px;
+      color:rgba(11,16,32,.70);
+      font-size:14px;
+    }
+    .service li{margin:6px 0}
+
+    /* Steps */
+    .steps{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:10px;
+    }
+    .step{
+      padding:14px;
+      border-radius: var(--radius);
+      background:#fff;
+      border:1px solid rgba(11,16,32,.10);
+      box-shadow: 0 10px 24px rgba(11,16,32,.06);
+      min-height:120px;
+    }
+    .step b{
+      display:inline-flex;
+      width:30px;height:30px;
+      align-items:center; justify-content:center;
+      border-radius: 12px;
+      background: rgba(255,159,26,.16);
+      border:1px solid rgba(255,159,26,.26);
+      margin-bottom:10px;
+    }
+    .step h4{margin:0 0 6px}
+    .step p{margin:0; color:var(--muted); font-size:14px}
+
+    /* Contact */
+    .contact{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:16px;
+      align-items:start;
+    }
+    label{
+      font-size:12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:rgba(11,16,32,.60);
+      font-weight:900;
+      display:block;
+      margin-bottom:6px;
+    }
+    input, textarea, select{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(11,16,32,.14);
+      background:#fff;
+      font-size:14px;
+      font-family:inherit;
+    }
+    textarea{min-height:140px; resize:vertical}
+    .formGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    .formGrid .full{grid-column:1/-1}
+    .hint{font-size:12px; color:rgba(11,16,32,.60); margin-top:8px}
+    .infoBox{
+      background: linear-gradient(180deg, #ffffff, #f8f9ff);
+      border:1px solid rgba(11,16,32,.10);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 24px rgba(11,16,32,.06);
+      padding:16px;
+    }
+    .infoBox .row{
+      display:flex; justify-content:space-between; gap:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      background: rgba(11,16,32,.04);
+      border:1px solid rgba(11,16,32,.10);
+      margin-top:10px;
+      font-size:14px;
+    }
+    .infoBox .row span{color:rgba(11,16,32,.64)}
+    .infoBox .row b{font-weight:1000}
+    .infoBox .fine{margin-top:12px; color:rgba(11,16,32,.64); font-size:13px}
+
+    footer{
+      margin-top:18px;
+      color:rgba(11,16,32,.58);
+      font-size:13px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      padding-bottom:8px;
+    }
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .heroGrid{grid-template-columns:1fr}
+      .aboutGrid{grid-template-columns:1fr}
+      .steps{grid-template-columns:1fr 1fr}
+      .contact{grid-template-columns:1fr}
+      .formGrid{grid-template-columns:1fr}
+      .links{display:none}
+    }
+    @media (max-width: 520px){
+      .steps{grid-template-columns:1fr}
+    }
+
+    /* Small helper: show mobile call button when menu hidden */
+    .mobileCtas{display:none}
+    @media (max-width: 980px){
+      .mobileCtas{display:flex; gap:10px; align-items:center}
+      .mobileCtas a{padding:10px 12px}
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="#top">
+        <div class="logoMark" aria-hidden="true"></div>
+        <div>
+          <b>LAKEUDEN <span style="color:var(--accent2)">SÄHKÖ</span></b>
+          <small>Tapio Myllymäki · perustettu 2007</small>
+        </div>
+      </a>
+
+      <nav class="links" aria-label="Valikko">
+        <a href="#palvelut">Palvelut</a>
+        <a href="#tapa">Miten työ etenee</a>
+        <a href="#alue">Toiminta-alue</a>
+        <a href="#yhteys">Yhteys</a>
+        <!-- TODO: vaihda oikea numero -->
+        <a class="cta call" href="tel:+358405432506">Soita</a>
+        <a class="cta msg" href="#yhteys">Laita viesti</a>
+      </nav>
+
+      <div class="mobileCtas">
+        <a class="cta call" href="tel:+358405432506">Soita</a>
+        <a class="cta msg" href="#yhteys">Viesti</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <div class="heroGrid">
+      <div>
+        <h1>Sähköasennukset ja vianetsintä.</h1>
+        <p class="lead">
+          Lakeuden Sähkö on Tapio Myllymäen sähköasennusliike.
+          Teemme työt koteihin, taloyhtiöihin, maatalouteen ja teollisuuteen — käytännönläheisesti ja sovitusti.
+        </p>
+
+        <div class="hero .subline"></div>
+        <div class="subline" aria-label="Pikafaktat">
+          <span class="chip">Kokemus: <b style="margin-left:6px">35+ vuotta</b></span>
+          <span class="chip">Päivystys: <b style="margin-left:6px">24/7</b></span>
+          <span class="chip">Alue: <b style="margin-left:6px">Etelä-Pohjanmaa + Pohjanmaa</b></span>
+        </div>
+
+        <div class="heroActions">
+          <a class="btn primary" href="tel:+358405432506">Soita nyt</a>
+          <a class="btn ghost" href="#yhteys">Pyydä tarjous / tilaa huolto</a>
+        </div>
+      </div>
+
+      <aside class="heroCard" aria-label="Yhdellä silmäyksellä">
+        <h2>Yhdellä silmäyksellä</h2>
+        <div class="facts">
+          <div class="fact"><span>Mitä</span><b>Asennus · Huolto · Vika</b></div>
+          <div class="fact"><span>Kenelle</span><b>Koti · Yhtiö · Maatalous · Teollisuus</b></div>
+          <div class="fact"><span>Sovitaan</span><b>Ajat ja työ selkeästi</b></div>
+          <div class="fact"><span>Paperit</span><b>Y-tunnus: 2126030-3</b></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+  <!-- ABOUT / PERSONALITY -->
+  <section id="alue" class="aboutGrid" aria-label="Yritys ja alue">
+    <div class="panel aboutCopy">
+      <div class="sectionHead" style="margin:0 0 8px;">
+        <h2>Yritys</h2>
+        <p>Faktaa, ei fiilistelyä.</p>
+      </div>
+
+      <p>
+        Lakeuden Sähkön perusti Tapio Myllymäki heinäkuussa 2007.
+        Alan kokemusta on yli 35 vuoden ajalta, ja töitä on tehty myös ulkomailla.
+      </p>
+      <p>
+        Toiminta-alue on pääosin Etelä-Pohjanmaa ja Pohjanmaa.
+        Sovittaessa liikumme myös alueen ulkopuolelle — käytännön mukaan, ei kauniiden karttojen mukaan.
+      </p>
+      <p>
+        Päivystämme 24 tuntia vuorokaudessa, seitsemänä päivänä viikossa.
+      </p>
+
+      <div class="pillRow" aria-label="Tapa tehdä homma">
+        <span class="pill">Soitat → sovitaan</span>
+        <span class="pill">Tullaan paikalle</span>
+        <span class="pill">Tehdään & mitataan</span>
+        <span class="pill">Valmis – siisti jälki</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="sectionHead" style="margin:0 0 8px;">
+        <h2>Toiminta-alue</h2>
+        <p>Tyypillisesti nämä, ja “ringin verran” lisää.</p>
+      </div>
+
+      <div class="pillRow">
+        <span class="pill">Seinäjoki</span>
+        <span class="pill">Lapua</span>
+        <span class="pill">Ilmajoki</span>
+        <span class="pill">Isokyrö</span>
+        <span class="pill">Ylistaro</span>
+        <span class="pill">…lähikunnat</span>
+      </div>
+
+      <p style="margin-top:12px;color:rgba(11,16,32,.74)">
+        Yrityksille, taloyhtiöille ja yksityisille asiakkaille. Kotitalousvähennys mahdollinen työn osuuden mukaan.
+      </p>
+    </div>
+  </section>
+
+  <!-- SERVICES (LIST) -->
+  <section id="palvelut" style="margin-top:18px;">
+    <div class="sectionHead">
+      <h2>Palvelut</h2>
+      <p>Se mitä oikeasti tehdään: asennus, huolto, ja vian selvitys.</p>
+    </div>
+
+    <div class="serviceList">
+      <article class="service">
+        <div class="num">1</div>
+        <div>
+          <h3>Sähköasennukset</h3>
+          <p>Uudis- ja saneerauskohteet sekä pienet muutostyöt.</p>
+          <ul>
+            <li>Valaisimet, pistorasiat, ryhmät</li>
+            <li>Keskusten lisäykset ja muutokset</li>
+            <li>Käyttöönotto ja mittaukset</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="service">
+        <div class="num">2</div>
+        <div>
+          <h3>Maatalous & teollisuus</h3>
+          <p>Tuotannon arki huomioiden: käyttövarmuus ja kestävyys edellä.</p>
+          <ul>
+            <li>Navetat, kuivurit, konehallien sähköistys</li>
+            <li>Teollisuustilat, valaistus, syötöt</li>
+            <li>Huollot ja korjaukset kiireen mukaan</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="service">
+        <div class="num">3</div>
+        <div>
+          <h3>Huolto & vianetsintä</h3>
+          <p>Kun “sähköt temppuilee”, selvitetään syy ja korjataan se.</p>
+          <ul>
+            <li>Vikojen rajaus ja mittaukset</li>
+            <li>Korjaukset ja vaihdot</li>
+            <li>Päivystys 24/7</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="service">
+        <div class="num">4</div>
+        <div>
+          <h3>Sovitut erityistyöt</h3>
+          <p>Tarvittaessa myös alueen ulkopuolelle – sopimuksen mukaan.</p>
+          <ul>
+            <li>Reissut ja urakat tilanteen mukaan</li>
+            <li>Työ yrityksille ja taloyhtiöille</li>
+            <li>Selkeä sopimus ennen lähtöä</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="tapa" style="margin-top:18px;">
+    <div class="sectionHead">
+      <h2>Miten työ etenee</h2>
+      <p>Ei monimutkaista: sovitaan, tullaan, tehdään, mitataan.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <b>1</b>
+        <h4>Soita tai laita viesti</h4>
+        <p>Kerro lyhyesti kohde ja paikkakunta. Jos on vika, kerro mitä tapahtuu.</p>
+      </div>
+      <div class="step">
+        <b>2</b>
+        <h4>Sovitaan aika</h4>
+        <p>Valitaan käynti niin, että mukana on oikeat tarvikkeet ja homma etenee.</p>
+      </div>
+      <div class="step">
+        <b>3</b>
+        <h4>Työ tehdään</h4>
+        <p>Asennus tai vian selvitys. Ei kikkailua — tehdään se mikä pitää.</p>
+      </div>
+      <div class="step">
+        <b>4</b>
+        <h4>Mitataan & valmis</h4>
+        <p>Työ tarkistetaan ja jälki jätetään siistiksi. Lasku vastaa sovittua.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="yhteys" style="margin-top:18px;">
+    <div class="sectionHead">
+      <h2>Yhteys</h2>
+      <p>Soita jos asia on kiireinen. Viesti käy jos olet kesken työpäivän.</p>
+    </div>
+
+    <div class="contact">
+      <div class="panel">
+        <form id="contactForm">
+          <div class="formGrid">
+            <div>
+              <label for="name">Nimi</label>
+              <input id="name" name="name" autocomplete="name" required placeholder="Etunimi Sukunimi">
+            </div>
+            <div>
+              <label for="phone">Puhelin</label>
+              <input id="phone" name="phone" autocomplete="tel" required placeholder="+358…">
+            </div>
+
+            <div class="full">
+              <label for="topic">Aihe</label>
+              <select id="topic" name="topic">
+                <option>Sähköasennus / muutos</option>
+                <option>Vikatilanne / vianetsintä</option>
+                <option>Huolto / kunnossapito</option>
+                <option>Muu</option>
+              </select>
+            </div>
+
+            <div class="full">
+              <label for="msg">Viesti</label>
+              <textarea id="msg" name="message" required placeholder="Kuvaa kohde ja tarve. Lisää paikkakunta ja toivottu ajankohta."></textarea>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;">
+            <button class="btn primary" type="submit">Lähetä viesti</button>
+            <a class="btn" href="tel:+358405432506" style="border-color:rgba(11,16,32,.16);background:#fff;color:var(--ink);">Soita</a>
+          </div>
+
+          <div class="hint">Lomake avaa sähköpostin (mailto). Myöhemmin tämän voi kytkeä n8n-webhookiin.</div>
+        </form>
+      </div>
+
+      <aside class="infoBox" aria-label="Yhteystiedot">
+        <h3 style="margin:0 0 8px">Yhteystiedot</h3>
+
+        <!-- Tiedot kuvasta: Puh. 040 5432506 ja osoite Eemelintie 10, 60720 Tuomikylä -->
+        <div class="row"><span>Puhelin</span><b><a href="tel:+358405432506">040 543 2506</a></b></div>
+        <div class="row"><span>Osoite</span><b>Eemelintie 10, 60720 Tuomikylä</b></div>
+        <div class="row"><span>Y-tunnus</span><b>2126030-3</b></div>
+        <div class="row"><span>Sähköposti</span><b><!-- TODO --> info@lakeudensahko.fi</b></div>
+
+        <p class="fine">
+          Päivystys 24/7. Yrityksille, taloyhtiöille ja yksityisille. Kotitalousvähennys mahdollinen työn osuuden mukaan.
+        </p>
+      </aside>
+    </div>
+
+    <footer>
+      <div>© <span id="y"></span> Lakeuden Sähkö</div>
+      <div>Perustettu 2007 · Tapio Myllymäki · Y-tunnus 2126030-3</div>
+    </footer>
+  </section>
+</main>
+
+<script>
+  // mailto-lähetys (ei backendia)
+  const EMAIL_TO = "info@lakeudensahko.fi"; // TODO: vaihda oikeaksi jos eri
+  const f = document.getElementById("contactForm");
+  f.addEventListener("submit", (e)=>{
+    e.preventDefault();
+    const data = new FormData(f);
+    const lines = [];
+    for (const [k,v] of data.entries()){
+      lines.push(`${k}: ${String(v).trim()}`);
+    }
+    const subject = `Yhteydenotto — ${data.get("topic") || "Sähkötyö"}`;
+    const body = encodeURIComponent(lines.join("\n"));
+    window.location.href = `mailto:${encodeURIComponent(EMAIL_TO)}?subject=${encodeURIComponent(subject)}&body=${body}`;
+  });
+
+  document.getElementById("y").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

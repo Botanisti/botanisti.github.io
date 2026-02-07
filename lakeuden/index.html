@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lakeuden Sähkö | Luotettava sähköurakointi</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --dark-blue: #0f172a;
+            --accent-orange: #ea580c;
+            --text-main: #334155;
+            --bg-light: #f3f4f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Roboto Slab', serif;
+            color: var(--dark-blue);
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: var(--dark-blue);
+            padding: 10px 0; /* Hieman tiiviimpi padding, jotta logo istuu hyvin */
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px; /* Kiinteä korkeus headerille */
+        }
+
+        /* LOGON TYYLIT */
+        .logo-link {
+            display: block;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-img {
+            max-height: 60px; /* Logo ei kasva liian isoksi headerissa */
+            width: auto;      /* Pitää mittasuhteet oikeana */
+            object-fit: contain;
+        }
+
+        /* Navigaatio */
+        nav ul {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        nav a {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+        
+        nav a:hover { color: white; }
+
+        .btn-cta {
+            background-color: var(--accent-orange);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .btn-cta:hover { background-color: #c2410c; }
+
+        /* --- HERO-OSIO --- */
+        .hero {
+            /* Taustakuva tummennuksella */
+            background-image: 
+                linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.4)), 
+                url('https://images.unsplash.com/photo-1466611653911-95081537e5b7?q=80&w=1920&auto=format&fit=crop');
+            
+            background-size: cover;
+            background-position: center;
+            height: 550px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 {
+            color: white;
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        /* --- MEISTÄ --- */
+        .about {
+            background-color: #e5e7eb;
+            padding: 4rem 0;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .badges-wrapper {
+            display: flex;
+            gap: 75px;
+            justify-content: center;
+        }
+
+        .badge-box {
+            background: white;
+            border: 1px solid #d1d5db;
+            padding: 15px;
+            width: 150px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.85rem;
+            color: var(--dark-blue);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            line-height: 1.2;
+        }
+        
+        .badge-green {
+            background-color: #16a34a;
+            color: white;
+            border: none;
+        }
+
+        /* --- PALVELUT --- */
+        .services { padding: 4rem 0; }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+        }
+        
+        .card:hover { transform: translateY(-5px); }
+
+        .card-body { padding: 2rem; flex-grow: 1; }
+
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--dark-blue);
+            margin-bottom: 1rem;
+        }
+
+        .orange-line {
+            width: 50px;
+            height: 3px;
+            background-color: var(--accent-orange);
+            margin: 15px 0;
+        }
+
+        .card-footer {
+            background-color: var(--dark-blue);
+            padding: 1rem;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* --- YHTEYSTIEDOT --- */
+        .contact { background: white; padding: 4rem 0; }
+        
+        .contact-box {
+            background: var(--dark-blue);
+            color: white;
+            padding: 3rem;
+            border-radius: 8px;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .about-grid { grid-template-columns: 1fr; }
+            nav ul { display: none; }
+            .logo-img { max-height: 45px; } /* Pienempi logo mobiilissa */
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-inner">
+            
+            <a href="#" class="logo-link">
+                <img src="logo.png" alt="Lakeuden Sähkö" class="logo-img">
+            </a>
+            
+            <nav>
+                <ul>
+                    <li><a href="#">Etusivu</a></li>
+                    <li><a href="#">Palvelut</a></li>
+                    <li><a href="#">Referenssit</a></li>
+                </ul>
+            </nav>
+
+            <a href="#" class="btn-cta">Ota yhteyttä</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Sähköt kerralla kuntoon –</h1>
+            <p>Paikallisesti, luotettavasti.</p>
+        </div>
+    </section>
+
+    <section class="about">
+        <div class="container about-grid">
+            <div class="about-text">
+                <h3>Meistä</h3>
+                <br>
+                <p>Tapio Myllymäki on perustanut Lakeuden Sähkö -yrityksen heinäkuussa 2007. Alan kokemusta on 35 vuoden ajalta. Työtä suoritettu myös ulkomailla.</p>
+                <p>Ottakaa yhteyttä, päivystyspalvelu 24 tuntia vuorokaudessa, seitsemänä päivänä viikossa.</p>
+                <p>Toimialueena lähinnä Etelä-Pohjanmaa ja Pohjanmaa, esim. nosto-ovi palvelua myös alueen ulkopuolelle. Sopimuksen mukaan.</p>
+                <p style="margin-top: 1rem;"></p>
+            </div>
+            
+            <div class="badges-wrapper">
+                <div class="badge-box badge-white">
+                    <img src="luotettava-kumpaani-logo.jpg" alt="Luotettava kumppani certification badge featuring a green background with the text 'Luotettava kumppani' prominently displayed, symbolizing trust and reliability in partnership. The badge conveys a sense of assurance and quality service." style="max-width: 100%; height: auto;"><br>
+                </div>
+                <div class="badge-box">
+                    SÄHKÖ-<br>ASENNUSLIIKE
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="services">
+        <div class="container">
+            <h3 style="margin-bottom: 2rem;">Palvelut</h3>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="card-icon">⚡</div>
+                        <h4>Sähköasennukset</h4>
+                        <div class="orange-line"></div>
+                        <p>Kokonaisvaltaiset sähkötyöt. Uudisrakennukset, saneeraukset ja pienasennukset.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span style="color:white;">➜</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="card-icon">🔌</div>
+                        <h4>Kunnossapito</h4>
+                        <div class="orange-line"></div>
+                        <p>Teollisuuden ja maatalouden sähkölaitehuollot sekä vianetsintä.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span style="color:white;">➜</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="card-icon">⚙️</div>
+                        <h4>Erikoistyöt</h4>
+                        <div class="orange-line"></div>
+                        <p>Nosto-ovien asennukset ja huollot. Myös vaativammat automaatiotyöt.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span style="color:white;">➜</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact">
+        <div class="container">
+            <div class="contact-box">
+                <h3 style="margin-bottom:1.5rem;">Yhteystiedot</h3>
+                <p style="font-size: 1.2rem; margin-bottom: 0.5rem;"><strong>Lakeuden Sähkö</strong></p>
+                <p>Eemelintie 10, 60720 Tuomikylä</p>
+                <br>
+                <p style="font-size: 1.5rem; font-weight: bold; color: var(--accent-orange);">
+                    <a href="tel:0405432506" style="color: inherit; text-decoration: none;">040 543 2506</a>
+                </p>
+                <p style="margin-top: 0.5rem;">info@lakeudensahko.fi</p>
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>

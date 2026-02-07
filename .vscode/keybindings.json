@@ -1,0 +1,23 @@
+// Quick keybindings for fast preview
+// Copy these to your VS Code user keybindings.json (Ctrl+K Ctrl+S)
+// or use the Command Palette: "Preferences: Open Keyboard Shortcuts (JSON)"
+[
+    {
+        "key": "ctrl+shift+v",
+        "command": "workbench.action.tasks.runTask",
+        "args": "🚀 Preview (Node.js - Fastest)",
+        "when": "editorTextFocus"
+    },
+    {
+        "key": "ctrl+shift+o",
+        "command": "workbench.action.tasks.runTask",
+        "args": "🌐 Open in Browser",
+        "when": "editorTextFocus"
+    },
+    {
+        "key": "ctrl+shift+x",
+        "command": "workbench.action.tasks.runTask",
+        "args": "🛑 Stop Preview Server",
+        "when": "editorTextFocus"
+    }
+]

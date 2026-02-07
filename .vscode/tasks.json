@@ -1,0 +1,131 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        // === FASTEST: Preview CURRENTLY OPEN FILE ===
+        {
+            "label": "🚀 Preview Current File (Node.js)",
+            "type": "shell",
+            "command": "node preview-server-simple.js 8080 \"${relativeFile}\"",
+            "windows": {
+                "command": "node preview-server-simple.js 8080 \"${relativeFile}\""
+            },
+            "problemMatcher": [],
+            "isBackground": true,
+            "detail": "Preview the currently open HTML file",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        // === Preview Specific: lakeudena/index2.html ===
+        {
+            "label": "🚀 Preview: lakeudena/index2.html",
+            "type": "shell",
+            "command": "node preview-server-simple.js 8080 lakeudena/index2.html",
+            "windows": {
+                "command": "node preview-server-simple.js 8080 lakeudena/index2.html"
+            },
+            "problemMatcher": [],
+            "isBackground": true,
+            "detail": "Preview lakeudena/index2.html specifically",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        // === Preview Specific: lakeuden/index.html ===
+        {
+            "label": "🚀 Preview: lakeuden/index.html",
+            "type": "shell",
+            "command": "node preview-server-simple.js 8080 lakeuden/index.html",
+            "windows": {
+                "command": "node preview-server-simple.js 8080 lakeuden/index.html"
+            },
+            "problemMatcher": [],
+            "isBackground": true,
+            "detail": "Preview lakeuden/index.html specifically",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        // === Python Alternative: Current File ===
+        {
+            "label": "🐍 Preview Current File (Python)",
+            "type": "shell",
+            "windows": {
+                "command": "Start-Process python -ArgumentList '-m http.server 8080' -WindowStyle Hidden; Start-Sleep -Seconds 2; start http://localhost:8080/${relativeFile}"
+            },
+            "linux": {
+                "command": "(python3 -m http.server 8080 > /dev/null 2>&1 &) && sleep 1 && xdg-open http://localhost:8080/${relativeFile}"
+            },
+            "osx": {
+                "command": "(python3 -m http.server 8080 > /dev/null 2>&1 &) && sleep 1 && open http://localhost:8080/${relativeFile}"
+            },
+            "problemMatcher": [],
+            "detail": "Preview current file with Python server",
+            "group": "build"
+        },
+        // === Start server only (no auto-open) ===
+        {
+            "label": "🖥️ Start Server Only (Node.js)",
+            "type": "shell",
+            "command": "node preview-server-simple.js 8080",
+            "windows": {
+                "command": "node preview-server-simple.js 8080"
+            },
+            "problemMatcher": [],
+            "isBackground": true,
+            "detail": "Start server without auto-opening browser",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        // === Open in Browser (requires server running) ===
+        {
+            "label": "🌐 Open Current File in Browser",
+            "type": "shell",
+            "command": "xdg-open http://localhost:8080/${relativeFile}",
+            "windows": {
+                "command": "start http://localhost:8080/${relativeFile}"
+            },
+            "osx": {
+                "command": "open http://localhost:8080/${relativeFile}"
+            },
+            "problemMatcher": [],
+            "detail": "Open currently open file in browser (start server first)"
+        },
+        // === Stop all servers ===
+        {
+            "label": "🛑 Stop Preview Server",
+            "type": "shell",
+            "windows": {
+                "command": "taskkill /F /IM python.exe 2>nul; taskkill /F /IM node.exe 2>nul; echo Servers stopped"
+            },
+            "linux": {
+                "command": "pkill -f 'http.server'; pkill -f 'preview-server'; echo 'Servers stopped'"
+            },
+            "osx": {
+                "command": "pkill -f 'http.server'; pkill -f 'preview-server'; echo 'Servers stopped'"
+            },
+            "problemMatcher": [],
+            "detail": "Stop all running preview servers"
+        }
+    ]
+}

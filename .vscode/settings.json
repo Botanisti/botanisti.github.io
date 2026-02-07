@@ -1,0 +1,25 @@
+{
+    // Fast HTML Preview Settings
+    // --------------------------
+    
+    // Live Preview (built-in) - fastest option, no external dependencies
+    "livePreview.notifyOnOpen": false,
+    "livePreview.openPreviewTarget": "Embedded Preview",
+    "livePreview.port": 0,  // auto-assign available port
+    "livePreview.showStatusBarItem": true,
+    
+    // Auto refresh on save
+    "livePreview.refreshOnSave": true,
+    
+    // Editor settings for better preview experience
+    "editor.wordWrap": "on",
+    "editor.formatOnSave": true,
+    
+    // Files to watch for changes
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/env/**": true
+    }
+}
