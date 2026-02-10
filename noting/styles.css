@@ -1639,6 +1639,11 @@ html {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Sidebar overlay - hidden by default on desktop */
+.sidebar-overlay {
+  display: none;
+}
+
 /* Mobile Bottom Navigation */
 .mobile-nav {
   display: none;

@@ -151,7 +151,9 @@ export class Editor {
 
   updateActiveButton(isActive) {
     const btn = document.getElementById('toggle-active-btn');
+    if (!btn) return;
     const icon = btn.querySelector('i');
+    if (!icon) return;
     if (isActive) {
       btn.classList.add('active');
       btn.title = 'Mark as Inactive (Ctrl+B)';

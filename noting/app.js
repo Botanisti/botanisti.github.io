@@ -52,11 +52,18 @@ class App {
     document.getElementById('sidebar-toggle').addEventListener('click', () => {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebar-overlay');
-      sidebar.classList.toggle('open');
-      overlay.classList.toggle('visible');
+      
+      // Mobile: use 'open' class with transform
+      if (window.innerWidth <= 768) {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('visible');
+      } else {
+        // Desktop: use 'collapsed' class with width
+        sidebar.classList.toggle('collapsed');
+      }
     });
 
-    // Sidebar overlay click to close
+    // Sidebar overlay click to close (mobile only)
     document.getElementById('sidebar-overlay').addEventListener('click', () => {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebar-overlay');
@@ -245,7 +252,8 @@ class App {
     const mobileTree = document.getElementById('mobile-tree');
     const mobileMenu = document.getElementById('mobile-menu');
 
-    if (!mobileHome) return; // Mobile nav not present
+    // Check if we're actually on mobile (element is visible)
+    if (!mobileHome || mobileHome.offsetParent === null) return;
 
     mobileHome.addEventListener('click', () => {
       this.setMobileActive(mobileHome);
@@ -276,6 +284,7 @@ class App {
   }
 
   setMobileActive(btn) {
+    if (!btn) return;
     document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
   }
@@ -329,7 +338,7 @@ class App {
       this.updateBreadcrumbs(nodeId);
       // Scroll to top on mobile
       window.scrollTo(0, 0);
-      editor.scrollTo(0, 0);
+      if (editor && editor.scrollTo) editor.scrollTo(0, 0);
     }
   }
 
@@ -340,13 +349,20 @@ class App {
     const folders = nodes.filter(n => n.type === 'folder');
     const activeNotes = notes.filter(n => n.active);
 
-    document.getElementById('stat-notes').textContent = notes.length;
-    document.getElementById('stat-folders').textContent = folders.length;
-    document.getElementById('stat-active').textContent = activeNotes.length;
-    document.getElementById('active-count').textContent = activeNotes.length;
+    const statNotes = document.getElementById('stat-notes');
+    const statFolders = document.getElementById('stat-folders');
+    const statActive = document.getElementById('stat-active');
+    const activeCount = document.getElementById('active-count');
+
+    if (statNotes) statNotes.textContent = notes.length;
+    if (statFolders) statFolders.textContent = folders.length;
+    if (statActive) statActive.textContent = activeNotes.length;
+    if (activeCount) activeCount.textContent = activeNotes.length;
 
     // Render active notes
     const activeList = document.getElementById('active-notes-list');
+    if (!activeList) return;
+
     if (activeNotes.length === 0) {
       activeList.innerHTML = `
         <div class="empty-active">
@@ -389,6 +405,8 @@ class App {
 
     // Render recent notes
     const recentList = document.getElementById('recent-notes-list');
+    if (!recentList) return;
+
     const recentNotes = notes
       .sort((a, b) => b.updatedAt - a.updatedAt)
       .slice(0, 8);
