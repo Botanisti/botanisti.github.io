@@ -707,8 +707,19 @@ body {
 
 /* Quick View Section */
 .quickview-section {
-  margin-top: 20px;
   animation: slideDown 0.3s ease;
+}
+
+/* Desktop: Quick view spans full width below active notes */
+@media (min-width: 769px) {
+  .quickview-section {
+    grid-column: 1 / -1;
+    order: 1;
+  }
+  
+  .active-notes-section {
+    order: 0;
+  }
 }
 
 @keyframes slideDown {
@@ -1722,6 +1733,11 @@ kbd {
 
   .quickview-card-field {
     font-size: 0.75rem;
+  }
+  
+  /* On mobile, quickview appears right after active notes in natural order */
+  .quickview-section {
+    order: 0;
   }
 
   /* Breadcrumbs */

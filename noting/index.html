@@ -95,7 +95,7 @@
                     
                     <div class="dashboard-grid">
                         <!-- Active Notes Section -->
-                        <div class="dashboard-section">
+                        <div class="dashboard-section active-notes-section">
                             <div class="section-header">
                                 <h3><i class="fas fa-fire"></i> Active Session Notes</h3>
                                 <span id="active-count" class="badge">0</span>
@@ -106,6 +106,19 @@
                                     <p>No active notes yet</p>
                                     <span>Mark notes as active to see them here during your campaign</span>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Notes Quick View Grid - Placed right after Active Notes -->
+                        <div id="quickview-section" class="quickview-section dashboard-section hidden">
+                            <div class="section-header">
+                                <h3><i class="fas fa-eye"></i> Quick Views</h3>
+                                <button id="clear-quickviews" class="btn-small">
+                                    <i class="fas fa-times"></i> Clear All
+                                </button>
+                            </div>
+                            <div id="quickview-grid" class="quickview-grid">
+                                <!-- Quick view cards will be rendered here -->
                             </div>
                         </div>
 
@@ -137,19 +150,6 @@
                                     <span class="stat-label">Active</span>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Active Notes Quick View Grid -->
-                    <div id="quickview-section" class="quickview-section hidden">
-                        <div class="section-header">
-                            <h3><i class="fas fa-eye"></i> Quick Views</h3>
-                            <button id="clear-quickviews" class="btn-small">
-                                <i class="fas fa-times"></i> Clear All
-                            </button>
-                        </div>
-                        <div id="quickview-grid" class="quickview-grid">
-                            <!-- Quick view cards will be rendered here -->
                         </div>
                     </div>
 
