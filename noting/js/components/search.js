@@ -2,7 +2,7 @@
  * Search / Command Palette Component
  */
 
-import { store } from './store.js';
+import { store } from '../core/store.js';
 
 export class Search {
   constructor() {

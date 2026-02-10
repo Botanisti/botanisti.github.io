@@ -2,11 +2,11 @@
  * DnD Notes Vault - Main Application
  */
 
-import { db } from './db.js';
-import { store } from './store.js';
-import { TreeRenderer } from './tree.js';
-import { Editor } from './editor.js';
-import { Search } from './search.js';
+import { db } from './core/db.js';
+import { store } from './core/store.js';
+import { TreeRenderer } from './components/tree.js';
+import { Editor } from './components/editor.js';
+import { Search } from './components/search.js';
 
 // Initialize the application
 class App {
@@ -334,6 +334,7 @@ class App {
       dashboard.classList.add('hidden');
       editor.classList.remove('hidden');
       if (closeNoteBar) closeNoteBar.classList.remove('hidden');
+      this.hideActiveDetail();
       this.editor.load(nodeId);
       this.updateBreadcrumbs(nodeId);
       // Scroll to top on mobile
@@ -390,17 +391,33 @@ class App {
 
         el.addEventListener('click', (e) => {
           if (!e.target.closest('.note-remove')) {
-            store.selectNode(note.id);
+            this.showActiveDetail(note.id);
           }
         });
 
         el.querySelector('.note-remove').addEventListener('click', (e) => {
           e.stopPropagation();
           store.toggleActive(note.id);
+          this.hideActiveDetail();
         });
 
         activeList.appendChild(el);
       }
+    }
+
+    // Setup detail panel close button
+    const detailClose = document.getElementById('detail-panel-close');
+    if (detailClose) {
+      detailClose.onclick = () => this.hideActiveDetail();
+    }
+
+    const detailOpen = document.getElementById('detail-panel-open');
+    if (detailOpen) {
+      detailOpen.onclick = () => {
+        if (this.currentDetailNoteId) {
+          store.selectNode(this.currentDetailNoteId);
+        }
+      };
     }
 
     // Render recent notes
@@ -439,6 +456,81 @@ class App {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  async showActiveDetail(noteId) {
+    this.currentDetailNoteId = noteId;
+    const panel = document.getElementById('active-detail-panel');
+    const note = store.getNode(noteId);
+    if (!note || !panel) return;
+
+    const content = await db.getContent(noteId);
+    const path = store.getNodePath(noteId);
+    const pathStr = path.slice(0, -1).map(n => n.name).join(' > ') || 'Root';
+
+    // Update header
+    document.getElementById('detail-icon').textContent = content.icon || '📄';
+    document.getElementById('detail-title').textContent = note.name;
+    document.getElementById('detail-path').textContent = pathStr;
+
+    // Update fields - prioritize important RPG fields
+    const fieldsContainer = document.getElementById('detail-fields');
+    const priorityFields = ['HP', 'AC', 'CR', 'Role', 'Species', 'Alignment', 'Level', 'Type', 'Status', 'Age', 'Location'];
+    const fields = content.fields || {};
+
+    // Sort fields by priority
+    const sortedEntries = Object.entries(fields).sort((a, b) => {
+      const aIndex = priorityFields.indexOf(a[0]);
+      const bIndex = priorityFields.indexOf(b[0]);
+      if (aIndex === -1 && bIndex === -1) return 0;
+      if (aIndex === -1) return 1;
+      if (bIndex === -1) return -1;
+      return aIndex - bIndex;
+    });
+
+    if (sortedEntries.length === 0) {
+      fieldsContainer.innerHTML = `
+        <div class="detail-empty">
+          <i class="fas fa-clipboard-list"></i>
+          <p>No structured fields</p>
+        </div>
+      `;
+    } else {
+      fieldsContainer.innerHTML = sortedEntries.map(([key, value]) => {
+        if (!value) return '';
+        let valueClass = 'detail-field-value';
+        if (key.toLowerCase() === 'hp') valueClass += ' hp-value';
+        if (key.toLowerCase() === 'ac') valueClass += ' ac-value';
+        if (key.toLowerCase() === 'cr') valueClass += ' cr-value';
+        return `
+          <div class="detail-field">
+            <div class="detail-field-key">${this.escapeHtml(key)}</div>
+            <div class="${valueClass}">${this.escapeHtml(value)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Update tags
+    const tagsContainer = document.getElementById('detail-tags');
+    const tags = content.tags || [];
+    if (tags.length === 0) {
+      tagsContainer.innerHTML = '';
+    } else {
+      tagsContainer.innerHTML = tags.map(tag => 
+        `<span class="detail-tag">${this.escapeHtml(tag)}</span>`
+      ).join('');
+    }
+
+    // Show panel
+    panel.classList.remove('hidden');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  hideActiveDetail() {
+    this.currentDetailNoteId = null;
+    const panel = document.getElementById('active-detail-panel');
+    if (panel) panel.classList.add('hidden');
   }
 
   updateBreadcrumbs(nodeId) {

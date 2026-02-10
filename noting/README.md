@@ -87,6 +87,28 @@ interface Content {
 }
 ```
 
+## Active Notes & Quick View
+
+**Active Notes** let you mark important notes for quick access during your DnD sessions. When you mark a note as active (using the bookmark button 🔖 or Ctrl+B), it appears on the Dashboard in the "Active Session Notes" section.
+
+### Quick View Panel
+
+Click any active note in the dashboard to open the **Quick View Panel**, which displays:
+- Note icon and title
+- Full folder path
+- **Key RPG fields** (prioritized): HP, AC, CR, Role, Species, Alignment, Level, Type, Status, etc.
+- All other custom fields
+- Tags
+
+This gives you instant access to critical information without opening the full editor.
+
+### How to Use
+1. Open any note
+2. Click the bookmark icon (or press `Ctrl+B`) to mark it active
+3. Go to Dashboard (Home)
+4. Click any active note to see its Quick View
+5. Click "Open" to edit the full note, or click elsewhere to close
+
 ## Templates
 
 Templates provide predefined field sets for common DnD entities:
@@ -119,7 +141,7 @@ Templates provide predefined field sets for common DnD entities:
 
 ## Extending Templates
 
-To add custom templates, edit the `getTemplateFields` method in `store.js`:
+To add custom templates, edit the `getTemplateFields` method in `js/core/store.js`:
 
 ```javascript
 getTemplateFields(template) {
@@ -168,14 +190,25 @@ Click the upload button and select a previously exported JSON file. **Warning**:
 ## Architecture
 
 ```
-app.js          - Main application, initialization, seed data
-db.js           - IndexedDB wrapper
-store.js        - Central state management, search index
-tree.js         - Tree navigation component
-editor.js       - Leaf node editor
-search.js       - Command palette / search
-styles.css      - All styling
-index.html      - Main HTML structure
+noting/
+├── index.html              # Main HTML structure
+├── server.js               # Simple Node.js development server
+├── README.md               # Documentation
+│
+├── css/
+│   └── styles.css          # All application styles
+│
+└── js/
+    ├── app.js              # Main application, initialization, seed data
+    │
+    ├── core/
+    │   ├── db.js           # IndexedDB wrapper
+    │   └── store.js        # Central state management, search index
+    │
+    └── components/
+        ├── editor.js       # Leaf node editor
+        ├── search.js       # Command palette / search
+        └── tree.js         # Tree navigation component
 ```
 
 ### Data Flow

@@ -2,8 +2,8 @@
  * Leaf Node Editor Component
  */
 
-import { store } from './store.js';
-import { db } from './db.js';
+import { store } from '../core/store.js';
+import { db } from '../core/db.js';
 
 export class Editor {
   constructor() {
