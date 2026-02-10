@@ -154,7 +154,7 @@ class Store extends EventEmitter {
   }
 
   // Create a new node
-  async createNode({ name, type, parentId = null, template = null, icon = null }) {
+  async createNode({ name, type, parentId = null, template = null, icon = null, active = false }) {
     const siblings = this.getChildren(parentId);
     const orderIndex = siblings.length;
 
@@ -164,6 +164,7 @@ class Store extends EventEmitter {
       type,
       name,
       orderIndex,
+      active,
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
@@ -302,6 +303,28 @@ class Store extends EventEmitter {
     }
 
     this.emit('nodesChanged');
+  }
+
+  // Toggle active status
+  async toggleActive(nodeId) {
+    const node = this.nodes.get(nodeId);
+    if (!node || node.type !== 'leaf') return null;
+
+    const updated = await this.updateNode(nodeId, { active: !node.active });
+    this.emit('activeChanged', nodeId);
+    return updated;
+  }
+
+  // Get all active notes
+  getActiveNotes() {
+    const activeNodes = [];
+    for (const node of this.nodes.values()) {
+      if (node.type === 'leaf' && node.active) {
+        activeNodes.push(node);
+      }
+    }
+    // Sort by most recently updated
+    return activeNodes.sort((a, b) => b.updatedAt - a.updatedAt);
   }
 
   // Duplicate a node

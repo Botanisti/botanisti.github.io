@@ -4,7 +4,7 @@
  */
 
 const DB_NAME = 'DnDNotesVault';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 class Database {
   constructor() {
@@ -23,12 +23,19 @@ class Database {
 
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
+        const oldVersion = event.oldVersion;
 
         // Store for nodes (folders and leaves)
         if (!db.objectStoreNames.contains('nodes')) {
           const nodeStore = db.createObjectStore('nodes', { keyPath: 'id' });
           nodeStore.createIndex('parentId', 'parentId', { unique: false });
           nodeStore.createIndex('type', 'type', { unique: false });
+        } else if (oldVersion < 2) {
+          // Upgrade to v2: add active index
+          const nodeStore = request.transaction.objectStore('nodes');
+          if (!nodeStore.indexNames.contains('active')) {
+            nodeStore.createIndex('active', 'active', { unique: false });
+          }
         }
 
         // Store for leaf content

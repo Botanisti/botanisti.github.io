@@ -69,6 +69,10 @@ export class Editor {
       this.forceSave();
     });
 
+    document.getElementById('toggle-active-btn').addEventListener('click', () => {
+      this.toggleActive();
+    });
+
     document.getElementById('close-editor-btn').addEventListener('click', () => {
       this.closeEditor();
     });
@@ -88,6 +92,20 @@ export class Editor {
     // Links
     document.getElementById('add-link').addEventListener('click', () => {
       this.showLinkModal();
+    });
+
+    // Save when leaving page (important for mobile)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && this.nodeId) {
+        this.forceSave();
+      }
+    });
+
+    // Save on beforeunload
+    window.addEventListener('beforeunload', () => {
+      if (this.nodeId) {
+        this.forceSave();
+      }
     });
   }
 
@@ -119,8 +137,32 @@ export class Editor {
     // Load links
     this.renderLinks(content.links || []);
 
+    // Update active button state
+    this.updateActiveButton(node.active);
+
     // Clear save indicator
     this.showSaveIndicator(false);
+  }
+
+  toggleActive() {
+    if (!this.nodeId) return;
+    store.toggleActive(this.nodeId);
+  }
+
+  updateActiveButton(isActive) {
+    const btn = document.getElementById('toggle-active-btn');
+    const icon = btn.querySelector('i');
+    if (isActive) {
+      btn.classList.add('active');
+      btn.title = 'Mark as Inactive (Ctrl+B)';
+      icon.classList.remove('fa-regular');
+      icon.classList.add('fa-solid');
+    } else {
+      btn.classList.remove('active');
+      btn.title = 'Mark as Active (Ctrl+B)';
+      icon.classList.remove('fa-solid');
+      icon.classList.add('fa-regular');
+    }
   }
 
   renderFields(fields) {

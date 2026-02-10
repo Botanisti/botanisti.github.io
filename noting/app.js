@@ -29,6 +29,16 @@ class App {
 
       this.treeRenderer.render();
       this.setupKeyboardShortcuts();
+      this.renderDashboard();
+
+      // Handle window resize for mobile/desktop switching
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+          // Desktop: remove mobile-specific classes
+          document.getElementById('sidebar').classList.remove('open');
+          document.getElementById('sidebar-overlay').classList.remove('visible');
+        }
+      });
 
       console.log('DnD Notes Vault initialized');
     } catch (error) {
@@ -40,7 +50,18 @@ class App {
   setupEventListeners() {
     // Sidebar toggle
     document.getElementById('sidebar-toggle').addEventListener('click', () => {
-      document.getElementById('sidebar').classList.toggle('collapsed');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('visible');
+    });
+
+    // Sidebar overlay click to close
+    document.getElementById('sidebar-overlay').addEventListener('click', () => {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      sidebar.classList.remove('open');
+      overlay.classList.remove('visible');
     });
 
     // Root level creation buttons
@@ -57,10 +78,17 @@ class App {
       this.editor.closeEditor();
     });
 
-    // Empty state button
-    document.getElementById('empty-new-note').addEventListener('click', () => {
+    // Dashboard buttons
+    document.getElementById('dashboard-new-note').addEventListener('click', () => {
       this.showTemplateModal(null);
     });
+
+    document.getElementById('dashboard-search').addEventListener('click', () => {
+      this.search.open();
+    });
+
+    // Mobile navigation
+    this.setupMobileNav();
 
     // Search
     document.getElementById('search-trigger').addEventListener('click', () => {
@@ -103,6 +131,21 @@ class App {
 
     store.on('nodesChanged', () => {
       this.treeRenderer.render();
+    });
+
+    store.on('activeChanged', (nodeId) => {
+      // Update editor button if this is the current note
+      if (nodeId === store.selectedNodeId && this.editor) {
+        const node = store.getNode(nodeId);
+        if (node) {
+          this.editor.updateActiveButton(node.active);
+        }
+      }
+      // Refresh dashboard if visible
+      const dashboard = document.getElementById('dashboard');
+      if (dashboard && !dashboard.classList.contains('hidden')) {
+        this.renderDashboard();
+      }
     });
 
     // Focus search when '/' is pressed
@@ -156,6 +199,17 @@ class App {
         this.editor.forceSave();
       }
 
+      // Ctrl+B - Toggle Active
+      if (isCtrl && e.key === 'b') {
+        e.preventDefault();
+        if (store.selectedNodeId) {
+          const node = store.getNode(store.selectedNodeId);
+          if (node && node.type === 'leaf') {
+            store.toggleActive(store.selectedNodeId);
+          }
+        }
+      }
+
       // Escape - Close modals
       if (e.key === 'Escape') {
         document.querySelectorAll('.modal').forEach(modal => {
@@ -177,17 +231,78 @@ class App {
     });
   }
 
+  closeMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.remove('open');
+    overlay.classList.remove('visible');
+  }
+
+  setupMobileNav() {
+    const mobileHome = document.getElementById('mobile-home');
+    const mobileSearch = document.getElementById('mobile-search');
+    const mobileNew = document.getElementById('mobile-new');
+    const mobileTree = document.getElementById('mobile-tree');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (!mobileHome) return; // Mobile nav not present
+
+    mobileHome.addEventListener('click', () => {
+      this.setMobileActive(mobileHome);
+      store.selectNode(null);
+    });
+
+    mobileSearch.addEventListener('click', () => {
+      this.setMobileActive(mobileSearch);
+      this.search.open();
+    });
+
+    mobileNew.addEventListener('click', () => {
+      this.showTemplateModal(null);
+    });
+
+    mobileTree.addEventListener('click', () => {
+      this.setMobileActive(mobileTree);
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      sidebar.classList.add('open');
+      overlay.classList.add('visible');
+    });
+
+    mobileMenu.addEventListener('click', () => {
+      this.setMobileActive(mobileMenu);
+      document.getElementById('help-modal').classList.remove('hidden');
+    });
+  }
+
+  setMobileActive(btn) {
+    document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
   onSelectionChanged(nodeId) {
-    const emptyState = document.getElementById('empty-state');
+    const dashboard = document.getElementById('dashboard');
     const editor = document.getElementById('editor');
     const breadcrumbs = document.getElementById('breadcrumbs');
     const closeNoteBar = document.getElementById('close-note-bar');
+    const mobileHome = document.getElementById('mobile-home');
+
+    // Close mobile sidebar when selecting something
+    this.closeMobileSidebar();
+
+    // Update mobile nav active state
+    if (mobileHome) {
+      if (!nodeId) {
+        this.setMobileActive(mobileHome);
+      }
+    }
 
     if (!nodeId) {
-      emptyState.classList.remove('hidden');
+      dashboard.classList.remove('hidden');
       editor.classList.add('hidden');
       breadcrumbs.innerHTML = '';
       if (closeNoteBar) closeNoteBar.classList.add('hidden');
+      this.renderDashboard();
       return;
     }
 
@@ -199,19 +314,113 @@ class App {
       store.toggleExpanded(nodeId);
       this.treeRenderer.render();
 
-      // Clear main panel or show folder info
-      emptyState.classList.remove('hidden');
+      // Keep dashboard visible for folders
+      dashboard.classList.remove('hidden');
       editor.classList.add('hidden');
       if (closeNoteBar) closeNoteBar.classList.add('hidden');
+      this.renderDashboard();
       this.updateBreadcrumbs(nodeId);
     } else {
       // Leaf node - show editor
-      emptyState.classList.add('hidden');
+      dashboard.classList.add('hidden');
       editor.classList.remove('hidden');
       if (closeNoteBar) closeNoteBar.classList.remove('hidden');
       this.editor.load(nodeId);
       this.updateBreadcrumbs(nodeId);
+      // Scroll to top on mobile
+      window.scrollTo(0, 0);
+      editor.scrollTo(0, 0);
     }
+  }
+
+  renderDashboard() {
+    // Update stats
+    const nodes = Array.from(store.nodes.values());
+    const notes = nodes.filter(n => n.type === 'leaf');
+    const folders = nodes.filter(n => n.type === 'folder');
+    const activeNotes = notes.filter(n => n.active);
+
+    document.getElementById('stat-notes').textContent = notes.length;
+    document.getElementById('stat-folders').textContent = folders.length;
+    document.getElementById('stat-active').textContent = activeNotes.length;
+    document.getElementById('active-count').textContent = activeNotes.length;
+
+    // Render active notes
+    const activeList = document.getElementById('active-notes-list');
+    if (activeNotes.length === 0) {
+      activeList.innerHTML = `
+        <div class="empty-active">
+          <i class="fas fa-bookmark"></i>
+          <p>No active notes yet</p>
+          <span>Mark notes as active to see them here during your campaign</span>
+        </div>
+      `;
+    } else {
+      activeList.innerHTML = '';
+      for (const note of activeNotes.slice(0, 10)) {
+        const path = store.getNodePath(note.id);
+        const pathStr = path.slice(0, -1).map(n => n.name).join(' > ') || 'Root';
+
+        const el = document.createElement('div');
+        el.className = 'active-note-item';
+        el.innerHTML = `
+          <span class="note-icon">🔥</span>
+          <div class="note-info">
+            <div class="note-title">${this.escapeHtml(note.name)}</div>
+            <div class="note-path">${this.escapeHtml(pathStr)}</div>
+          </div>
+          <button class="note-remove" title="Remove from active"><i class="fas fa-times"></i></button>
+        `;
+
+        el.addEventListener('click', (e) => {
+          if (!e.target.closest('.note-remove')) {
+            store.selectNode(note.id);
+          }
+        });
+
+        el.querySelector('.note-remove').addEventListener('click', (e) => {
+          e.stopPropagation();
+          store.toggleActive(note.id);
+        });
+
+        activeList.appendChild(el);
+      }
+    }
+
+    // Render recent notes
+    const recentList = document.getElementById('recent-notes-list');
+    const recentNotes = notes
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .slice(0, 8);
+
+    recentList.innerHTML = '';
+    for (const note of recentNotes) {
+      const el = document.createElement('div');
+      el.className = 'recent-note-item';
+      el.innerHTML = `
+        <span class="note-icon">${note.active ? '🔥' : '📄'}</span>
+        <span class="note-title">${this.escapeHtml(note.name)}</span>
+        <span class="note-time">${this.formatTime(note.updatedAt)}</span>
+      `;
+      el.addEventListener('click', () => store.selectNode(note.id));
+      recentList.appendChild(el);
+    }
+  }
+
+  formatTime(timestamp) {
+    const now = Date.now();
+    const diff = now - timestamp;
+
+    if (diff < 60000) return 'now';
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h`;
+    return `${Math.floor(diff / 86400000)}d`;
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 
   updateBreadcrumbs(nodeId) {
@@ -357,7 +566,8 @@ class App {
       type: 'leaf',
       parentId: emeraldTrollsFolder.id,
       template: 'npc',
-      icon: '🧌'
+      icon: '🧌',
+      active: true
     });
 
     await db.saveContent({
@@ -416,7 +626,8 @@ class App {
       type: 'leaf',
       parentId: questsFolder.id,
       template: 'quest',
-      icon: '📜'
+      icon: '📜',
+      active: true
     });
 
     await db.saveContent({

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>DnD Notes Vault</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -78,32 +78,90 @@
                 </div>
             </aside>
 
+            <!-- Sidebar Overlay for Mobile -->
+            <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
             <!-- Main Content: Editor -->
             <main id="main-content" class="main-content">
                 <!-- Breadcrumbs -->
                 <nav id="breadcrumbs" class="breadcrumbs"></nav>
 
-                <!-- Empty State -->
-                <div id="empty-state" class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-scroll"></i>
+                <!-- Dashboard -->
+                <div id="dashboard" class="dashboard">
+                    <div class="dashboard-header">
+                        <h2><i class="fas fa-dungeon"></i> Campaign Dashboard</h2>
+                        <p>Quick access to your active session notes</p>
                     </div>
-                    <h2>Welcome to your DnD Notes Vault</h2>
-                    <p>Select a note from the sidebar or create a new one to get started.</p>
-                    <div class="empty-actions">
-                        <button id="empty-new-note" class="btn-primary">
-                            <i class="fas fa-plus"></i> Create Your First Note
+                    
+                    <div class="dashboard-grid">
+                        <!-- Active Notes Section -->
+                        <div class="dashboard-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-fire"></i> Active Session Notes</h3>
+                                <span id="active-count" class="badge">0</span>
+                            </div>
+                            <div id="active-notes-list" class="active-notes-list">
+                                <div class="empty-active">
+                                    <i class="fas fa-bookmark"></i>
+                                    <p>No active notes yet</p>
+                                    <span>Mark notes as active to see them here during your campaign</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Access Section -->
+                        <div class="dashboard-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-clock"></i> Recently Updated</h3>
+                            </div>
+                            <div id="recent-notes-list" class="recent-notes-list">
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="dashboard-section stats-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-chart-pie"></i> Vault Stats</h3>
+                            </div>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <span id="stat-notes" class="stat-value">0</span>
+                                    <span class="stat-label">Notes</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span id="stat-folders" class="stat-value">0</span>
+                                    <span class="stat-label">Folders</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span id="stat-active" class="stat-value">0</span>
+                                    <span class="stat-label">Active</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <button id="dashboard-new-note" class="btn-primary">
+                            <i class="fas fa-plus"></i> New Note
+                        </button>
+                        <button id="dashboard-search" class="btn-secondary">
+                            <i class="fas fa-search"></i> Search
                         </button>
                     </div>
+
+                    <!-- Shortcuts Help -->
                     <div class="shortcuts-help">
-                        <h3>Keyboard Shortcuts</h3>
+                        <h3><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h3>
                         <div class="shortcut-list">
                             <div><kbd>Ctrl+K</kbd> <span>Search</span></div>
                             <div><kbd>Ctrl+N</kbd> <span>New Note</span></div>
                             <div><kbd>Ctrl+Shift+N</kbd> <span>New Folder</span></div>
                             <div><kbd>Ctrl+S</kbd> <span>Save</span></div>
+                            <div><kbd>Ctrl+B</kbd> <span>Toggle Active</span></div>
                             <div><kbd>Del</kbd> <span>Delete Node</span></div>
                             <div><kbd>F2</kbd> <span>Rename</span></div>
+                            <div><kbd>Esc</kbd> <span>Back to Dashboard</span></div>
                         </div>
                     </div>
                 </div>
@@ -144,6 +202,9 @@
                                 <span id="save-indicator" class="save-indicator">Saved</span>
                                 <button id="save-btn" class="btn-icon" title="Save (Ctrl+S)">
                                     <i class="fas fa-save"></i>
+                                </button>
+                                <button id="toggle-active-btn" class="btn-icon" title="Toggle Active (Ctrl+B)">
+                                    <i class="fa-regular fa-bookmark"></i>
                                 </button>
                                 <button id="close-editor-btn" class="btn-icon" title="Close Note">
                                     <i class="fas fa-times"></i>
@@ -342,6 +403,29 @@
             </div>
         </div>
     </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav id="mobile-nav" class="mobile-nav">
+        <button id="mobile-home" class="mobile-nav-btn active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </button>
+        <button id="mobile-search" class="mobile-nav-btn">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </button>
+        <button id="mobile-new" class="mobile-nav-btn mobile-nav-primary">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button id="mobile-tree" class="mobile-nav-btn">
+            <i class="fas fa-folder-tree"></i>
+            <span>Tree</span>
+        </button>
+        <button id="mobile-menu" class="mobile-nav-btn">
+            <i class="fas fa-bars"></i>
+            <span>Menu</span>
+        </button>
+    </nav>
 
     <script type="module" src="app.js"></script>
 </body>

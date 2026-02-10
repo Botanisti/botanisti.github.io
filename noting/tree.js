@@ -107,6 +107,12 @@ export class TreeRenderer {
   }
 
   setupDragAndDrop(element, nodeId) {
+    // Skip drag and drop on touch devices (mobile)
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+      element.removeAttribute('draggable');
+      return;
+    }
+
     element.addEventListener('dragstart', (e) => {
       this.draggedNodeId = nodeId;
       element.style.opacity = '0.5';
