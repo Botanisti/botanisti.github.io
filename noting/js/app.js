@@ -14,6 +14,7 @@ class App {
     this.treeRenderer = new TreeRenderer();
     this.editor = new Editor();
     this.search = new Search();
+    this.quickViewNoteIds = new Set(); // Track which notes have quick views open
     this.setupEventListeners();
   }
 
@@ -71,13 +72,15 @@ class App {
       overlay.classList.remove('visible');
     });
 
-    // Root level creation buttons
+    // Root level creation buttons - use currently selected folder or root
     document.getElementById('new-folder-root').addEventListener('click', () => {
-      this.treeRenderer.startCreatingNode(null, 'folder');
+      const parentId = this.getCreationParentId();
+      this.treeRenderer.startCreatingNode(parentId, 'folder');
     });
 
     document.getElementById('new-note-root').addEventListener('click', () => {
-      this.showTemplateModal(null);
+      const parentId = this.getCreationParentId();
+      this.showTemplateModal(parentId);
     });
 
     // Sidebar close note button
@@ -187,17 +190,13 @@ class App {
       // Ctrl+N - New Note
       if (isCtrl && e.key === 'n' && !e.shiftKey) {
         e.preventDefault();
-        const selectedId = store.selectedNodeId;
-        const parentId = selectedId ? store.getNode(selectedId)?.parentId : null;
-        this.showTemplateModal(parentId);
+        this.showTemplateModal(this.getCreationParentId());
       }
 
       // Ctrl+Shift+N - New Folder
       if (isCtrl && e.shiftKey && e.key === 'N') {
         e.preventDefault();
-        const selectedId = store.selectedNodeId;
-        const parentId = selectedId ? store.getNode(selectedId)?.parentId : null;
-        this.treeRenderer.startCreatingNode(parentId, 'folder');
+        this.treeRenderer.startCreatingNode(this.getCreationParentId(), 'folder');
       }
 
       // Ctrl+S - Save (force save)
@@ -243,6 +242,24 @@ class App {
     const overlay = document.getElementById('sidebar-overlay');
     sidebar.classList.remove('open');
     overlay.classList.remove('visible');
+  }
+
+  getCreationParentId() {
+    // If a folder is selected, create inside it
+    // If a note is selected, create in its parent folder
+    // If nothing is selected, create at root
+    const selectedId = store.selectedNodeId;
+    if (!selectedId) return null;
+    
+    const selectedNode = store.getNode(selectedId);
+    if (!selectedNode) return null;
+    
+    if (selectedNode.type === 'folder') {
+      return selectedId;
+    } else {
+      // For notes, create in the same parent folder
+      return selectedNode.parentId;
+    }
   }
 
   setupMobileNav() {
@@ -334,7 +351,6 @@ class App {
       dashboard.classList.add('hidden');
       editor.classList.remove('hidden');
       if (closeNoteBar) closeNoteBar.classList.remove('hidden');
-      this.hideActiveDetail();
       this.editor.load(nodeId);
       this.updateBreadcrumbs(nodeId);
       // Scroll to top on mobile
@@ -377,11 +393,12 @@ class App {
       for (const note of activeNotes.slice(0, 10)) {
         const path = store.getNodePath(note.id);
         const pathStr = path.slice(0, -1).map(n => n.name).join(' > ') || 'Root';
+        const hasQuickView = this.quickViewNoteIds.has(note.id);
 
         const el = document.createElement('div');
-        el.className = 'active-note-item';
+        el.className = `active-note-item ${hasQuickView ? 'has-quickview' : ''}`;
         el.innerHTML = `
-          <span class="note-icon">🔥</span>
+          <span class="note-icon">${hasQuickView ? '👁️' : '🔥'}</span>
           <div class="note-info">
             <div class="note-title">${this.escapeHtml(note.name)}</div>
             <div class="note-path">${this.escapeHtml(pathStr)}</div>
@@ -391,32 +408,30 @@ class App {
 
         el.addEventListener('click', (e) => {
           if (!e.target.closest('.note-remove')) {
-            this.showActiveDetail(note.id);
+            this.toggleQuickView(note.id);
           }
         });
 
         el.querySelector('.note-remove').addEventListener('click', (e) => {
           e.stopPropagation();
           store.toggleActive(note.id);
-          this.hideActiveDetail();
+          this.quickViewNoteIds.delete(note.id);
+          this.renderDashboard();
         });
 
         activeList.appendChild(el);
       }
     }
 
-    // Setup detail panel close button
-    const detailClose = document.getElementById('detail-panel-close');
-    if (detailClose) {
-      detailClose.onclick = () => this.hideActiveDetail();
-    }
+    // Render quick view grid
+    this.renderQuickViewGrid();
 
-    const detailOpen = document.getElementById('detail-panel-open');
-    if (detailOpen) {
-      detailOpen.onclick = () => {
-        if (this.currentDetailNoteId) {
-          store.selectNode(this.currentDetailNoteId);
-        }
+    // Setup clear all button
+    const clearBtn = document.getElementById('clear-quickviews');
+    if (clearBtn) {
+      clearBtn.onclick = () => {
+        this.quickViewNoteIds.clear();
+        this.renderDashboard();
       };
     }
 
@@ -458,79 +473,111 @@ class App {
     return div.innerHTML;
   }
 
-  async showActiveDetail(noteId) {
-    this.currentDetailNoteId = noteId;
-    const panel = document.getElementById('active-detail-panel');
-    const note = store.getNode(noteId);
-    if (!note || !panel) return;
-
-    const content = await db.getContent(noteId);
-    const path = store.getNodePath(noteId);
-    const pathStr = path.slice(0, -1).map(n => n.name).join(' > ') || 'Root';
-
-    // Update header
-    document.getElementById('detail-icon').textContent = content.icon || '📄';
-    document.getElementById('detail-title').textContent = note.name;
-    document.getElementById('detail-path').textContent = pathStr;
-
-    // Update fields - prioritize important RPG fields
-    const fieldsContainer = document.getElementById('detail-fields');
-    const priorityFields = ['HP', 'AC', 'CR', 'Role', 'Species', 'Alignment', 'Level', 'Type', 'Status', 'Age', 'Location'];
-    const fields = content.fields || {};
-
-    // Sort fields by priority
-    const sortedEntries = Object.entries(fields).sort((a, b) => {
-      const aIndex = priorityFields.indexOf(a[0]);
-      const bIndex = priorityFields.indexOf(b[0]);
-      if (aIndex === -1 && bIndex === -1) return 0;
-      if (aIndex === -1) return 1;
-      if (bIndex === -1) return -1;
-      return aIndex - bIndex;
-    });
-
-    if (sortedEntries.length === 0) {
-      fieldsContainer.innerHTML = `
-        <div class="detail-empty">
-          <i class="fas fa-clipboard-list"></i>
-          <p>No structured fields</p>
-        </div>
-      `;
+  toggleQuickView(noteId) {
+    if (this.quickViewNoteIds.has(noteId)) {
+      this.quickViewNoteIds.delete(noteId);
     } else {
-      fieldsContainer.innerHTML = sortedEntries.map(([key, value]) => {
-        if (!value) return '';
-        let valueClass = 'detail-field-value';
+      this.quickViewNoteIds.add(noteId);
+    }
+    this.renderDashboard();
+  }
+
+  async renderQuickViewGrid() {
+    const section = document.getElementById('quickview-section');
+    const grid = document.getElementById('quickview-grid');
+    if (!section || !grid) return;
+
+    if (this.quickViewNoteIds.size === 0) {
+      section.classList.add('hidden');
+      return;
+    }
+
+    section.classList.remove('hidden');
+    grid.innerHTML = '';
+
+    for (const noteId of this.quickViewNoteIds) {
+      const note = store.getNode(noteId);
+      if (!note) continue;
+
+      const content = await db.getContent(noteId);
+      const path = store.getNodePath(noteId);
+      const pathStr = path.slice(0, -1).map(n => n.name).join(' > ') || 'Root';
+
+      // Get priority fields first
+      const priorityFields = ['HP', 'AC', 'CR', 'Role', 'Species', 'Alignment', 'Level', 'Type', 'Status'];
+      const fields = content.fields || {};
+      
+      const sortedEntries = Object.entries(fields)
+        .filter(([_, value]) => value)
+        .sort((a, b) => {
+          const aIndex = priorityFields.indexOf(a[0]);
+          const bIndex = priorityFields.indexOf(b[0]);
+          if (aIndex === -1 && bIndex === -1) return 0;
+          if (aIndex === -1) return 1;
+          if (bIndex === -1) return -1;
+          return aIndex - bIndex;
+        })
+        .slice(0, 4); // Show max 4 fields per card
+
+      const card = document.createElement('div');
+      card.className = 'quickview-card';
+      
+      const fieldsHtml = sortedEntries.map(([key, value]) => {
+        let valueClass = 'quickview-card-field-value';
         if (key.toLowerCase() === 'hp') valueClass += ' hp-value';
         if (key.toLowerCase() === 'ac') valueClass += ' ac-value';
         if (key.toLowerCase() === 'cr') valueClass += ' cr-value';
         return `
-          <div class="detail-field">
-            <div class="detail-field-key">${this.escapeHtml(key)}</div>
-            <div class="${valueClass}">${this.escapeHtml(value)}</div>
+          <div class="quickview-card-field">
+            <span class="quickview-card-field-key">${this.escapeHtml(key)}:</span>
+            <span class="${valueClass}">${this.escapeHtml(value)}</span>
           </div>
         `;
       }).join('');
-    }
 
-    // Update tags
-    const tagsContainer = document.getElementById('detail-tags');
-    const tags = content.tags || [];
-    if (tags.length === 0) {
-      tagsContainer.innerHTML = '';
-    } else {
-      tagsContainer.innerHTML = tags.map(tag => 
-        `<span class="detail-tag">${this.escapeHtml(tag)}</span>`
+      const tagsHtml = (content.tags || []).slice(0, 3).map(tag => 
+        `<span class="quickview-card-tag">${this.escapeHtml(tag)}</span>`
       ).join('');
+
+      card.innerHTML = `
+        <div class="quickview-card-header" data-note-id="${note.id}">
+          <span class="quickview-card-icon">${content.icon || '📄'}</span>
+          <span class="quickview-card-title">${this.escapeHtml(note.name)}</span>
+          <button class="quickview-card-close" data-note-id="${note.id}">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="quickview-card-content">
+          <div class="quickview-card-path">${this.escapeHtml(pathStr)}</div>
+          <div class="quickview-card-fields">
+            ${fieldsHtml || '<div class="quickview-card-field"><span class="quickview-card-field-value" style="color: var(--text-muted);">No fields</span></div>'}
+          </div>
+          ${tagsHtml ? `<div class="quickview-card-tags">${tagsHtml}</div>` : ''}
+        </div>
+        <button class="quickview-card-open" data-note-id="${note.id}">Open Note</button>
+      `;
+
+      // Open note on header click (except close button)
+      card.querySelector('.quickview-card-header').addEventListener('click', (e) => {
+        if (!e.target.closest('.quickview-card-close')) {
+          store.selectNode(note.id);
+        }
+      });
+
+      // Close button
+      card.querySelector('.quickview-card-close').addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.quickViewNoteIds.delete(noteId);
+        this.renderDashboard();
+      });
+
+      // Open button
+      card.querySelector('.quickview-card-open').addEventListener('click', () => {
+        store.selectNode(note.id);
+      });
+
+      grid.appendChild(card);
     }
-
-    // Show panel
-    panel.classList.remove('hidden');
-    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  hideActiveDetail() {
-    this.currentDetailNoteId = null;
-    const panel = document.getElementById('active-detail-panel');
-    if (panel) panel.classList.add('hidden');
   }
 
   updateBreadcrumbs(nodeId) {

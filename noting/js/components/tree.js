@@ -107,12 +107,16 @@ export class TreeRenderer {
   }
 
   setupDragAndDrop(element, nodeId) {
-    // Skip drag and drop on touch devices (mobile)
-    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    if (isTouchDevice) {
+      // Touch-based drag and drop for mobile
+      this.setupTouchDragAndDrop(element, nodeId);
       element.removeAttribute('draggable');
       return;
     }
 
+    // Desktop drag and drop
     element.addEventListener('dragstart', (e) => {
       this.draggedNodeId = nodeId;
       element.style.opacity = '0.5';
@@ -141,21 +145,132 @@ export class TreeRenderer {
     element.addEventListener('drop', async (e) => {
       e.preventDefault();
       element.classList.remove('drag-over');
+      await this.handleDrop(nodeId);
+    });
+  }
 
-      if (this.draggedNodeId && this.draggedNodeId !== nodeId) {
-        const draggedNode = store.getNode(this.draggedNodeId);
-        const targetNode = store.getNode(nodeId);
+  setupTouchDragAndDrop(element, nodeId) {
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    let longPressTimer = null;
+    let isDragging = false;
+    const LONG_PRESS_DURATION = 500;
 
-        if (targetNode.type === 'folder') {
-          // Move into folder
-          await store.moveNode(this.draggedNodeId, nodeId);
-          store.expandedNodes.add(nodeId);
-        } else {
-          // Move as sibling (same parent)
-          await store.moveNode(this.draggedNodeId, targetNode.parentId);
+    element.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+      touchStartTime = Date.now();
+      
+      // Start long press timer for drag initiation
+      longPressTimer = setTimeout(() => {
+        isDragging = true;
+        this.draggedNodeId = nodeId;
+        element.style.opacity = '0.5';
+        element.classList.add('touch-dragging');
+        
+        // Haptic feedback if available
+        if (navigator.vibrate) navigator.vibrate(50);
+      }, LONG_PRESS_DURATION);
+    }, { passive: true });
+
+    element.addEventListener('touchmove', (e) => {
+      if (!isDragging) {
+        // Cancel long press if moved too much
+        const touchY = e.touches[0].clientY;
+        if (Math.abs(touchY - touchStartY) > 10) {
+          clearTimeout(longPressTimer);
+        }
+        return;
+      }
+      
+      e.preventDefault();
+      const touch = e.touches[0];
+      const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+      const targetNodeEl = targetEl?.closest('.tree-node-content');
+      
+      // Clear previous highlights
+      document.querySelectorAll('.drag-over').forEach(el => {
+        el.classList.remove('drag-over');
+      });
+      
+      // Highlight current target
+      if (targetNodeEl && targetNodeEl !== element) {
+        targetNodeEl.classList.add('drag-over');
+      }
+    }, { passive: false });
+
+    element.addEventListener('touchend', async (e) => {
+      clearTimeout(longPressTimer);
+      
+      if (!isDragging) {
+        // Check for quick swipe down to move to root
+        const touchEndY = e.changedTouches[0].clientY;
+        const touchDuration = Date.now() - touchStartTime;
+        const swipeDistance = touchEndY - touchStartY;
+        
+        if (swipeDistance > 100 && touchDuration < 300) {
+          // Swiped down - move to root
+          const node = store.getNode(nodeId);
+          if (node && node.parentId) {
+            e.preventDefault();
+            await store.moveNode(nodeId, null);
+            if (navigator.vibrate) navigator.vibrate(100);
+          }
+        }
+        return;
+      }
+      
+      // Handle drop
+      e.preventDefault();
+      isDragging = false;
+      element.style.opacity = '';
+      element.classList.remove('touch-dragging');
+      
+      const touch = e.changedTouches[0];
+      const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+      const targetNodeEl = targetEl?.closest('.tree-node');
+      
+      if (targetNodeEl) {
+        const targetId = targetNodeEl.dataset.id;
+        if (targetId && targetId !== this.draggedNodeId) {
+          await this.handleDrop(targetId);
         }
       }
+      
+      // Clear highlights
+      document.querySelectorAll('.drag-over').forEach(el => {
+        el.classList.remove('drag-over');
+      });
+      
+      this.draggedNodeId = null;
     });
+
+    element.addEventListener('touchcancel', () => {
+      clearTimeout(longPressTimer);
+      isDragging = false;
+      element.style.opacity = '';
+      element.classList.remove('touch-dragging');
+      document.querySelectorAll('.drag-over').forEach(el => {
+        el.classList.remove('drag-over');
+      });
+      this.draggedNodeId = null;
+    });
+  }
+
+  async handleDrop(targetNodeId) {
+    if (!this.draggedNodeId || this.draggedNodeId === targetNodeId) return;
+    
+    const draggedNode = store.getNode(this.draggedNodeId);
+    const targetNode = store.getNode(targetNodeId);
+    if (!draggedNode || !targetNode) return;
+
+    if (targetNode.type === 'folder') {
+      // Move into folder
+      await store.moveNode(this.draggedNodeId, targetNodeId);
+      store.expandedNodes.add(targetNodeId);
+    } else {
+      // Move as sibling (same parent)
+      await store.moveNode(this.draggedNodeId, targetNode.parentId);
+    }
   }
 
   getNodeIcon(nodeId) {
@@ -210,6 +325,11 @@ export class TreeRenderer {
         break;
       case 'export-subtree':
         await this.exportSubtree(nodeId);
+        break;
+      case 'move-to-root':
+        if (node.parentId) {
+          await store.moveNode(nodeId, null);
+        }
         break;
       case 'delete':
         await this.showDeleteConfirmation(nodeId);
