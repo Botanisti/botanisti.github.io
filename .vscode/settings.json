@@ -21,5 +21,27 @@
         "**/.git/subtree-cache/**": true,
         "**/node_modules/**": true,
         "**/env/**": true
-    }
+    },
+
+    // GitHub Extension Settings
+    // -------------------------
+    
+    // Enable GitHub authentication provider
+    "github.gitAuthentication": true,
+    
+    // GitHub Pull Requests extension settings
+    "githubPullRequests.createIssueBranch": true,
+    "githubPullRequests.defaultMergeMethod": "merge",
+    "githubPullRequests.showRemoteOrigin": true,
+    "githubPullRequests.pullBranch": "prompt",
+    
+    // Ensure Git extension is enabled
+    "git.enabled": true,
+    "git.autofetch": true,
+    "git.confirmSync": false,
+    "git.showInlineOpenFileAction": true,
+    
+    // Repository manager settings
+    "github-repository-manager.showRepositories": true,
+    "github-repository-manager.accessToken": ""
 }

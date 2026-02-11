@@ -3,7 +3,11 @@
         // Fast built-in preview - no external dependencies needed
         "ms-vscode.live-server",
         // Alternative: Live Preview (requires extension but faster)
-        "ms-vscode.live-preview"
+        "ms-vscode.live-preview",
+        // GitHub integration - shows PRs and issues
+        "github.vscode-pull-request-github",
+        // GitLens for enhanced Git capabilities
+        "eamodio.gitlens"
     ],
     "unwantedRecommendations": []
 }

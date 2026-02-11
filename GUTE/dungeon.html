@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUTE - Global Boss Encounter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+            background: linear-gradient(90deg, #e74c3c, #f39c12);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .phase-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+        }
+
+        .phase-normal {
+            background: linear-gradient(90deg, #9b59b6, #8e44ad);
+            box-shadow: 0 0 20px rgba(155, 89, 182, 0.4);
+        }
+
+        .phase-ultimate {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+            box-shadow: 0 0 30px rgba(231, 76, 60, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .boss-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .hp-display {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .hp-max {
+            font-size: 1.2rem;
+            opacity: 0.7;
+            margin-bottom: 20px;
+        }
+
+        .hp-bar-container {
+            width: 100%;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .hp-bar {
+            height: 100%;
+            border-radius: 20px;
+            transition: width 0.5s ease, background 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hp-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .hp-bar.high {
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+        }
+
+        .hp-bar.medium {
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+        }
+
+        .hp-bar.low {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+        }
+
+        .hp-bar.critical {
+            background: linear-gradient(90deg, #e74c3c, #8b0000);
+            animation: criticalPulse 0.5s infinite alternate;
+        }
+
+        @keyframes criticalPulse {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0.7;
+            }
+        }
+
+        .hp-percentage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .stat-value.positive {
+            color: #2ecc71;
+        }
+
+        .stat-value.negative {
+            color: #e74c3c;
+        }
+
+        .stat-value.neutral {
+            color: #f39c12;
+        }
+
+        .eta {
+            font-size: 2rem;
+            color: #e74c3c;
+            text-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+
+        .inactive,
+        .error {
+            padding: 40px;
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        .last-update {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            opacity: 0.5;
+        }
+
+        .telegram-cta {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 136, 204, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 136, 204, 0.3);
+        }
+
+        .telegram-cta a {
+            color: #0088cc;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* CRT effect overlay */
+        .crt::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%,
+                    rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+
+<body class="crt">
+    <div class="container">
+        <h1>⚔️ GUTE ⚔️</h1>
+        <div id="content">
+            <div class="inactive">Loading...</div>
+        </div>
+        <div class="last-update" id="lastUpdate"></div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIG: Set your Render/Fly.io URL here
+        // ============================================
+        const API_BASE_URL = 'https://gute.onrender.com';
+        // ============================================
+
+        let lastHp = null;
+
+        function formatNumber(num) {
+            return num.toLocaleString();
+        }
+
+        function formatTime(seconds) {
+            if (seconds < 60) return `${seconds}s`;
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            if (mins < 60) return `${mins}m ${secs}s`;
+            const hours = Math.floor(mins / 60);
+            const remainingMins = mins % 60;
+            return `${hours}h ${remainingMins}m`;
+        }
+
+        function getHpBarClass(percentage) {
+            if (percentage <= 10) return 'critical';
+            if (percentage <= 25) return 'low';
+            if (percentage <= 60) return 'medium';
+            return 'high';
+        }
+
+        function renderStatus(data) {
+            if (!data.active) {
+                return '<div class="inactive">😴 No active event</div>';
+            }
+
+            const percentage = (data.hp / data.max_hp) * 100;
+            const phaseClass = data.phase === 'ultimate' ? 'phase-ultimate' : 'phase-normal';
+            const phaseEmoji = data.phase === 'ultimate' ? '👹' : '👿';
+            const hpBarClass = getHpBarClass(percentage);
+
+            const netDpsClass = data.net_dps > 0 ? 'positive' : (data.net_dps < 0 ? 'negative' : 'neutral');
+            const etaDisplay = data.eta_seconds ? formatTime(data.eta_seconds) : '∞';
+
+            return `
+                <div class="phase-badge ${phaseClass}">${phaseEmoji} ${data.phase.toUpperCase()} PHASE</div>
+                
+                <div class="boss-container">
+                    <div class="hp-display">${formatNumber(data.hp)}</div>
+                    <div class="hp-max">/ ${formatNumber(data.max_hp)} HP</div>
+                    
+                    <div class="hp-bar-container">
+                        <div class="hp-bar ${hpBarClass}" style="width: ${percentage}%"></div>
+                        <div class="hp-percentage">${percentage.toFixed(1)}%</div>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Player DPS</div>
+                        <div class="stat-value positive">${data.dps.toFixed(1)}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Regen / ${data.tick_seconds}s</div>
+                        <div class="stat-value negative">+${data.regen_per_tick}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Net DPS</div>
+                        <div class="stat-value ${netDpsClass}">${data.net_dps > 0 ? '+' : ''}${data.net_dps.toFixed(1)}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">ETA to Defeat</div>
+                        <div class="stat-value eta">${etaDisplay}</div>
+                    </div>
+                </div>
+                
+                <div class="telegram-cta">
+                    💬 Join the fight on Telegram! Use <strong>/event</strong> in the group chat.<br></br>
+                        <a href="https://t.me/+j8hk4jBllXhjODA0" target="_blank">Join the GUTE Fight</a>
+                </div>
+            `;
+        }
+
+        async function fetchStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/status`);
+                if (!response.ok) throw new Error('Failed to fetch');
+                const data = await response.json();
+
+                document.getElementById('content').innerHTML = renderStatus(data);
+
+                const now = new Date();
+                document.getElementById('lastUpdate').textContent =
+                    `Last update: ${now.toLocaleTimeString()}`;
+
+                // Visual flash if HP changed significantly
+                if (lastHp !== null && Math.abs(lastHp - data.hp) > 1000) {
+                    document.body.style.background =
+                        data.hp < lastHp
+                            ? 'linear-gradient(135deg, #2d1a1a 0%, #16213e 50%, #0f0f23 100%)'
+                            : 'linear-gradient(135deg, #1a2d1a 0%, #16213e 50%, #0f0f23 100%)';
+                    setTimeout(() => {
+                        document.body.style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%)';
+                    }, 300);
+                }
+                lastHp = data.hp;
+
+            } catch (err) {
+                document.getElementById('content').innerHTML =
+                    `<div class="error">⚠️ Connection error<br><small>${err.message}</small></div>`;
+            }
+        }
+
+        // Initial fetch and interval
+        fetchStatus();
+        setInterval(fetchStatus, 2000); // Update every 2 seconds
+    </script>
+</body>
+
+</html>
