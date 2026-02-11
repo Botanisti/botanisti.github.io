@@ -3,388 +3,984 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUTE - Global Boss Encounter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GUTE - Dungeon</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0f;
+            color: #fff;
             min-height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
+            flex-direction: column;
+            overflow-x: hidden;
         }
 
-        .container {
-            width: 90%;
-            max-width: 800px;
+        /* Header */
+        .header {
+            background: linear-gradient(180deg, #1a1a2e 0%, #0a0a0f 100%);
+            padding: 12px 16px;
+            border-bottom: 1px solid #333;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .dungeon-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #e74c3c;
             text-align: center;
-            padding: 20px;
         }
 
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
-            background: linear-gradient(90deg, #e74c3c, #f39c12);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .difficulty {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            margin-top: 2px;
         }
 
-        .phase-badge {
-            display: inline-block;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 30px;
-            font-size: 0.9rem;
-            letter-spacing: 2px;
+        /* Boss HP Bar */
+        .boss-section {
+            padding: 16px;
+            background: #12121a;
         }
 
-        .phase-normal {
-            background: linear-gradient(90deg, #9b59b6, #8e44ad);
-            box-shadow: 0 0 20px rgba(155, 89, 182, 0.4);
-        }
-
-        .phase-ultimate {
-            background: linear-gradient(90deg, #e74c3c, #c0392b);
-            box-shadow: 0 0 30px rgba(231, 76, 60, 0.6);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.05);
-            }
-        }
-
-        .boss-container {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 30px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .hp-display {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .hp-max {
-            font-size: 1.2rem;
-            opacity: 0.7;
-            margin-bottom: 20px;
+        .boss-name {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
         }
 
         .hp-bar-container {
-            width: 100%;
-            height: 40px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
+            height: 24px;
+            background: #222;
+            border-radius: 12px;
             overflow: hidden;
             position: relative;
-            margin-bottom: 10px;
         }
 
         .hp-bar {
             height: 100%;
-            border-radius: 20px;
-            transition: width 0.5s ease, background 0.3s ease;
+            background: linear-gradient(90deg, #c0392b 0%, #e74c3c 100%);
+            border-radius: 12px;
+            transition: width 0.3s ease;
             position: relative;
-            overflow: hidden;
         }
 
-        .hp-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% {
-                transform: translateX(-100%);
-            }
-
-            100% {
-                transform: translateX(100%);
-            }
-        }
-
-        .hp-bar.high {
-            background: linear-gradient(90deg, #27ae60, #2ecc71);
-        }
-
-        .hp-bar.medium {
-            background: linear-gradient(90deg, #f39c12, #e67e22);
-        }
-
-        .hp-bar.low {
-            background: linear-gradient(90deg, #e74c3c, #c0392b);
-        }
-
-        .hp-bar.critical {
-            background: linear-gradient(90deg, #e74c3c, #8b0000);
-            animation: criticalPulse 0.5s infinite alternate;
-        }
-
-        @keyframes criticalPulse {
-            from {
-                opacity: 1;
-            }
-
-            to {
-                opacity: 0.7;
-            }
-        }
-
-        .hp-percentage {
+        .hp-text {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            font-size: 12px;
             font-weight: bold;
-            font-size: 1.1rem;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 30px;
+        /* Party Section */
+        .party-section {
+            padding: 12px 16px;
+            flex: 1;
+            overflow-y: auto;
         }
 
-        .stat-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            opacity: 0.7;
+        .section-title {
+            font-size: 12px;
+            color: #666;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 8px;
         }
 
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
+        .player-card {
+            background: #1a1a24;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 2px solid transparent;
         }
 
-        .stat-value.positive {
-            color: #2ecc71;
+        .player-card.self {
+            border-color: #3498db;
         }
 
-        .stat-value.negative {
-            color: #e74c3c;
-        }
-
-        .stat-value.neutral {
-            color: #f39c12;
-        }
-
-        .eta {
-            font-size: 2rem;
-            color: #e74c3c;
-            text-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
-        }
-
-        .inactive,
-        .error {
-            padding: 40px;
-            font-size: 1.2rem;
-            opacity: 0.8;
-        }
-
-        .last-update {
-            margin-top: 20px;
-            font-size: 0.8rem;
+        .player-card.dead {
             opacity: 0.5;
         }
 
-        .telegram-cta {
-            margin-top: 30px;
-            padding: 20px;
-            background: rgba(0, 136, 204, 0.1);
-            border-radius: 15px;
-            border: 1px solid rgba(0, 136, 204, 0.3);
+        .player-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
         }
 
-        .telegram-cta a {
-            color: #0088cc;
-            text-decoration: none;
+        .player-icon.anchor {
+            background: #2980b9;
+        }
+
+        .player-icon.fixer {
+            background: #27ae60;
+        }
+
+        .player-icon.cannon {
+            background: #e74c3c;
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .player-role {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .player-hp {
+            width: 80px;
+        }
+
+        .player-hp-bar {
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .player-hp-fill {
+            height: 100%;
+            background: #27ae60;
+            border-radius: 3px;
+            transition: width 0.2s, background 0.2s;
+        }
+
+        .player-hp-fill.low {
+            background: #e74c3c;
+        }
+
+        .player-hp-fill.mid {
+            background: #f39c12;
+        }
+
+        .player-hp-text {
+            font-size: 10px;
+            color: #888;
+            text-align: right;
+            margin-top: 2px;
+        }
+
+        /* Combat Feed */
+        .feed-section {
+            padding: 12px 16px;
+            background: #0d0d12;
+            border-top: 1px solid #222;
+            height: 120px;
+            overflow: hidden;
+        }
+
+        .feed {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .feed-line {
+            color: #aaa;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feed-line.damage {
+            color: #e74c3c;
+        }
+
+        .feed-line.heal {
+            color: #27ae60;
+        }
+
+        .feed-line.mechanic {
+            color: #f39c12;
+        }
+
+        .feed-line.win {
+            color: #2ecc71;
             font-weight: bold;
         }
 
-        /* CRT effect overlay */
-        .crt::before {
-            content: '';
+        .feed-line.loss {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Action Bar - FIXED BOTTOM */
+        .action-bar {
             position: fixed;
-            top: 0;
+            bottom: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%,
-                    rgba(0, 0, 0, 0.1) 50%);
-            background-size: 100% 4px;
-            pointer-events: none;
+            right: 0;
+            background: #12121a;
+            border-top: 2px solid #333;
+            padding: 12px 16px;
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            display: flex;
+            gap: 12px;
+            align-items: center;
             z-index: 1000;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-strike {
+            flex: 1;
+            height: 56px;
+            background: linear-gradient(180deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            font-size: 18px;
+        }
+
+        .btn-strike:disabled {
+            background: #444;
+        }
+
+        .btn-skills {
+            width: 56px;
+            height: 56px;
+            background: #2c3e50;
+            color: white;
+            font-size: 20px;
+        }
+
+        .btn-react {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #333;
+            color: #666;
+            font-size: 11px;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .btn-react.active {
+            background: linear-gradient(180deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        .react-timer {
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            background: conic-gradient(#27ae60 var(--progress, 0%), transparent 0);
+            mask: radial-gradient(transparent 62%, black 63%);
+            -webkit-mask: radial-gradient(transparent 62%, black 63%);
+        }
+
+        @keyframes pulse {
+            from {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+            }
+
+            to {
+                box-shadow: 0 0 0 12px rgba(231, 76, 60, 0);
+            }
+        }
+
+        /* Skills Modal */
+        .skills-modal {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a24;
+            border-radius: 16px;
+            padding: 16px;
+            min-width: 200px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .skills-modal.show {
+            display: block;
+            animation: slideUp 0.2s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .skill-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #2c3e50;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .skill-btn:last-child {
+            margin-bottom: 0;
+        }
+
+        .skill-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .skill-cd {
+            font-size: 11px;
+            color: #888;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Dungeon List Screen */
+        .dungeon-list {
+            padding: 16px;
+        }
+
+        .dungeon-card {
+            background: #1a1a24;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .dungeon-card:hover {
+            border-color: #e74c3c;
+        }
+
+        .dungeon-card-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 8px;
+        }
+
+        .dungeon-card-desc {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .dungeon-card-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Class Selection */
+        .class-selection {
+            padding: 16px;
+        }
+
+        .class-card {
+            background: #1a1a24;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .class-card:hover {
+            border-color: #3498db;
+        }
+
+        .class-card.selected {
+            border-color: #27ae60;
+            background: #1a3a1a;
+        }
+
+        .class-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .class-desc {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .btn-join {
+            margin: 16px;
+            padding: 16px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-join:disabled {
+            background: #333;
+            cursor: not-allowed;
+        }
+
+        /* Main content padding for fixed action bar */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 100px;
         }
     </style>
 </head>
 
-<body class="crt">
-    <div class="container">
-        <h1>⚔️ GUTE ⚔️</h1>
-        <div id="content">
-            <div class="inactive">Loading...</div>
+<body>
+    <!-- Dungeon List Screen -->
+    <div id="screen-list" class="screen active">
+        <div class="header">
+            <div class="dungeon-title">🏰 DUNGEONS</div>
         </div>
-        <div class="last-update" id="lastUpdate"></div>
+        <div class="dungeon-list" id="dungeon-list">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Class Selection Screen -->
+    <div id="screen-class" class="screen">
+        <div class="header">
+            <div class="dungeon-title">CHOOSE YOUR ROLE</div>
+        </div>
+        <div class="class-selection">
+            <div class="class-card" data-class="anchor">
+                <div class="class-name">⚓ Anchor (Tank)</div>
+                <div class="class-desc">High HP • High Defense • Taunts boss</div>
+            </div>
+            <div class="class-card" data-class="fixer">
+                <div class="class-name">💉 Fixer (Healer)</div>
+                <div class="class-desc">Average HP • Heals allies • Keeps party alive</div>
+            </div>
+            <div class="class-card" data-class="cannon">
+                <div class="class-name">💥 Cannon (DPS)</div>
+                <div class="class-desc">Average HP • High damage • Execute ability</div>
+            </div>
+        </div>
+        <button class="btn-join" id="btn-join" disabled>ENTER DUNGEON</button>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="screen-game" class="screen">
+        <div class="header">
+            <div class="dungeon-title" id="game-title">The Forgotten Depths</div>
+            <div class="difficulty">Normal Difficulty</div>
+        </div>
+
+        <div class="main-content">
+            <div class="boss-section">
+                <div class="boss-name">
+                    <span id="boss-name">The Forgotten Guardian</span>
+                    <span id="boss-hp-text">8000/8000</span>
+                </div>
+                <div class="hp-bar-container">
+                    <div class="hp-bar" id="boss-hp-bar" style="width: 100%"></div>
+                    <div class="hp-text" id="boss-hp-percent">100%</div>
+                </div>
+            </div>
+
+            <div class="party-section">
+                <div class="section-title">Party</div>
+                <div id="party-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div class="feed-section">
+                <div class="section-title">Combat Log</div>
+                <div class="feed" id="combat-feed">
+                    <div class="feed-line">Waiting for dungeon to start...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fixed Bottom Action Bar -->
+        <div class="action-bar">
+            <button class="btn btn-strike" id="btn-strike" disabled>
+                ⚔️ STRIKE
+            </button>
+            <button class="btn btn-skills" id="btn-skills">
+                ⚡
+            </button>
+            <button class="btn btn-react" id="btn-react" disabled>
+                <div class="react-timer" id="react-timer"></div>
+                <span>—</span>
+            </button>
+        </div>
+
+        <!-- Skills Modal -->
+        <div class="skills-modal" id="skills-modal">
+            <button class="skill-btn" id="skill-1">
+                <span id="skill-1-name">Ability 1</span>
+                <span class="skill-cd" id="skill-1-cd">Ready</span>
+            </button>
+            <button class="skill-btn" id="skill-2">
+                <span id="skill-2-name">Ability 2</span>
+                <span class="skill-cd" id="skill-2-cd">Ready</span>
+            </button>
+        </div>
     </div>
 
     <script>
-        // ============================================
-        // CONFIG: Set your Render/Fly.io URL here
-        // ============================================
-        const API_BASE_URL = 'https://gute.onrender.com';
-        // ============================================
+        // ==================== CONFIG ====================
+        const API_BASE = 'https://gute.onrender.com/api';
+        const POLL_INTERVAL = 500; // ms
 
-        let lastHp = null;
+        // ==================== STATE ====================
+        const state = {
+            user: null,
+            screen: 'list',
+            selectedDungeon: null,
+            selectedClass: null,
+            instanceId: null,
+            playerId: null,
+            gameState: null,
+            lastFeedLength: 0
+        };
 
-        function formatNumber(num) {
-            return num.toLocaleString();
-        }
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            initTelegram();
+            loadDungeonList();
+            setupEventListeners();
+        });
 
-        function formatTime(seconds) {
-            if (seconds < 60) return `${seconds}s`;
-            const mins = Math.floor(seconds / 60);
-            const secs = seconds % 60;
-            if (mins < 60) return `${mins}m ${secs}s`;
-            const hours = Math.floor(mins / 60);
-            const remainingMins = mins % 60;
-            return `${hours}h ${remainingMins}m`;
-        }
+        function initTelegram() {
+            if (window.Telegram?.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+                tg.expand();
 
-        function getHpBarClass(percentage) {
-            if (percentage <= 10) return 'critical';
-            if (percentage <= 25) return 'low';
-            if (percentage <= 60) return 'medium';
-            return 'high';
-        }
-
-        function renderStatus(data) {
-            if (!data.active) {
-                return '<div class="inactive">😴 No active event</div>';
-            }
-
-            const percentage = (data.hp / data.max_hp) * 100;
-            const phaseClass = data.phase === 'ultimate' ? 'phase-ultimate' : 'phase-normal';
-            const phaseEmoji = data.phase === 'ultimate' ? '👹' : '👿';
-            const hpBarClass = getHpBarClass(percentage);
-
-            const netDpsClass = data.net_dps > 0 ? 'positive' : (data.net_dps < 0 ? 'negative' : 'neutral');
-            const etaDisplay = data.eta_seconds ? formatTime(data.eta_seconds) : '∞';
-
-            return `
-                <div class="phase-badge ${phaseClass}">${phaseEmoji} ${data.phase.toUpperCase()} PHASE</div>
-                
-                <div class="boss-container">
-                    <div class="hp-display">${formatNumber(data.hp)}</div>
-                    <div class="hp-max">/ ${formatNumber(data.max_hp)} HP</div>
-                    
-                    <div class="hp-bar-container">
-                        <div class="hp-bar ${hpBarClass}" style="width: ${percentage}%"></div>
-                        <div class="hp-percentage">${percentage.toFixed(1)}%</div>
-                    </div>
-                </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">Player DPS</div>
-                        <div class="stat-value positive">${data.dps.toFixed(1)}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Regen / ${data.tick_seconds}s</div>
-                        <div class="stat-value negative">+${data.regen_per_tick}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Net DPS</div>
-                        <div class="stat-value ${netDpsClass}">${data.net_dps > 0 ? '+' : ''}${data.net_dps.toFixed(1)}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">ETA to Defeat</div>
-                        <div class="stat-value eta">${etaDisplay}</div>
-                    </div>
-                </div>
-                
-                <div class="telegram-cta">
-                    💬 Join the fight on Telegram! Use <strong>/event</strong> in the group chat.<br></br>
-                        <a href="https://t.me/+j8hk4jBllXhjODA0" target="_blank">Join the GUTE Fight</a>
-                </div>
-            `;
-        }
-
-        async function fetchStatus() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/status`);
-                if (!response.ok) throw new Error('Failed to fetch');
-                const data = await response.json();
-
-                document.getElementById('content').innerHTML = renderStatus(data);
-
-                const now = new Date();
-                document.getElementById('lastUpdate').textContent =
-                    `Last update: ${now.toLocaleTimeString()}`;
-
-                // Visual flash if HP changed significantly
-                if (lastHp !== null && Math.abs(lastHp - data.hp) > 1000) {
-                    document.body.style.background =
-                        data.hp < lastHp
-                            ? 'linear-gradient(135deg, #2d1a1a 0%, #16213e 50%, #0f0f23 100%)'
-                            : 'linear-gradient(135deg, #1a2d1a 0%, #16213e 50%, #0f0f23 100%)';
-                    setTimeout(() => {
-                        document.body.style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%)';
-                    }, 300);
+                // Get user from Telegram
+                if (tg.initDataUnsafe?.user) {
+                    state.user = tg.initDataUnsafe.user;
                 }
-                lastHp = data.hp;
+            }
 
-            } catch (err) {
-                document.getElementById('content').innerHTML =
-                    `<div class="error">⚠️ Connection error<br><small>${err.message}</small></div>`;
+            // Fallback for testing outside Telegram
+            if (!state.user) {
+                state.user = {
+                    id: Math.floor(Math.random() * 1000000),
+                    username: 'TestPlayer',
+                    first_name: 'Test'
+                };
             }
         }
 
-        // Initial fetch and interval
-        fetchStatus();
-        setInterval(fetchStatus, 2000); // Update every 2 seconds
+        // ==================== API CALLS ====================
+        async function api(method, endpoint, data = null) {
+            const url = `${API_BASE}${endpoint}`;
+            const options = {
+                method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+            if (data) options.body = JSON.stringify(data);
+
+            try {
+                const response = await fetch(url, options);
+                return await response.json();
+            } catch (err) {
+                console.error('API Error:', err);
+                return { error: err.message };
+            }
+        }
+
+        // ==================== SCREENS ====================
+        function showScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(`screen-${screenName}`).classList.add('active');
+            state.screen = screenName;
+        }
+
+        // ==================== DUNGEON LIST ====================
+        async function loadDungeonList() {
+            const result = await api('GET', '/dungeons');
+            const listEl = document.getElementById('dungeon-list');
+
+            if (result.dungeons) {
+                listEl.innerHTML = result.dungeons.map(d => `
+                    <div class="dungeon-card" data-id="${d.id}">
+                        <div class="dungeon-card-name">${d.name}</div>
+                        <div class="dungeon-card-desc">${d.description}</div>
+                        <div class="dungeon-card-meta">
+                            <span>⚔️ ${d.difficulty}</span>
+                            <span>👥 ${d.min_players}-${d.max_players} players</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Add click handlers
+                document.querySelectorAll('.dungeon-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        state.selectedDungeon = card.dataset.id;
+                        showScreen('class');
+                    });
+                });
+            }
+        }
+
+        // ==================== CLASS SELECTION ====================
+        function setupEventListeners() {
+            // Class cards
+            document.querySelectorAll('.class-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.class-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    state.selectedClass = card.dataset.class;
+                    document.getElementById('btn-join').disabled = false;
+                });
+            });
+
+            // Join button
+            document.getElementById('btn-join').addEventListener('click', joinDungeon);
+
+            // Game buttons
+            document.getElementById('btn-strike').addEventListener('click', doStrike);
+            document.getElementById('btn-skills').addEventListener('click', toggleSkills);
+            document.getElementById('btn-react').addEventListener('click', doReact);
+
+            // Skill buttons
+            document.getElementById('skill-1').addEventListener('click', () => doAbility(1));
+            document.getElementById('skill-2').addEventListener('click', () => doAbility(2));
+        }
+
+        async function joinDungeon() {
+            const btn = document.getElementById('btn-join');
+            btn.disabled = true;
+            btn.textContent = 'JOINING...';
+
+            // Create instance
+            const createResult = await api('POST', '/dungeon/create', {
+                dungeon_id: state.selectedDungeon
+            });
+
+            if (!createResult.instance_id) {
+                btn.disabled = false;
+                btn.textContent = 'ENTER DUNGEON';
+                return;
+            }
+
+            state.instanceId = createResult.instance_id;
+
+            // Join as player
+            const joinResult = await api('POST', '/dungeon/join', {
+                instance_id: state.instanceId,
+                user_id: state.user.id,
+                username: state.user.username || state.user.first_name,
+                class: state.selectedClass
+            });
+
+            if (!joinResult.success) {
+                alert('Failed to join: ' + (joinResult.error || 'Unknown error'));
+                btn.disabled = false;
+                btn.textContent = 'ENTER DUNGEON';
+                return;
+            }
+
+            state.playerId = joinResult.player_id;
+
+            // Setup skill names based on class
+            setupSkillNames(state.selectedClass);
+
+            // Start game
+            showScreen('game');
+            startPolling();
+        }
+
+        function setupSkillNames(className) {
+            const names = {
+                anchor: ['TAUNT (6s)', 'GUARD (50% dmg↓)'],
+                fixer: ['HEAL ally', 'WARD (shield)'],
+                cannon: ['EXECUTE (boss<20%)', 'SECOND WIND']
+            };
+            document.getElementById('skill-1-name').textContent = names[className][0];
+            document.getElementById('skill-2-name').textContent = names[className][1];
+        }
+
+        // ==================== GAME LOOP ====================
+        let pollInterval;
+
+        function startPolling() {
+            pollGameState();
+            pollInterval = setInterval(pollGameState, POLL_INTERVAL);
+        }
+
+        async function pollGameState() {
+            const state_data = await api('GET', `/dungeon/state?instance_id=${state.instanceId}&user_id=${state.user.id}`);
+
+            if (state_data.error) {
+                console.error('Poll error:', state_data.error);
+                return;
+            }
+
+            state.gameState = state_data;
+            updateUI(state_data);
+        }
+
+        // ==================== UI UPDATES ====================
+        function updateUI(gameState) {
+            // Boss HP
+            const boss = gameState.boss;
+            const bossHpPct = (boss.hp / boss.hp_max * 100).toFixed(1);
+            document.getElementById('boss-hp-bar').style.width = bossHpPct + '%';
+            document.getElementById('boss-hp-text').textContent = `${boss.hp}/${boss.hp_max}`;
+            document.getElementById('boss-hp-percent').textContent = bossHpPct + '%';
+
+            // Party
+            updatePartyList(gameState.players, gameState.self);
+
+            // Feed
+            updateFeed(gameState.feed);
+
+            // Self state
+            if (gameState.self) {
+                updateSelfState(gameState.self);
+            }
+        }
+
+        function updatePartyList(players, selfState) {
+            const container = document.getElementById('party-list');
+            container.innerHTML = players.map(p => {
+                const isSelf = selfState && p.id === selfState.player_id;
+                const hpPct = (p.hp / p.hp_max * 100).toFixed(0);
+                const hpClass = hpPct < 30 ? 'low' : hpPct < 60 ? 'mid' : '';
+                const icons = { anchor: '⚓', fixer: '💉', cannon: '💥' };
+
+                return `
+                    <div class="player-card ${isSelf ? 'self' : ''} ${p.is_dead ? 'dead' : ''}">
+                        <div class="player-icon ${p.class}">${icons[p.class]}</div>
+                        <div class="player-info">
+                            <div class="player-name">${p.username} ${isSelf ? '(You)' : ''}</div>
+                            <div class="player-role">${p.class.toUpperCase()}</div>
+                        </div>
+                        <div class="player-hp">
+                            <div class="player-hp-bar">
+                                <div class="player-hp-fill ${hpClass}" style="width: ${hpPct}%"></div>
+                            </div>
+                            <div class="player-hp-text">${p.is_dead ? 'DEAD' : p.hp + '/' + p.hp_max}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateFeed(feed) {
+            if (!feed || feed.length === state.lastFeedLength) return;
+
+            const container = document.getElementById('combat-feed');
+            const typeClasses = {
+                strike: 'damage',
+                execute: 'damage',
+                heal: 'heal',
+                mechanic_start: 'mechanic',
+                mechanic_hit: 'damage',
+                win: 'win',
+                loss: 'loss'
+            };
+
+            container.innerHTML = feed.slice(-6).map(line => {
+                const cls = typeClasses[line.type] || '';
+                let text = line.message;
+                if (!text) {
+                    if (line.type === 'strike') text = `${line.actor_name} STRIKES for ${line.amount}`;
+                    else if (line.type === 'boss_attack') text = `Boss hits ${line.target_name} for ${line.amount}`;
+                    else text = `${line.type}: ${line.actor_name}`;
+                }
+                return `<div class="feed-line ${cls}">${text}</div>`;
+            }).join('');
+
+            state.lastFeedLength = feed.length;
+        }
+
+        function updateSelfState(self) {
+            // Strike button
+            const strikeBtn = document.getElementById('btn-strike');
+            if (self.is_dead) {
+                strikeBtn.disabled = true;
+                strikeBtn.innerHTML = '☠️ DEAD';
+            } else if (self.strike_cd > 0) {
+                strikeBtn.disabled = true;
+                strikeBtn.innerHTML = `⏱️ ${self.strike_cd.toFixed(1)}s`;
+            } else {
+                strikeBtn.disabled = false;
+                strikeBtn.innerHTML = '⚔️ STRIKE';
+            }
+
+            // Skills cooldown
+            const skill1Btn = document.getElementById('skill-1');
+            const skill2Btn = document.getElementById('skill-2');
+
+            skill1Btn.disabled = self.ability1_cd > 0 || self.is_dead;
+            document.getElementById('skill-1-cd').textContent = self.ability1_cd > 0
+                ? `${self.ability1_cd.toFixed(1)}s`
+                : 'Ready';
+
+            skill2Btn.disabled = self.ability2_cd > 0 || self.is_dead;
+            document.getElementById('skill-2-cd').textContent = self.ability2_cd > 0
+                ? `${self.ability2_cd.toFixed(1)}s`
+                : 'Ready';
+
+            // React button
+            const reactBtn = document.getElementById('btn-react');
+            const timerEl = document.getElementById('react-timer');
+
+            if (self.react) {
+                reactBtn.disabled = false;
+                reactBtn.classList.add('active');
+                reactBtn.querySelector('span').textContent = 'DODGE!';
+
+                // Update timer ring
+                const progress = (self.react.time_left / self.react.total_time) * 100;
+                const color = progress > 50 ? '#27ae60' : progress > 25 ? '#f39c12' : '#e74c3c';
+                timerEl.style.setProperty('--progress', progress + '%');
+                timerEl.style.background = `conic-gradient(${color} ${progress}%, transparent 0)`;
+            } else {
+                reactBtn.disabled = true;
+                reactBtn.classList.remove('active');
+                reactBtn.querySelector('span').textContent = '—';
+                timerEl.style.setProperty('--progress', '0%');
+            }
+        }
+
+        // ==================== ACTIONS ====================
+        async function doStrike() {
+            const result = await api('POST', '/dungeon/strike', {
+                instance_id: state.instanceId,
+                player_id: state.playerId
+            });
+
+            if (!result.success) {
+                console.log('Strike failed:', result.error);
+            }
+        }
+
+        async function doAbility(num) {
+            document.getElementById('skills-modal').classList.remove('show');
+
+            const result = await api('POST', '/dungeon/ability', {
+                instance_id: state.instanceId,
+                player_id: state.playerId,
+                ability_num: num
+            });
+
+            if (!result.success) {
+                console.log('Ability failed:', result.error);
+            }
+        }
+
+        async function doReact() {
+            const result = await api('POST', '/dungeon/react', {
+                instance_id: state.instanceId,
+                player_id: state.playerId
+            });
+
+            if (result.success) {
+                console.log('Dodged!', result.perfect ? 'PERFECT!' : '');
+            }
+        }
+
+        function toggleSkills() {
+            const modal = document.getElementById('skills-modal');
+            modal.classList.toggle('show');
+        }
+
+        // Close skills when clicking outside
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('skills-modal');
+            const btn = document.getElementById('btn-skills');
+            if (!modal.contains(e.target) && e.target !== btn) {
+                modal.classList.remove('show');
+            }
+        });
     </script>
 </body>
 
